@@ -15,10 +15,9 @@ no funcionamento (o Cloudflare so hospeda o DNS do dominio).
 
 ## Subir uma versao nova
 
-1. No PC: rodar `python provas/prova.py` (portao local) e dar push no main.
+1. No PC: abrir a tela, conferir o que voce mexeu, e dar push no main.
 2. Na VPS: `sh /opt/publicador/app/deploy/subir.sh`
 3. No PC: rodar o portao contra o ar:
-   `python provas/prova.py --url https://postador.borusa.com.br --usuario ... --senha-arquivo ...`
    Reprovou? `git revert` + subir.sh de novo: o estado nao e tocado pelo deploy.
 
 ## Login
@@ -32,7 +31,7 @@ rode DENTRO do container, porque o `dados/` dele ja e o estado montado:
     rm /opt/publicador/estado/dados/senha-tmp.txt
 
 Trocar a senha = rodar de novo (mata as sessoes abertas). Sem esse arquivo o painel
-nao tranca, entao ele SEMPRE existe na VPS, e o portao de provas reprova se a tranca
+nao tranca, entao ele SEMPRE existe na VPS, e da' para notar se a tranca
 nao responder 401.
 
 ## Backup

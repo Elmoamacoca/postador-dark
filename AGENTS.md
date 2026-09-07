@@ -13,15 +13,15 @@ A parte bruta (conexão com a Meta, publicação, agendamento) **já está feita
 - **Produção**: VPS em `postador.borusa.com.br`, código em `/opt/publicador`.
 - **Local**: `painel/servidor.py`, útil para desenvolvimento, mas **validação de token e de conexão com a Meta só vale feita na VPS**, onde estão o estado e as credenciais reais.
 
-## Como provar que funciona
+## Como conferir que funciona
 
-```
-python provas/prova.py
-```
+Abrir a tela e usar. Mexeu numa rota, chama a rota e mostra o que voltou; mexeu no
+layout, abre no navegador e olha. **Nenhuma mudança é considerada pronta sem isso
+mostrado na resposta.**
 
-Roda na raiz do repositório. A saída percorre rota por rota e tela por tela, e termina em `PASSA` ou aponta a falha. Prints ficam em `provas/saida/`.
+Bateria de provas e portão de publicação foram apagados em 07/09/2026, por ordem do
+Gabriel: eles travavam a publicação por minutos e não pegavam o que doía.
 
-**Nenhuma mudança é considerada pronta sem essa saída colada na resposta.** Se a prova reprovar, corrija e rode de novo.
 
 ## Estrutura
 
@@ -29,7 +29,6 @@ Roda na raiz do repositório. A saída percorre rota por rota e tela por tela, e
 | --- | --- |
 | `painel/` | O painel: `index.html`, `servidor.py`, `estilo/` em blocos numerados |
 | `publicador/` | Motor de publicação e integração com a Meta |
-| `provas/` | Bateria de provas e saídas |
 | `deploy/` | Ida para a VPS |
 | `.github/workflows/` | `agendar.yml`, `publicar.yml`, `vigia.yml` |
 | `dados/` | Estado local |

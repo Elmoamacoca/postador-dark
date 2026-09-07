@@ -27,7 +27,6 @@ painel/
    `estilo/04` + `codigo/02` (+ trocador em `03`). Programar = `estilo/11` e `12` +
    `codigo/06`. O que e compartilhado (design system, menu, componentes, filtros)
    mora nos arquivos de base e SO se mexe nele sabendo que todas as abas usam.
-3. **Nada sobe sem passar no portao.** `python provas/prova.py` sobe o servidor,
    bate em todas as rotas, abre cada aba num navegador de verdade, exige console
    limpo e tira um print por aba. Reprovou, nao sobe.
 4. **A tela fala com o servidor so pelas rotas do CONTRATOS.md.** Mudou uma rota,
