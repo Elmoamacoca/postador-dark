@@ -64,8 +64,16 @@
 /* Ranking e formato usam a MESMA receita: a `.rs-lista` da sala de controle, que
    e' como a casa ranqueia. A unica licenca e' a miniatura no lugar do logotipo,
    porque aqui o item e' um video e nao uma plataforma. */
+/* `color:inherit` NAO E' ENFEITE. O item do ranking e' um <button>, e o navegador
+   da' a ele a cor de texto de botao do sistema, que e' PRETA. Como `.rs-li .vl` nao
+   declara cor propria (ela herda), o numero saia preto sobre fundo preto no tema
+   escuro: foi o que ele fotografou. O titulo escapava porque `.nm b` declara
+   `var(--ink)`. Todo elemento de formulario usado como linha de lista precisa
+   herdar cor, e nao so' fonte. */
 .rs-li.an-l{grid-template-columns:34px 1fr auto;cursor:pointer;background:none;
-  border:0;padding:0;font:inherit;text-align:left;width:100%}
+  border:0;padding:0;font:inherit;color:inherit;text-align:left;width:100%}
+.rs-li .vl{color:var(--ink)}
+.rs-li .vl small{color:var(--soft)}
 .rs-li.an-l .lg{width:34px;height:44px;border-radius:8px;overflow:hidden;padding:0;
                 position:relative;background:var(--rs-trilho)}
 .rs-li.an-l .lg img{width:100%;height:100%;object-fit:cover;display:block}
