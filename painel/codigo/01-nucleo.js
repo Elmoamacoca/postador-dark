@@ -174,7 +174,7 @@
             /* Vazio na raiz do Drive quase nunca é "não tem nada": é que ninguém
                compartilhou pasta com o robô ainda. Dizer só "vazio" deixaria você sem
                saber o que fazer, então aqui vai o endereço dele. */
-            recado = 'nenhuma pasta foi compartilhada com o publicador ainda.<br>' +
+            recado = 'nenhuma pasta foi compartilhada com o postador ainda.<br>' +
                      'No Drive, abra a pasta mãe dos vídeos, clique em compartilhar e ' +
                      'coloque <b>' + seguro(robo) + '</b> como Leitor.';
           } else {

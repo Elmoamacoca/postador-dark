@@ -1,4 +1,4 @@
-# publicador-dark (Ferramenta 2, o Postador)
+# postador-dark (Ferramenta 2, o Postador)
 
 Leia antes de mexer em qualquer coisa.
 

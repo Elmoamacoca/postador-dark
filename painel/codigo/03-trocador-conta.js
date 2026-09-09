@@ -1,6 +1,6 @@
 // GERADO PELO CORTE DO ARQUIVO UNICO (fase 2). Ordem numerica e lei.
 /* O TROCADOR DE CONTA. A tela de la' abre uma conta por vez e le' qual no endereco da
-   pagina. Aqui nao ha' endereco: o publicador tem poucas contas e todas cabem numa
+   pagina. Aqui nao ha' endereco: o postador tem poucas contas e todas cabem numa
    linha de botoes, entao a escolha fica no cabecalho da aba.
 
    E ela so' acorda no primeiro clique em Analytics. Carregar retrato e miniatura de
@@ -49,7 +49,7 @@
       if (!contas.length){
         caixa.innerHTML = '';
         document.getElementById('pf-conteudo').innerHTML =
-          '<div class="gal-vazia">nenhuma conta ligada no publicador.</div>';
+          '<div class="gal-vazia">nenhuma conta ligada no postador.</div>';
         return;
       }
       caixa.innerHTML = contas.map(function(c){

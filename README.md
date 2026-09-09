@@ -1,4 +1,4 @@
-# Publicador Dark
+# Postador Dark
 
 Ferramenta 2 do sistema de paginas dark: agenda publicacoes no Instagram em volume,
 em varias contas, e monitora essas contas num painel.

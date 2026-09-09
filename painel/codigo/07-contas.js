@@ -376,11 +376,11 @@
        de distancia na mesma ficha. Mesmo numero dito duas vezes com nomes parecidos
        nao informa mais: so' faz duvidar de qual dos dois esta' certo. */
     return '<div class="ct-par"><span class="rot">' + ico('relogio','xs') +
-        'Saídas Pelo Publicador</span><b>' + (c.publicados
+        'Saídas Pelo Postador</span><b>' + (c.publicados
           ? c.publicados + (c.publicados === 1 ? ' publicação' : ' publicações')
           : 'Nenhuma ainda') + '</b></div>' +
       '<div class="ct-par"><span class="rot">' + ico('chave','xs') +
-        'No Publicador Desde</span><b>' + desde(c.ligada_em) + '</b></div>' +
+        'No Postador Desde</span><b>' + desde(c.ligada_em) + '</b></div>' +
       '<div class="ct-par"><span class="rot">' + ico('ig','xs') +
         'Tipo Da Conta</span><b>' + seguro(tipoDe(c.tipo)) + '</b></div>';
   }
@@ -488,7 +488,7 @@
             '/" target="_blank" rel="noopener" title="Abrir no Instagram">' +
             ico('ig') + '</a>' +
           '<button class="ct-ic" data-desligar="' + seguro(c.arroba) +
-            '" title="Desligar do publicador">' + ico('desligar') + '</button>' +
+            '" title="Desligar do postador">' + ico('desligar') + '</button>' +
         '</div></div></article>';
   }
 
@@ -769,7 +769,7 @@
   }
 
   /* -------------------------------------------- atualizar o cadastro da conta
-     O QUE ESTE BOTAO RESOLVE. Dentro do publicador a conta e' guardada pelo
+     O QUE ESTE BOTAO RESOLVE. Dentro do postador a conta e' guardada pelo
      arroba: a tira de 30 dias, o diario, o mercado, as etiquetas, a fila e o
      arquivo do retrato, todos tem o arroba como chave. E o arroba e' justamente o
      unico dado que a pessoa troca no Instagram quando quiser.
@@ -821,7 +821,7 @@
       passo(tArroba ? 'ok' : '', 'ig', 'Arroba',
         tArroba ? '@' + seguro(tArroba.de) + ' virou @' + seguro(tArroba.para) +
                   ' em todo o sistema'
-                : 'Continua o mesmo que o publicador já guardava',
+                : 'Continua o mesmo que o postador já guardava',
         '@' + seguro(res.arroba), tArroba ? 'ok' : '') +
       passo(tFoto ? 'ok' : '', 'retrato', 'Foto Do Perfil',
         tFoto ? 'A foto mudou no Instagram e a nova já está guardada aqui'
@@ -884,7 +884,7 @@
     });
   }
 
-  /* ------------------------------------------------- tirar a conta do publicador
+  /* ------------------------------------------------- tirar a conta do postador
      SAO DUAS SAIDAS, E ELAS NAO SAO A MESMA COISA. Desligar diz "não opere mais
      por aqui" e guarda o passado; remover diz "essa conta nunca esteve aqui".
      Antes existia só a primeira, num `confirm` do navegador, que era o único lugar
@@ -917,7 +917,7 @@
   }
   function janelaSaida(arroba){
     var c = achar(arroba) || {arroba: arroba};
-    abrirJanela(cabConta(c, 'Tirar Do Publicador'), corpoSaida(c),
+    abrirJanela(cabConta(c, 'Tirar Do Postador'), corpoSaida(c),
       '<span class="nota">Nenhuma das duas mexe na conta dentro do Instagram</span>' +
       '<span class="dir">' + botao('Cancelar', 'fechar', 'mini') + '</span>');
     /* o botão nasce travado e só destrava quando o arroba bate, letra por letra */
@@ -937,7 +937,7 @@
         seguro(res.erro));
     }
     var linhas = (res.apagado || []).filter(function(l){ return l.n > 0; });
-    return veredito('', 'check', '@' + seguro(res.arroba) + ' saiu do publicador',
+    return veredito('', 'check', '@' + seguro(res.arroba) + ' saiu do postador',
       'O acesso e o passado dela foram apagados desta máquina.') +
       (linhas.length
         ? '<div class="ct-lev"><b>' + ico('lixo', 'xs') + 'Apagado</b>' +
@@ -1016,7 +1016,7 @@
     } else if (etapa === 2){
       cab = cabSimples('chave', 'Ligar Conta', 'passo 2 de 3');
       corpo = etapaCorpo('colar', 'Cole O Token Aqui',
-        'O publicador pergunta à Meta de quem é este token e liga a conta certa. ' +
+        'O postador pergunta à Meta de quem é este token e liga a conta certa. ' +
         '<b>Você não digita o arroba</b>, para não existir conta trocada com token ' +
         'trocado.',
         '<textarea class="ct-token" id="ct-token" rows="4" spellcheck="false" ' +
@@ -1036,13 +1036,13 @@
             '</svg></span>' +
           '<h4>@' + seguro(c.arroba || '') + ' Está Ligada</h4>' +
           '<p>A Meta respondeu' + (c.ms != null ? ' em <b>' + c.ms + ' ms</b>' : '') +
-          ' e a conta já pode publicar pelo publicador.</p>' +
+          ' e a conta já pode publicar pelo postador.</p>' +
         '</div>' +
         '<div class="ct-et-linhas">' + corpoTeste(c, false, true) + '</div>' +
         '<div class="ct-et-jura">' +
           '<svg viewBox="0 0 24 24">' + IC.girar + '</svg>' +
           '<span><b>Você não liga esta conta de novo.</b> O acesso vale 60 dias, ' +
-          'e o publicador troca por um novo sozinho faltando 10, no relógio das ' +
+          'e o postador troca por um novo sozinho faltando 10, no relógio das ' +
           '7h07 e toda vez que esta aba é aberta. Token que não expira não existe ' +
           'nesta API: o que existe é essa troca.</span>' +
         '</div>';
@@ -1348,7 +1348,7 @@
           var alvo = document.getElementById('ct-aviso');
           if (recado.indexOf('ligada:') === 0){
             alvo.innerHTML = faixa('bom', '<b>@' + seguro(recado.slice(7)) +
-              ' foi ligada ao publicador.</b> O acesso vale 60 dias e se renova sozinho.',
+              ' foi ligada ao postador.</b> O acesso vale 60 dias e se renova sozinho.',
               '', '');
           } else {
             alvo.innerHTML = faixa('grave', '<b>Não deu para ligar a conta.</b> ' +

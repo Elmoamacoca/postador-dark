@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Publicador · Borusa</title>
+<title>Postador · Borusa</title>
 
 <link rel="icon" href="marca-clara.png" media="(prefers-color-scheme: light)">
 <link rel="icon" href="marca-escura.png" media="(prefers-color-scheme: dark)">
@@ -77,11 +77,11 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
 </svg>
 
 <!-- ================================================================ MENU -->
-<aside class="menu" aria-label="Menu do Publicador">
+<aside class="menu" aria-label="Menu do Postador">
   <div class="menu-marca">
     <img class="marca-clara" src="marca-clara.png" alt="">
     <img class="marca-escura" src="marca-escura.png" alt="">
-    <span class="menu-nome">Publicador</span>
+    <span class="menu-nome">Postador</span>
   </div>
 
   <button class="menu-botao" id="botao-menu" aria-expanded="false"
@@ -136,12 +136,13 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
       <span class="mi-rot">Ajuda</span>
     </button>
     <!-- CARIMBO DE VERSAO. Duas vezes o Gabriel abriu a tela e disse "esta igual" sem a
-         gente ter como saber se era cache do navegador ou mudanca pequena demais. O
-         numero sobe a cada entrega: se ele nao subiu na tela dele, e' cache, e nao ha o
-         que discutir sobre o desenho. -->
+         gente ter como saber se era cache do navegador ou mudanca pequena demais.
+         Desde 09/09 o carimbo conta O ESTAGIO DA V1, e nao o numero de entregas: a
+         esquerda o alvo (v1), a direita a aba que acabou de fechar e a data do ultimo
+         ajuste. Se a data nao mudou na tela dele, e' cache do navegador. -->
     <div class="pe-linha">
-      <span class="pp" style="font-weight:700;font-variant-numeric:tabular-nums">v65</span>
-      <span class="pe-rot">29/08 · no ar</span>
+      <span class="pp" style="font-weight:700;font-variant-numeric:tabular-nums">v1</span>
+      <span class="pe-rot">Contas fechada · 09/09</span>
     </div>
     <div class="pe-linha">
       <svg class="tema-icone" viewBox="0 0 24 24" id="tema-icone">
@@ -383,7 +384,7 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
     <div class="cab ct-topo">
       <div>
         <h1>Contas</h1>
-        <p class="p">O estado de cada conta ligada ao publicador, medido direto na Meta.</p>
+        <p class="p">O estado de cada conta ligada ao postador, medido direto na Meta.</p>
       </div>
       <div class="ct-dir">
         <span class="ct-vivo"><i class="ct-pulso"></i><span id="ct-relogio">vigiando</span></span>
@@ -500,7 +501,7 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
 <article class="doc" id="doc-visao">
   <div class="doc-cab"><h2>Visão geral</h2><span class="doc-estado"><i></i>em construção</span></div>
 
-<p class="abre">O publicador existe para uma coisa: programar reels em muitas contas do
+<p class="abre">O postador existe para uma coisa: programar reels em muitas contas do
 Instagram sem abrir o aplicativo, e sem subir vídeo a vídeo na mão.</p>
 
 <h3>As três peças, e o que cada uma faz</h3>
@@ -562,7 +563,7 @@ uma coluna por conta.</p>
 
 <h3>De onde vem cada número</h3>
 <ol>
-  <li><b>As contas</b> vêm da leitura da API do Instagram guardada no publicador: se está
+  <li><b>As contas</b> vêm da leitura da API do Instagram guardada no postador: se está
     ligada, se a conexão caiu e quantos erros deu nas últimas 24 horas.</li>
   <li><b>A linha dos dias</b> é gravada pelo próprio painel, um retrato por dia no
     livro-caixa. A API do Instagram não guarda passado, então quem guarda é a casa. Por
@@ -850,7 +851,7 @@ foi o dado, não o desenho.</p>
   tela: <b>a API do Instagram não sabe responder quantos seguidores você tinha semana
   passada</b>. Não existe esse pedido.</p>
   <p>Curva só nasce se o sistema tirar uma foto por dia e guardar. É o que o Social Tracker
-  faz. O publicador ainda não faz. No dia em que passar a fazer, esta mesma tela enche
+  faz. O postador ainda não faz. No dia em que passar a fazer, esta mesma tela enche
   sozinha.</p>
 </div>
 
@@ -863,7 +864,7 @@ serve para conta desse tamanho.</p>
 <article class="doc" id="doc-contas">
   <div class="doc-cab"><h2>Contas</h2><span class="doc-estado viva"><i></i>no ar</span></div>
 
-<p class="abre">Uma ficha por perfil ligado ao publicador. A tela responde uma pergunta
+<p class="abre">Uma ficha por perfil ligado ao postador. A tela responde uma pergunta
 só, e responde por três caminhos: <b>esta conta está de pé?</b></p>
 
 <h3>Por que não tem seguidores nem publicações aqui</h3>
@@ -883,7 +884,7 @@ operação.</p>
 </ol>
 
 <h3>O acesso vence em 60 dias, e se renova sozinho</h3>
-<p>O Instagram dá um acesso de <b>60 dias</b>. Faltando <b>10</b>, o publicador pede um
+<p>O Instagram dá um acesso de <b>60 dias</b>. Faltando <b>10</b>, o postador pede um
 novo sozinho e guarda quando renovou e quantas vezes. Faltando 14 ou menos, a tela avisa
 no alto.</p>
 <p>Quem faz isso é <code>painel/contas.py</code>, uma vez por dia às 4h07, e sempre que
@@ -917,7 +918,7 @@ pode perder o lugar a cada pergunta.</p>
       etiquetas, a fila de vídeos e o rascunho do lote. Sem ele, a conta amanheceria
       com nome novo e passado nenhum.</li>
   <li><b>Renovar</b> troca o acesso agora, sem esperar o prazo.</li>
-  <li><b>Tirar Do Publicador</b> abre as duas saídas, porque elas não são a mesma coisa.
+  <li><b>Tirar Do Postador</b> abre as duas saídas, porque elas não são a mesma coisa.
       <b>Desligar</b> apaga só o acesso desta máquina, e o diário, o histórico de 30 dias,
       o mercado e as etiquetas ficam guardados: religar a conta traz tudo de volta.
       <b>Remover</b> apaga tudo e não tem volta, por isso ele só destrava depois que você
@@ -931,7 +932,7 @@ pode perder o lugar a cada pergunta.</p>
   <li><b>Gere o token na Meta.</b> No aplicativo, em Instagram → Configuração da API com
       login do Instagram, o bloco <b>Gerar token de acesso</b> conecta a conta e entrega o
       token.</li>
-  <li><b>Cole aqui.</b> O publicador pergunta à Meta de quem é o token e liga a conta
+  <li><b>Cole aqui.</b> O postador pergunta à Meta de quem é o token e liga a conta
       certa. Você não digita o arroba.</li>
   <li><b>Pronto.</b> A tela mostra o que a Meta respondeu e a partir dali a renovação é
       automática.</li>
@@ -946,7 +947,7 @@ pela tela: este funciona sem depender de configuração nenhuma no painel da Met
   Meta é explícita sobre o token gerado no painel deles: <i>"Access tokens from the App
   Dashboard are long-lived and are valid for 60 days"</i>.</p>
   <p>O que faz a conta nunca cair não é um token especial, é a <b>troca automática</b>:
-  o publicador renova faltando 10 dias, todo dia às 7h07. Ferramenta que promete "conectado
+  o postador renova faltando 10 dias, todo dia às 7h07. Ferramenta que promete "conectado
   para sempre" está fazendo exatamente isso por baixo.</p>
   <p>O único acesso que de fato não expira é o de <b>Usuário de Sistema</b>, e ele exige
   Portfólio Empresarial e uma Página do Facebook ligada a cada conta. É mais trabalho na
