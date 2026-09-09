@@ -90,6 +90,14 @@
 
   function nomeFmt(p) { return p.fmt === 'reel' ? 'Reel' : 'Carrossel'; }
 
+  /* O mercado foi digitado por ele em caixa baixa na aba de Contas ("corte de
+     podcast"), e rotulo de tela nesta casa comeca em maiuscula. */
+  function maiuscula(s) {
+    return String(s || '').replace(/(^|\s)(\S)/g, function (x, a, b) {
+      return a + b.toUpperCase();
+    });
+  }
+
   /* --------------------------------------------------------------- recorte de tempo */
   function janela(conta, dias) {
     if (!dias) return conta.posts.slice();
@@ -349,7 +357,16 @@
       });
     }
 
-    this.dar = function (d) { dados = d; pintar(); };
+    /* A FORMA SEGUE O DADO, e nao o gosto. Alcance, visualizacao e interacao sao
+       EVENTO: acontecem no dia em que um post sai, e nos outros dias valem zero.
+       Ligados em linha viram uma serra de picos isolados, que foi o que ele chamou
+       de feio. Evento e' barra. Seguidor e' ESTOQUE, existe todo dia, e estoque e'
+       linha. */
+    this.dar = function (d, forma) {
+      dados = d;
+      if (forma) op.barras = forma === 'barras';
+      pintar();
+    };
     if (window.ResizeObserver) new ResizeObserver(pintar).observe(alvo);
     else window.addEventListener('resize', pintar);
   }
@@ -404,17 +421,28 @@
       cmp: mediana(conta.posts, 'cmp'), cur: mediana(conta.posts, 'cur'),
       com: mediana(conta.posts, 'com')
     };
-    function contra(v, m) {
-      if (!m) return '<span class="sp-cmp igual">sem base de comparação</span>';
-      var r = v / m;
-      var classe = r >= 1.15 ? 'sobe' : (r <= .85 ? 'desce' : 'igual');
-      var txt = r >= 1 ? r.toFixed(1).replace('.', ',') + 'x a mediana'
-        : Math.round((1 - r) * 100) + '% abaixo da mediana';
-      return '<span class="sp-cmp ' + classe + '">' + txt + '</span>';
-    }
-    function bloco(rot, valor, cmp) {
-      return '<div class="sp-num"><span>' + rot + '</span><b>' + valor + '</b>'
-        + (cmp || '') + '</div>';
+
+    /* CADA NUMERO E' UM CARTAO DA SALA DE CONTROLE, com a mesma marcacao do `Kpi`
+       do portal: rotulo pequeno, numero grande, e a pilula de variacao embaixo. A
+       comparacao com a mediana da propria conta entra NA PILULA, que e' onde a casa
+       poe variacao, em vez de virar um texto solto. */
+    function cartao(rot, valor, v, m) {
+      var pilula = '';
+      if (m) {
+        var r = v / m;
+        var cls = r >= 1.15 ? 'up' : (r <= .85 ? 'dw' : 'fl');
+        var seta = r >= 1.15 ? '<path d="M7 17 17 7M9 7h8v8"/>'
+          : r <= .85 ? '<path d="M7 7l10 10M17 9v8H9"/>' : '<path d="M5 12h14"/>';
+        var txt = r >= 1 ? r.toFixed(1).replace('.', ',') + 'x'
+          : '-' + Math.round((1 - r) * 100) + '%';
+        pilula = '<span class="rs-delta ' + cls + '">'
+          + '<svg class="rs-i xs" viewBox="0 0 24 24">' + seta + '</svg>' + txt
+          + '</span><span class="rs-delta-pe">contra a mediana</span>';
+      }
+      return '<div class="rs-cd rs-kpi sp-k">'
+        + '<span class="rs-rot2">' + rot + '</span>'
+        + '<div class="num rs-tn">' + valor + '</div>'
+        + '<div class="lin"><span>' + pilula + '</span></div></div>';
     }
 
     painel.querySelector('.sp').innerHTML =
@@ -427,53 +455,64 @@
       + (i === lista.length - 1 ? ' disabled' : '')
       + ' aria-label="Próxima publicação">'
       + '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>'
-      + '<span class="sp-pos">' + (i + 1) + ' de ' + lista.length + '</span>'
+      + '<span class="sp-pos rs-tn">' + (i + 1) + ' de ' + lista.length + '</span>'
       + '<button class="sp-ic sp-x" aria-label="Fechar">'
       + '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
       + '</div>'
-      + '<h3>' + escapar(post.legenda) + '</h3>'
-      + '<p>' + nomeFmt(post) + ' · ' + dataHora(post.quando) + ' · @'
+      + '<div class="sp-topo">'
+      + '<span class="sp-mini"><img src="' + capa(post.capa) + '" alt="">'
+      + (post.fmt === 'reel'
+        ? '<i><svg viewBox="0 0 24 24" fill="#fff"><path d="m9 7 8 5-8 5V7Z"/></svg></i>'
+        : '<i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4">'
+          + '<rect x="4" y="4" width="11" height="11" rx="2"/>'
+          + '<path d="M19 8v9a2 2 0 0 1-2 2H8"/></svg></i>') + '</span>'
+      + '<div class="sp-tit"><h3>' + escapar(post.legenda) + '</h3>'
+      + '<p class="rs-rot3">' + nomeFmt(post) + ' · ' + dataHora(post.quando) + ' · @'
       + escapar(conta.u) + (post.exemplo
-        ? ' · <span class="an-selo-ex">Exemplo</span>' : '') + '</p>'
+        ? ' · <span class="an-selo-ex">Exemplo</span>' : '') + '</p></div>'
+      + '</div>'
       + '</header>'
       + '<div class="sp-corpo">'
-      + '<div class="sp-capa">'
-      + '<img src="' + capa(post.capa) + '" alt="">'
-      + selo(post)
-      + '<span class="sp-eng"><b>' + pct(post.eng) + '</b>'
-      + '<span>Engajamento Sobre Alcance</span></span>'
-      + '</div>'
       + '<div class="sp-grade">'
-      + bloco('Alcance', n(post.alc), contra(post.alc, med.alc))
-      + bloco('Visualizações', n(post.vis), contra(post.vis, med.vis))
+      + cartao('Alcance', n(post.alc), post.alc, med.alc)
+      + cartao('Visualizações', n(post.vis), post.vis, med.vis)
       + '</div>'
-      + '<div class="sp-tit">Como A Audiência Reagiu</div>'
+      + '<div class="sp-secao rs-rot2">Como A Audiência Reagiu</div>'
       + '<div class="sp-grade">'
-      + bloco('Curtidas', n(post.cur), contra(post.cur, med.cur))
-      + bloco('Comentários', n(post.com), contra(post.com, med.com))
-      + bloco('Salvamentos', n(post.sal), contra(post.sal, med.sal))
-      + bloco('Compartilhamentos', n(post.cmp), contra(post.cmp, med.cmp))
+      + cartao('Curtidas', n(post.cur), post.cur, med.cur)
+      + cartao('Comentários', n(post.com), post.com, med.com)
+      + cartao('Salvamentos', n(post.sal), post.sal, med.sal)
+      + cartao('Compartilhamentos', n(post.cmp), post.cmp, med.cmp)
       + '</div>'
       + (post.fmt === 'reel'
-        ? '<div class="sp-tit">Quanto Do Vídeo Foi Assistido</div>'
-          + '<div class="sp-ret"><div class="sp-ret-barra"><i style="width:'
-          + Math.min(post.ret, 100) + '%"></i></div>'
-          + '<div class="sp-ret-pe"><b>' + seg(post.medio) + '</b> de <b>'
-          + seg(post.dur) + '</b>, ou seja <b>' + pct(post.ret)
-          + '</b> do vídeo</div></div>'
+        ? '<div class="sp-secao rs-rot2">Quanto Do Vídeo Foi Assistido</div>'
+          + '<div class="rs-cd sp-ret">'
+          + '<div class="sp-ret-topo"><b class="rs-tn">' + pct(post.ret) + '</b>'
+          + '<span class="rs-rot3">' + seg(post.medio) + ' de ' + seg(post.dur)
+          + '</span></div>'
+          + '<div class="sp-ret-barra"><i style="width:' + Math.min(post.ret, 100)
+          + '%"></i></div></div>'
         : '')
-      + '<div class="sp-tit">O Que Isto Rendeu</div>'
+      + '<div class="sp-secao rs-rot2">O Que Isto Rendeu</div>'
       + '<div class="sp-grade">'
-      + bloco('Interações', n(post.inter), contra(post.inter, med.inter))
-      + bloco('Seguidores Ganhos', n(post.seg), '')
+      + cartao('Interações', n(post.inter), post.inter, med.inter)
+      + cartao('Seguidores Ganhos', n(post.seg), post.seg, 0)
       + '</div>'
+      + '<div class="sp-eng-l"><span class="rs-rot3">Engajamento sobre alcance</span>'
+      + '<b class="rs-tn">' + pct(post.eng) + '</b></div>'
       + '</div>';
 
     painel.querySelector('.sp-x').addEventListener('click', fecharPainel);
     painel.querySelectorAll('[data-andar]').forEach(function (b) {
       b.addEventListener('click', function () { andarAtual(+b.dataset.andar); });
     });
-    painel.querySelector('.sp-corpo').scrollTop = 0;
+    /* A TROCA DE PUBLICACAO TAMBEM ANIMA. Sem isto, andar de post so' troca o texto
+       e a tela parece travada: ele cobrou "animacao de entrada" no clique. */
+    var corpo = painel.querySelector('.sp-corpo');
+    corpo.scrollTop = 0;
+    corpo.classList.remove('entra');
+    void corpo.offsetHeight;
+    corpo.classList.add('entra');
   }
 
   /* O selo de formato mora sobre a capa em toda peca que mostra publicacao: sem
@@ -543,7 +582,8 @@
           + escapar(c.u) + '" data-i="' + i + '">'
           + retrato(c, 'cb-av peq')
           + '<span class="cb-txt"><b>@' + escapar(c.u) + '</b>'
-          + '<small>' + n(c.seguidores) + ' seguidores · ' + escapar(c.mercado)
+          + '<small>' + n(c.seguidores) + ' seguidores'
+          + (c.mercado ? ' · ' + escapar(maiuscula(c.mercado)) : '')
           + '</small></span>'
           + (c.u === atual.u ? '<svg class="cb-ok" viewBox="0 0 24 24">'
             + '<path d="M20 6 9 17l-5-5"/></svg>' : '') + '</button>';
@@ -633,6 +673,7 @@
   window.AN = {
     D: D, n: n, curto: curto, pct: pct, seg: seg, dia: dia, dataHora: dataHora,
     idade: idade, capa: capa, escapar: escapar, nomeFmt: nomeFmt, selo: selo,
+    maiuscula: maiuscula,
     janela: janela, soma: soma, mediana: mediana, resumo: resumo, serie: serie,
     Grafico: Grafico, minicurva: minicurva, abrirJanela: abrirPainel,
     abrirPainel: abrirPainel, fecharPainel: fecharPainel, trocador: trocador,

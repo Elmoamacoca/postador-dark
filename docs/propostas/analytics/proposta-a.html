@@ -61,47 +61,23 @@
 .gr{height:250px}
 .gr .gr-svg{height:100%}
 
-/* Ranking com capa: a lista da sala, com a miniatura no lugar do logotipo. */
-.an-rank{display:flex;flex-direction:column;gap:14px}
-.an-rk{display:grid;grid-template-columns:44px 1fr auto;gap:11px;align-items:center;
-       cursor:pointer;background:none;border:0;padding:0;font:inherit;text-align:left;
-       width:100%}
-.an-rk .cp{position:relative;width:44px;height:56px;border-radius:9px;overflow:hidden;
-  background:var(--rs-trilho);border:1px solid var(--rule-solid)}
-.an-rk .cp img{width:100%;height:100%;object-fit:cover;display:block}
-.an-rk .cp i{position:absolute;right:3px;bottom:3px;width:15px;height:15px;
-  border-radius:5px;background:rgba(14,14,14,.68);display:grid;place-items:center}
-.an-rk .cp i svg{width:9px;height:9px}
-.an-rk .nm{min-width:0}
-.an-rk .nm b{display:block;font-size:13px;font-weight:700;line-height:1.35;
-  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;
-  -webkit-box-orient:vertical}
-.an-rk .nm span{display:block;margin-top:3px;font-size:11.5px;font-weight:600;
-                color:var(--soft)}
-.an-rk .vl{text-align:right}
-.an-rk .vl b{display:block;font-size:var(--rs-n3);font-weight:800;letter-spacing:-.03em;
-             line-height:1.1;font-variant-numeric:tabular-nums}
-.an-rk .vl small{display:block;margin-top:3px;font-size:11px;font-weight:700;
-                 color:var(--soft)}
-.an-rk .tr{grid-column:1/-1;height:7px;background:var(--rs-trilho);border-radius:99px;
-           overflow:hidden}
-.an-rk .tr i{display:block;height:100%;border-radius:99px;
-  transition:width .55s cubic-bezier(.22,1,.36,1)}
-.an-rk:hover .nm b{color:var(--link)}
-
-/* Formato: duas linhas com barra, mesma receita da lista. */
-.an-fmt{display:flex;flex-direction:column;gap:15px}
-.an-fl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline}
-.an-fl .nm b{font-size:13px;font-weight:700}
-.an-fl .nm span{font-size:11.5px;font-weight:600;color:var(--soft);margin-left:7px}
-.an-fl .vl{font-size:var(--rs-n3);font-weight:800;letter-spacing:-.03em;
-           font-variant-numeric:tabular-nums}
-.an-fl .tr{grid-column:1/-1;height:7px;background:var(--rs-trilho);border-radius:99px;
-           overflow:hidden}
-.an-fl .tr i{display:block;height:100%;border-radius:99px}
-.an-fmt-pe{margin-top:4px;padding-top:14px;border-top:1px solid var(--rule-solid);
-           font-size:12.5px;color:var(--muted);line-height:1.5}
-.an-fmt-pe b{color:var(--ink);font-weight:700}
+/* Ranking e formato usam a MESMA receita: a `.rs-lista` da sala de controle, que
+   e' como a casa ranqueia. A unica licenca e' a miniatura no lugar do logotipo,
+   porque aqui o item e' um video e nao uma plataforma. */
+.rs-li.an-l{grid-template-columns:34px 1fr auto;cursor:pointer;background:none;
+  border:0;padding:0;font:inherit;text-align:left;width:100%}
+.rs-li.an-l .lg{width:34px;height:44px;border-radius:8px;overflow:hidden;padding:0;
+                position:relative;background:var(--rs-trilho)}
+.rs-li.an-l .lg img{width:100%;height:100%;object-fit:cover;display:block}
+.rs-li.an-l .lg i{position:absolute;right:2px;bottom:2px;width:13px;height:13px;
+  border-radius:4px;background:rgba(14,14,14,.7);display:grid;place-items:center}
+.rs-li.an-l .lg i svg{width:8px;height:8px}
+.rs-li.an-l:hover .nm b{color:var(--link)}
+.rs-li .nm b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;
+             -webkit-box-orient:vertical;overflow:hidden}
+.an-pe{margin-top:15px;padding-top:14px;border-top:1px solid var(--rule-solid);
+       font-size:12.5px;color:var(--muted);line-height:1.5}
+.an-pe b{color:var(--ink);font-weight:700}
 
 /* --------------------------------------------------------------- a tabela */
 .busca{position:relative}
@@ -123,8 +99,26 @@
   color-mix(in srgb,var(--paper-2) 96%,var(--branco))}
 .tab td.n{font-size:14.5px;font-weight:600}
 .tab .destaque{font-weight:800;font-size:15px}
-.btn.linha{height:31px;padding:0 14px;font-size:12.5px;--desl:7px}
-.btn.linha .seta{width:12px;height:12px}
+/* O BOTAO DE ABRIR. O animado da casa e' bonito em tamanho grande e vira uma
+   bagunca em 31 pixels de altura, com o circulo e as duas setas disputando o mesmo
+   espaco: foi o que ele chamou de bugado. Aqui o gesto e' outro, mais simples e do
+   mesmo idioma: a pilula se preenche de verde da esquerda para a direita e o icone
+   escorrega. Icone OU seta, nunca os dois. */
+.an-bt{display:inline-flex;align-items:center;gap:7px;height:31px;padding:0 13px;
+  border-radius:99px;border:1px solid var(--rule-solid);background:var(--branco);
+  color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;
+  white-space:nowrap;position:relative;overflow:hidden;
+  transition:color .22s,border-color .22s,transform .1s}
+.an-bt span{position:relative;z-index:1}
+.an-bt svg{position:relative;z-index:1;width:14px;height:14px;fill:none;
+  stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1)}
+.an-bt::before{content:"";position:absolute;inset:0;background:var(--accent);
+  transform:translateX(-101%);transition:transform .28s cubic-bezier(.22,1,.36,1)}
+.an-bt:hover{color:#fff;border-color:var(--accent)}
+.an-bt:hover::before{transform:none}
+.an-bt:hover svg{transform:translateX(2px)}
+.an-bt:active{transform:scale(.96)}
 .vazio{padding:38px 20px;text-align:center;color:var(--soft);font-size:13.5px}
 
 /* A previa ao passar o mouse. */
@@ -362,24 +356,34 @@
     reto: '<path d="M5 12h14"/>'
   };
 
+  /* "corte de podcast" foi digitado em caixa baixa na aba de Contas, e a casa
+     escreve rotulo de tela com inicial maiuscula. */
+  function maiuscula(s) {
+    return String(s).replace(/(^|\s)(\S)/g, function (x, a, b) {
+      return a + b.toUpperCase();
+    });
+  }
+
   function pintarPerfil() {
     document.getElementById('pf-av').innerHTML = conta.avatar
       ? '<img src="' + conta.avatar + '" alt="">' : '';
-    document.getElementById('pf-nome').textContent = conta.nome;
+    /* O NOME E' O ARROBA. A Meta nao devolve nome de exibicao para estas contas, e
+       inventar um ("Borusa Digital") foi exatamente o que ele cobrou. O MERCADO vem
+       do que ele mesmo digitou na aba de Contas; conta sem mercado nao ganha rotulo
+       inventado, ganha o aviso de que falta preencher. */
+    document.getElementById('pf-nome').textContent = '@' + conta.u;
     document.getElementById('pf-sub').innerHTML =
-      '<span class="rs-rot3">@' + A.escapar(conta.u) + '</span>'
+      '<span class="pino ok">Conectada</span><span class="sep"></span>'
+      + (conta.mercado
+        ? '<span class="rs-rot3">' + A.escapar(maiuscula(conta.mercado)) + '</span>'
+        : '<span class="rs-rot3" style="opacity:.7">Sem mercado definido</span>')
       + '<span class="sep"></span>'
-      + '<span class="rs-rot3">' + A.escapar(conta.mercado) + '</span>'
-      + '<span class="sep"></span><span class="pino ok">Conectada</span>'
-      + '<span class="sep"></span>'
-      + '<span class="rs-rot3">No Postador desde ' + A.dia(conta.desde) + '</span>';
+      + '<span class="rs-rot3">Ligada em ' + A.dia(conta.desde) + '</span>';
     document.getElementById('pf-num').innerHTML =
       '<div><b class="rs-tn">' + A.n(conta.seguidores) + '</b>'
       + '<span class="rs-rot1">Seguidores</span></div>'
       + '<div><b class="rs-tn">' + A.n(conta.posts.length) + '</b>'
-      + '<span class="rs-rot1">Publicações</span></div>'
-      + '<div><b class="rs-tn">' + conta.dias + '</b>'
-      + '<span class="rs-rot1">Dias De Acesso</span></div>';
+      + '<span class="rs-rot1">Publicações</span></div>';
   }
 
   /* -------------------------------------------------- os cartoes de numero
@@ -415,12 +419,14 @@
         + '<span class="rs-rot2">' + k.rot + '</span></div>'
         + '<div class="num rs-tn">' + k.v + '</div>'
         + '<div class="lin"><span>' + delta
-        + '<span class="rs-delta-pe">' + k.pe + '</span></span>'
-        + A.minicurva(k.s, 92, 30, k.cor) + '</div></div>';
+        + '<span class="rs-delta-pe">' + k.pe + '</span></span></div></div>';
     }).join('');
   }
 
-  function pintarGrafico() { grafico.dar(A.serie(conta, dias || 90, metrica)); }
+  function pintarGrafico() {
+    grafico.dar(A.serie(conta, dias || 90, metrica),
+      metrica === 'seg-total' ? 'linha' : 'barras');
+  }
 
   /* ------------------------------------------------------ ranking com barra */
   function marcaFmt(p) {
@@ -433,27 +439,29 @@
 
   function pintarTops() {
     var lista = A.janela(conta, dias).slice()
-      .sort(function (a, b) { return b.alc - a.alc; }).slice(0, 4);
+      .sort(function (a, b) { return b.alc - a.alc; }).slice(0, 5);
     var alvo = document.getElementById('tops');
     if (!lista.length) {
       alvo.innerHTML = '<p class="rs-sem">Nada saiu no período.</p>';
       return;
     }
-    var max = Math.max.apply(null, lista.map(function (p) { return p.alc; }).concat([1]));
-    var cores = ['var(--rs-1)', 'var(--rs-2)', 'var(--rs-3)', 'var(--rs-4)'];
-    alvo.innerHTML = lista.map(function (p, i) {
-      return '<button class="an-rk" data-sc="' + p.sc + '">'
-        + '<span class="cp"><img src="' + A.capa(p.capa) + '" alt="">'
+    var max = Math.max.apply(null, lista.map(function (p) { return p.alc; })
+      .concat([1]));
+    var total = A.soma(A.janela(conta, dias), 'alc') || 1;
+    alvo.innerHTML = '<div class="rs-lista">' + lista.map(function (p) {
+      return '<button class="rs-li an-l" data-sc="' + p.sc + '">'
+        + '<span class="lg"><img src="' + A.capa(p.capa) + '" alt="">'
         + marcaFmt(p) + '</span>'
         + '<span class="nm"><b>' + A.escapar(p.legenda) + '</b>'
-        + '<span>' + A.nomeFmt(p) + ' · ' + A.idade(p.quando) + '</span></span>'
-        + '<span class="vl"><b class="rs-tn">' + A.n(p.alc) + '</b>'
-        + '<small>' + A.pct(p.eng) + ' eng.</small></span>'
-        + '<span class="tr"><i style="width:' + (p.alc / max * 100).toFixed(1) + '%;'
-        + 'background:' + cores[i % cores.length] + '"></i></span>'
+        + A.nomeFmt(p) + ' · ' + A.idade(p.quando) + '</span>'
+        + '<span class="vl rs-tn">' + A.n(p.alc)
+        + '<small>' + A.pct(p.alc / total * 100) + ' do período</small></span>'
+        + '<span class="rs-li-tr"><i style="width:'
+        + (p.alc / max * 100).toFixed(1) + '%;background:linear-gradient(90deg,'
+        + 'color-mix(in srgb,var(--rs-1) 45%,transparent),var(--rs-1))"></i></span>'
         + '</button>';
-    }).join('');
-    alvo.querySelectorAll('.an-rk').forEach(function (b) {
+    }).join('') + '</div>';
+    alvo.querySelectorAll('.an-l').forEach(function (b) {
       b.addEventListener('click', function () { abrir(b.dataset.sc); });
       ligarPrevia(b, achar(b.dataset.sc));
     });
@@ -462,30 +470,34 @@
   /* ------------------------------------------------------------- formatos */
   function pintarFormatos() {
     var lista = A.janela(conta, dias);
+    var alvo = document.getElementById('fmt');
+    if (!lista.length) {
+      alvo.innerHTML = '<p class="rs-sem">Nada saiu no período.</p>';
+      return;
+    }
     var reels = lista.filter(function (p) { return p.fmt === 'reel'; });
     var carr = lista.filter(function (p) { return p.fmt !== 'reel'; });
     function medio(l) { return l.length ? Math.round(A.soma(l, 'alc') / l.length) : 0; }
     var maior = Math.max(medio(reels), medio(carr), 1);
-    function linha(nome, l, cor) {
+    function item(nome, l, cor) {
       var m = medio(l);
-      return '<div class="an-fl"><span class="nm"><b>' + nome + '</b>'
-        + '<span>' + l.length + (l.length === 1 ? ' publicação' : ' publicações')
-        + '</span></span>'
-        + '<span class="vl rs-tn">' + A.n(m) + '</span>'
-        + '<span class="tr"><i style="width:' + (m / maior * 100).toFixed(1) + '%;'
-        + 'background:' + cor + '"></i></span></div>';
+      return '<div class="rs-li semi">'
+        + '<span class="nm"><b>' + nome + '</b>' + l.length
+        + (l.length === 1 ? ' publicação' : ' publicações') + '</span>'
+        + '<span class="vl rs-tn">' + A.n(m) + '<small>alcance médio</small></span>'
+        + '<span class="rs-li-tr"><i style="width:' + (m / maior * 100).toFixed(1)
+        + '%;background:linear-gradient(90deg,color-mix(in srgb,' + cor
+        + ' 45%,transparent),' + cor + ')"></i></span></div>';
     }
-    var alvo = document.getElementById('fmt');
-    if (!lista.length) { alvo.innerHTML = '<p class="rs-sem">Nada saiu no período.</p>'; return; }
     var venc = medio(reels) >= medio(carr) ? 'Reel' : 'Carrossel';
     var quanto = Math.max(medio(reels), medio(carr))
       / Math.max(Math.min(medio(reels), medio(carr)), 1);
-    alvo.innerHTML = '<div class="an-fmt">'
-      + linha('Reel', reels, 'var(--rs-1)')
-      + linha('Carrossel', carr, 'var(--rs-2)')
-      + '</div><div class="an-fmt-pe">Alcance médio por publicação. No período, <b>'
-      + venc + '</b> entrega <b>' + quanto.toFixed(1).replace('.', ',')
-      + 'x</b> mais alcance nesta conta.</div>';
+    alvo.innerHTML = '<div class="rs-lista">'
+      + item('Reel', reels, 'var(--rs-1)')
+      + item('Carrossel', carr, 'var(--rs-2)')
+      + '</div><div class="an-pe">No período, <b>' + venc + '</b> entrega <b>'
+      + quanto.toFixed(1).replace('.', ',') + 'x</b> mais alcance por publicação '
+      + 'nesta conta.</div>';
   }
 
   /* --------------------------------------------------------------- previa */
@@ -601,10 +613,10 @@
         + '<td class="n rs-tn">' + A.n(p.vis) + '</td>'
         + '<td class="n rs-tn">' + A.pct(p.eng) + '</td>'
         + '<td class="n rs-tn">' + A.n(p.sal) + '</td>'
-        + '<td class="n"><button class="btn linha" data-sc="' + p.sc + '">'
-        + '<svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>'
-        + '<span class="txt">Abrir</span><span class="circ"></span>'
-        + '<svg class="seta seta-dir" viewBox="0 0 24 24"><use href="#i-seta"/></svg>'
+        + '<td class="n"><button class="an-bt" data-sc="' + p.sc + '">'
+        + '<span>Abrir</span>'
+        + '<svg viewBox="0 0 24 24"><path d="M15 4h5v5"/><path d="M20 4 13 11"/>'
+        + '<path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/></svg>'
         + '</button></td></tr>';
     }).join('') : '<tr><td colspan="7"><div class="vazio">Nenhuma publicação com '
       + 'esses filtros.</div></td></tr>';
@@ -628,7 +640,7 @@
     document.querySelectorAll('#paginas .an-pg').forEach(function (x) {
       x.addEventListener('click', function () { pagina = +x.dataset.p; pintarTabela(); });
     });
-    document.querySelectorAll('#linhas .btn.linha').forEach(function (x) {
+    document.querySelectorAll('#linhas .an-bt').forEach(function (x) {
       x.addEventListener('click', function (e) {
         e.stopPropagation(); abrir(x.dataset.sc);
       });

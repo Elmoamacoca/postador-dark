@@ -39,18 +39,15 @@ PORTAL = pathlib.Path.home() / 'repos' / 'borusa-iscas'
 ORDEM = ['01-base.css', '02-menu.css', '03-componentes.css', '08-filtros.css',
          '10-painel.css', '11-programar.css', '13-contas.css']
 
-# Medido na rota `contas/estado` do painel no ar, em 09/09/2026.
-CONTAS = [
-    {"u": "borusaof", "nome": "Borusa Digital", "igId": "17841438934092410",
-     "mercado": "Corte De Podcast", "seguidores": 3, "publicacoes": 7,
-     "desde": "2026-08-17", "dias": 34, "tipo": "Criador De Mídia"},
-    {"u": "macrofoco.br", "nome": "Macro Foco", "igId": "17841455201219116",
-     "mercado": "Notícia", "seguidores": 118, "publicacoes": 24,
-     "desde": "2026-08-17", "dias": 49, "tipo": "Criador De Mídia"},
-    {"u": "perdeunovar", "nome": "Perdeu No Var", "igId": "17841455211390963",
-     "mercado": "Futebol", "seguidores": 402, "publicacoes": 31,
-     "desde": "2026-08-29", "dias": 49, "tipo": "Criador De Mídia"},
-]
+# AS CONTAS VEM DO PAINEL NO AR, e nao daqui. O `contas-reais.json` e' gerado com
+# uma leitura logada de `contas/estado` e `contas/meta`, e traz retrato, nome,
+# identificador e o MERCADO QUE ELE MESMO DIGITOU na aba de Contas. Na primeira
+# rodada eu inventei "Futebol" para a @perdeunovar e ele perguntou de onde tinha
+# saido: nao tinha saido de lugar nenhum. Conta sem mercado agora aparece sem
+# mercado.
+REAIS = SAIDA / 'contas-reais.json'
+# So' o numero de seguidores segue sendo EXEMPLO: ninguem coleta esse pulso hoje.
+SEGUIDORES = {"borusaof": 3, "macrofoco.br": 118, "perdeunovar": 402}
 
 LEGENDAS = [
     "O corte que ninguém esperava dessa conversa",
@@ -76,14 +73,17 @@ def main():
     (SAIDA / 'painel.css').write_text('\n'.join(pedacos), encoding='utf-8')
 
     d = json.loads((RAIZ / 'painel' / 'analytics.json').read_text(encoding='utf-8'))
-    retrato = {p['u']: p.get('avatar', '') for p in d.get('perfis', [])}
     capas = [m.get('mini', '') for m in (d.get('previas') or {}).get('borusaof', [])
              if m.get('mini')]
     reais = (d.get('fundo') or {}).get('borusaof', {}).get('posts', [])
 
+    fichas = json.loads(REAIS.read_text(encoding='utf-8'))
     contas = []
-    for c in CONTAS:
-        c = dict(c, avatar=retrato.get(c['u'], retrato.get('borusaof', '')))
+    for u, r in fichas.items():
+        c = {"u": u, "nome": r['nome'], "igId": r['ig_user_id'],
+             "mercado": r.get('mercado') or '', "etiquetas": r.get('etiquetas') or [],
+             "seguidores": SEGUIDORES.get(u, 0), "desde": r['ligada_em'],
+             "dias": r['dias'], "avatar": r['avatar']}
         c['posts'] = posts_da_conta(c, reais, capas)
         c['curva'] = curva(c)
         contas.append(c)
