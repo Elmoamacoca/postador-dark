@@ -61,26 +61,6 @@
   });
 
 
-/* -------------------------------------------------------- troca de página na Ajuda
-   Mesma mecânica do menu lateral, em escala menor: um botão acende, um artigo aparece.
-   A primeira página fica aberta, para a aba nunca abrir vazia. */
-(function(){
-  var indice = document.getElementById('ajuda-indice');
-  if (!indice) return;
-  indice.addEventListener('click', function(e){
-    var b = e.target.closest('[data-doc]');
-    if (!b) return;
-    indice.querySelectorAll('[data-doc]').forEach(function(x){
-      x.classList.toggle('ativo', x === b);
-    });
-    document.querySelectorAll('#ajuda-corpo .doc').forEach(function(d){
-      d.classList.toggle('ativo', d.id === 'doc-' + b.dataset.doc);
-    });
-    scrollTo({ top:0, behavior:'instant' });
-  });
-  document.querySelector('#doc-visao').classList.add('ativo');
-})();
-
 
   /* ------------------------------------------------------------------ Mídia
      A tela só conversa com o servidor por quatro perguntas: onde estou, o que já está
