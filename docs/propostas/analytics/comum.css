@@ -1,115 +1,193 @@
 /* ============================================================================
-   O DESENHO QUE AS TRES PROPOSTAS COMPARTILHAM.
+   O DESENHO QUE AS PROPOSTAS COMPARTILHAM.
 
    Nada aqui inventa cor, raio ou fonte: tudo sai das variaveis do `01-base.css`.
    O que entra e' o que a base ainda nao tinha, porque nenhuma tela do Postador
-   tinha grafico de linha proprio nem janela de metrica.
+   tinha grafico de linha proprio, combobox com busca nem painel lateral.
+
+   TEMA ESCURO. Na primeira rodada ele abriu o tema escuro e disse "todo bugado".
+   A causa era cor chumbada: sombra e veu escritos em `rgba(14,14,14,...)` somem
+   sobre fundo preto, e branco puro estoura. Agora sombra, veu e vidro sao
+   VARIAVEIS, trocadas junto com o tema. Nenhuma cor fixa fora de cima de imagem.
    ========================================================================== */
+:root{
+  --an-sombra:0 14px 30px rgba(14,14,14,.13);
+  --an-sombra-forte:0 26px 60px rgba(14,14,14,.22);
+  --an-veu:rgba(14,14,14,.30);
+  --an-hover:color-mix(in srgb,var(--paper-2) 60%,transparent);
+}
+:root[data-theme="dark"]{
+  --an-sombra:0 14px 30px rgba(0,0,0,.5);
+  --an-sombra-forte:0 26px 60px rgba(0,0,0,.62);
+  --an-veu:rgba(0,0,0,.58);
+  --an-hover:color-mix(in srgb,var(--paper-2) 70%,transparent);
+}
 
 /* ------------------------------------------------------------------- grafico */
 .gr{position:relative;width:100%}
 .gr-svg{display:block;width:100%;overflow:visible}
-.gr-regua{stroke:var(--rule-solid);stroke-width:1}
+.gr-regua{stroke:var(--rule-solid);stroke-width:1;stroke-dasharray:3 5}
+.gr-regua.gr-base{stroke-dasharray:none}
 .gr-rot{font-size:10.5px;font-weight:700;fill:var(--soft);
-        font-variant-numeric:tabular-nums}
+        font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .gr-rot-y{text-anchor:end}
 .gr-rot-x{text-anchor:middle}
 .gr-area{fill:url(#gr-tinta)}
-.gr-linha{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round;
+.gr-linha{fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linejoin:round;
           stroke-linecap:round}
-.gr-pt{fill:var(--branco);stroke:var(--accent);stroke-width:2;opacity:0;
-       transition:opacity .12s}
-.gr-pt.on{opacity:1}
-.gr-barra{fill:color-mix(in srgb,var(--accent) 34%,transparent);transition:fill .12s}
+.gr-pt{fill:var(--branco);stroke:var(--accent);stroke-width:2.6;
+       filter:drop-shadow(0 2px 4px rgba(0,0,0,.18))}
+.gr-barra{fill:color-mix(in srgb,var(--accent) 30%,transparent);transition:fill .14s}
 .gr-barra.on{fill:var(--accent)}
+.gr-guia{position:absolute;width:1px;background:var(--rule-solid);opacity:0;
+         pointer-events:none;transition:opacity .12s}
+.gr-guia.on{opacity:1}
 .gr-balao{position:absolute;transform:translate(-50%,-100%);pointer-events:none;
-  background:var(--ink);color:var(--paper);border-radius:10px;padding:7px 11px;
+  background:var(--ink);color:var(--paper);border-radius:11px;padding:8px 12px;
   opacity:0;transition:opacity .14s;z-index:5;white-space:nowrap;
-  box-shadow:var(--sombra-balao)}
+  box-shadow:var(--an-sombra)}
 .gr-balao.on{opacity:1}
-.gr-balao b{display:block;font-size:15px;font-weight:800;
+.gr-balao b{display:block;font-size:15.5px;font-weight:800;
             font-variant-numeric:tabular-nums;line-height:1.2}
-.gr-balao span{font-size:11px;opacity:.72}
+.gr-balao span{font-size:11px;opacity:.7}
 
-/* ------------------------------------------------------- trocador de conta
+/* --------------------------------------------------------------- a minicurva */
+.spark{display:block;width:100%;height:100%}
+.spark-linha{fill:none;stroke:var(--accent);stroke-width:1.8;
+             vector-effect:non-scaling-stroke;stroke-linecap:round}
+.spark-area{fill:color-mix(in srgb,var(--accent) 13%,transparent);stroke:none}
+.spark.desce .spark-linha{stroke:var(--vermelho)}
+.spark.desce .spark-area{fill:color-mix(in srgb,var(--vermelho) 12%,transparent)}
+
+/* ============================================== o trocador de conta (combobox)
    ARMADILHA JA' MEDIDA NA ABA DE CONTAS: cada filho direto de `.pagina.ativa`
-   recebe a animacao de entrada, que anima transform e filter, e isso faz de CADA UM
-   um contexto de empilhamento. Contextos irmaos empilham pela ordem do documento,
-   entao sem este z-index o balao do trocador abre ATRAS do que vem depois dele. */
-.cab{position:relative;z-index:6}
-.an-dd-bt{height:52px;padding:0 12px 0 8px;gap:11px}
-.an-dd-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex:none;
-  display:grid;place-items:center;background:var(--paper-2)}
-.an-dd-av img{width:100%;height:100%;object-fit:cover}
-.an-dd-txt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;
-           text-align:left}
-.an-dd-txt b{font-size:14px;font-weight:800}
-.an-dd-txt small{font-size:11.5px;color:var(--soft);font-weight:600}
-.an-dd-m{min-width:280px}
-.an-dd-o{gap:11px;padding:9px 10px}
-.an-dd-o.on{background:var(--accent-tint)}
+   recebe a animacao de entrada, que anima transform e filter, e isso faz de CADA
+   UM um contexto de empilhamento. Sem este z-index o balao abre ATRAS do que vem
+   depois dele. E o balao ancora A DIREITA: ancorado a esquerda ele saia 84px para
+   fora da tela, porque o botao vive no canto direito do cabecalho. */
+.cab{position:relative;z-index:20}
+.cb{position:relative}
+.cb-bt{display:inline-flex;align-items:center;gap:11px;height:52px;padding:0 12px 0 8px;
+  border-radius:14px;border:1px solid var(--rule-solid);background:var(--branco);
+  font:inherit;color:var(--ink);cursor:pointer;transition:border-color .16s,
+  box-shadow .16s,background .16s}
+.cb-bt:hover{border-color:var(--soft)}
+.cb.aberto .cb-bt{border-color:var(--accent);
+                  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
+.cb-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex:none;
+  display:grid;place-items:center;background:var(--paper-2);
+  border:1px solid var(--rule-solid)}
+.cb-av.peq{width:30px;height:30px}
+.cb-av img{width:100%;height:100%;object-fit:cover}
+.cb-txt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;
+        text-align:left;min-width:0}
+.cb-txt b{font-size:14px;font-weight:800}
+.cb-txt small{font-size:11.5px;color:var(--soft);font-weight:600;
+  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-cv{width:15px;height:15px;flex:none;fill:none;stroke:var(--soft);stroke-width:2;
+       stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.cb.aberto .cb-cv{transform:rotate(180deg)}
+.cb-m{position:absolute;top:calc(100% + 8px);right:0;width:330px;z-index:60;
+  background:var(--branco);border:1px solid var(--rule-solid);border-radius:14px;
+  box-shadow:var(--an-sombra-forte);overflow:hidden;
+  animation:cbEntra .16s cubic-bezier(.22,1,.36,1) both}
+@keyframes cbEntra{from{opacity:0;transform:translateY(-6px)}}
+.cb-m[hidden]{display:none}
+.cb-busca{position:relative;padding:10px 12px;border-bottom:1px solid var(--rule-solid)}
+.cb-busca svg{position:absolute;left:23px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;fill:none;stroke:var(--soft);stroke-width:2;
+  stroke-linecap:round}
+.cb-busca input{width:100%;height:38px;padding:0 12px 0 32px;border-radius:10px;
+  border:1px solid var(--rule-solid);background:var(--paper-2);font:inherit;
+  font-size:13px;color:var(--ink);outline:0;transition:border-color .15s}
+.cb-busca input:focus{border-color:var(--accent);background:var(--branco)}
+.cb-lista{max-height:280px;overflow:auto;padding:6px}
+.cb-o{display:flex;align-items:center;gap:11px;width:100%;padding:8px 9px;border:0;
+  background:none;border-radius:10px;font:inherit;color:var(--ink);cursor:pointer;
+  text-align:left}
+.cb-o.mrc{background:var(--paper-2)}
+.cb-o.sel .cb-txt b{color:var(--link)}
+.cb-ok{width:16px;height:16px;margin-left:auto;flex:none;fill:none;stroke:var(--accent);
+       stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.cb-vazio{padding:22px 14px;text-align:center;font-size:13px;color:var(--soft)}
+.cb-pe{padding:9px 14px;border-top:1px solid var(--rule-solid);font-size:11px;
+  font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--soft);
+  background:var(--paper-2)}
 
-/* ---------------------------------------------------------- a janela do post */
-.jn-fundo{position:fixed;inset:0;z-index:80;background:rgba(14,14,14,.42);
-  backdrop-filter:blur(3px);display:grid;place-items:center;padding:28px;
-  opacity:0;transition:opacity .2s}
-.jn-fundo.on{opacity:1}
-.jn{width:min(920px,100%);max-height:88vh;overflow:auto;background:var(--branco);
-  border:1px solid var(--rule-solid);border-radius:16px;
-  box-shadow:0 26px 70px rgba(14,14,14,.28);transform:translateY(10px) scale(.99);
-  transition:transform .22s cubic-bezier(.22,1,.36,1)}
-.jn-fundo.on .jn{transform:none}
-.jn-cab{display:flex;align-items:flex-start;gap:14px;padding:20px 22px 16px;
-        border-bottom:1px solid var(--rule-solid)}
-.jn-tit h3{font-size:17px;font-weight:800;line-height:1.3;margin:0 0 5px}
-.jn-tit p{font-size:12.5px;color:var(--soft);font-weight:600;margin:0}
-.jn-ex{color:var(--ambar);font-weight:800}
-.jn-x{margin-left:auto;width:36px;height:36px;flex:none;border-radius:999px;
+/* ==================================================== o painel lateral (side peek)
+   Entra pela direita e deixa a lista visivel atras, como o side peek do Notion.
+   520px de largura, transicao de 260ms, seta para andar entre publicacoes. */
+.sp-fora{position:fixed;inset:0;z-index:80;pointer-events:none}
+.sp-veu{position:absolute;inset:0;background:var(--an-veu);opacity:0;
+        transition:opacity .26s}
+.sp{position:absolute;top:0;right:0;height:100%;width:min(520px,94vw);
+  background:var(--branco);border-left:1px solid var(--rule-solid);
+  box-shadow:var(--an-sombra-forte);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .26s cubic-bezier(.22,1,.36,1)}
+.sp-fora.on{pointer-events:auto}
+.sp-fora.on .sp-veu{opacity:1}
+.sp-fora.on .sp{transform:none}
+.sp-cab{padding:14px 20px 16px;border-bottom:1px solid var(--rule-solid);flex:none}
+.sp-andar{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.sp-pos{font-size:11.5px;font-weight:700;color:var(--soft);
+        font-variant-numeric:tabular-nums;margin-left:4px}
+.sp-ic{width:32px;height:32px;flex:none;border-radius:9px;
   border:1px solid var(--rule-solid);background:var(--branco);color:var(--muted);
   cursor:pointer;display:grid;place-items:center;transition:.15s}
-.jn-x:hover{border-color:var(--soft);color:var(--ink);background:var(--paper-2)}
-.jn-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
-          stroke-linecap:round}
-.jn-corpo{display:grid;grid-template-columns:212px minmax(0,1fr);gap:22px;padding:22px}
-.jn-capa{border-radius:14px;overflow:hidden;border:1px solid var(--rule-solid);
-         background:var(--paper-2);position:relative}
-.jn-capa img{display:block;width:100%;aspect-ratio:9/16;object-fit:cover}
-.jn-sem{aspect-ratio:9/16;background:var(--paper-2)}
-.jn-capa-pe{position:absolute;left:0;right:0;bottom:0;padding:14px 13px 12px;
-  color:#fff;background:linear-gradient(to top,rgba(14,14,14,.86),transparent)}
-.jn-capa-pe b{display:block;font-size:21px;font-weight:800;line-height:1;
-              font-variant-numeric:tabular-nums}
-.jn-capa-pe span{display:block;margin-top:5px;font-size:10px;font-weight:700;
+.sp-ic:hover:not(:disabled){border-color:var(--soft);color:var(--ink);
+                            background:var(--paper-2)}
+.sp-ic:disabled{opacity:.38;cursor:default}
+.sp-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
+           stroke-linecap:round;stroke-linejoin:round}
+.sp-x{margin-left:auto}
+.sp-cab h3{font-size:17px;font-weight:800;line-height:1.32;margin:0 0 6px}
+.sp-cab p{font-size:12.5px;color:var(--soft);font-weight:600;margin:0}
+.sp-corpo{flex:1;overflow:auto;padding:18px 20px 26px}
+.sp-capa{position:relative;border-radius:14px;overflow:hidden;
+  border:1px solid var(--rule-solid);background:var(--paper-2);margin-bottom:18px}
+.sp-capa img{display:block;width:100%;height:210px;object-fit:cover}
+.sp-capa::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(14,14,14,.82),transparent 62%)}
+.sp-fmt{position:absolute;top:11px;left:11px;z-index:2;height:26px;padding:0 10px;
+  border-radius:999px;background:rgba(255,255,255,.94);color:#0E0E0E;
+  display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;
+  letter-spacing:.04em;text-transform:uppercase}
+.sp-fmt svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;
+            stroke-linecap:round;stroke-linejoin:round}
+.sp-eng{position:absolute;left:14px;bottom:12px;z-index:2;color:#fff}
+.sp-eng b{display:block;font-size:26px;font-weight:800;line-height:1;
+          font-variant-numeric:tabular-nums}
+.sp-eng span{display:block;margin-top:5px;font-size:10px;font-weight:700;
   letter-spacing:.06em;text-transform:uppercase;opacity:.86}
-.jn-grade{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.jn-num{border:1px solid var(--rule-solid);border-radius:var(--r-md);padding:13px 14px;
+.sp-grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sp-num{border:1px solid var(--rule-solid);border-radius:var(--r-md);padding:13px 14px;
         background:var(--branco)}
-.jn-num span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.05em;
+.sp-num span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.05em;
              text-transform:uppercase;color:var(--soft)}
-.jn-num b{display:block;margin-top:7px;font-size:23px;font-weight:800;
+.sp-num b{display:block;margin-top:7px;font-size:23px;font-weight:800;
           letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.jn-cmp{display:inline-block;margin-top:7px;font-size:11px;font-weight:700}
-.jn-cmp.sobe{color:var(--verde)}
-.jn-cmp.desce{color:var(--vermelho)}
-.jn-cmp.igual{color:var(--soft)}
-.jn-linha-tit{margin:20px 0 10px;font-size:11px;font-weight:800;letter-spacing:.07em;
-              text-transform:uppercase;color:var(--soft)}
-.jn-ret-barra{height:10px;border-radius:999px;background:var(--paper-2);overflow:hidden}
-.jn-ret-barra i{display:block;height:100%;border-radius:999px;background:var(--accent)}
-.jn-ret-pe{margin-top:9px;font-size:13px;color:var(--muted)}
-.jn-ret-pe b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.sp-cmp{display:inline-block;margin-top:7px;font-size:11px;font-weight:700}
+.sp-cmp.sobe{color:var(--verde)}
+.sp-cmp.desce{color:var(--vermelho)}
+.sp-cmp.igual{color:var(--soft)}
+.sp-tit{margin:22px 0 10px;font-size:11px;font-weight:800;letter-spacing:.07em;
+        text-transform:uppercase;color:var(--soft)}
+.sp-ret-barra{height:10px;border-radius:999px;background:var(--paper-2);
+              overflow:hidden;border:1px solid var(--rule-solid)}
+.sp-ret-barra i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.sp-ret-pe{margin-top:9px;font-size:13px;color:var(--muted)}
+.sp-ret-pe b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
 
-/* --------------------------------------------------------------- paginacao
-   Ela conta onde voce esta, e nao so' quantas paginas existem: "21 a 30 de 34"
-   e' o que responde "ja vi tudo?". */
+/* --------------------------------------------------------------- paginacao */
 .an-pag{display:flex;align-items:center;gap:12px;padding:14px 20px;
         border-top:1px solid var(--rule-solid);flex-wrap:wrap}
 .an-pag .conta{font-size:12.5px;color:var(--soft);font-weight:600;
                font-variant-numeric:tabular-nums}
 .an-pag .dir{margin-left:auto;display:flex;align-items:center;gap:6px}
-.an-pg{width:34px;height:34px;border-radius:10px;border:1px solid var(--rule-solid);
-  background:var(--branco);color:var(--muted);font:inherit;font-size:13px;
-  font-weight:700;cursor:pointer;display:grid;place-items:center;transition:.15s}
+.an-pg{min-width:34px;height:34px;padding:0 6px;border-radius:10px;
+  border:1px solid var(--rule-solid);background:var(--branco);color:var(--muted);
+  font:inherit;font-size:13px;font-weight:700;cursor:pointer;display:grid;
+  place-items:center;transition:.15s;font-variant-numeric:tabular-nums}
 .an-pg:hover:not(:disabled){border-color:var(--soft);color:var(--ink)}
 .an-pg.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .an-pg:disabled{opacity:.4;cursor:default}
@@ -117,41 +195,51 @@
            stroke-linecap:round;stroke-linejoin:round}
 
 /* ------------------------------------------------------------------- avisos */
-.an-selo-ex{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;
-  font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ambar);
-  background:color-mix(in srgb,var(--ambar) 13%,transparent);padding:3px 9px;
-  border-radius:999px}
+.an-selo-ex{display:inline-flex;align-items:center;font-size:10px;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--ambar);
+  background:color-mix(in srgb,var(--ambar) 15%,transparent);padding:2px 8px;
+  border-radius:999px;line-height:1.6}
 .an-nota{display:flex;align-items:center;gap:11px;padding:12px 16px;
   border-radius:var(--r-md);font-size:13px;color:var(--muted);
-  background:color-mix(in srgb,var(--ambar) 8%,transparent);
-  border:1px solid color-mix(in srgb,var(--ambar) 26%,transparent);margin-bottom:18px}
+  background:color-mix(in srgb,var(--ambar) 9%,transparent);
+  border:1px solid color-mix(in srgb,var(--ambar) 28%,transparent);margin-bottom:18px}
 .an-nota b{color:var(--ink);font-weight:800}
 .an-nota svg{width:17px;height:17px;flex:none;fill:none;stroke:var(--ambar);
              stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .an-torrada{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
   background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:999px;
   font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:90;
-  box-shadow:var(--sombra-balao)}
+  box-shadow:var(--an-sombra)}
 .an-torrada.on{opacity:1;transform:translate(-50%,0)}
 
 /* ---------------------------------------------------------- pecas de tabela */
 .an-post{display:flex;align-items:center;gap:12px;min-width:0}
-.an-mini{width:44px;height:58px;border-radius:8px;flex:none;object-fit:cover;
-         background:var(--paper-2);border:1px solid var(--rule-solid)}
+.an-mini{position:relative;width:44px;height:58px;border-radius:8px;flex:none;
+  overflow:hidden;background:var(--paper-2);border:1px solid var(--rule-solid)}
+.an-mini img{width:100%;height:100%;object-fit:cover;display:block}
+.an-mini i{position:absolute;right:3px;bottom:3px;width:16px;height:16px;
+  border-radius:5px;background:rgba(14,14,14,.66);display:grid;place-items:center}
+.an-mini i svg{width:10px;height:10px;fill:#fff;stroke:none}
+.an-mini i.carr svg{fill:none;stroke:#fff;stroke-width:2.4}
 .an-post-txt{min-width:0}
 .an-post-txt b{display:block;font-size:14px;font-weight:700;line-height:1.35;
   overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;
   -webkit-box-orient:vertical}
-.an-post-txt span{font-size:11.5px;color:var(--soft);font-weight:600}
+.an-post-txt span{display:flex;align-items:center;gap:7px;margin-top:4px;
+  font-size:11.5px;color:var(--soft);font-weight:600}
 .an-ord{cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
 .an-ord:hover{color:var(--muted)}
 .an-ord i{font-style:normal;opacity:0;margin-left:5px;font-size:10px}
 .an-ord.on{color:var(--ink)}
 .an-ord.on i{opacity:1}
-.an-abrir{height:32px;padding:0 13px;border-radius:999px;border:1px solid var(--rule-solid);
-  background:var(--branco);color:var(--muted);font:inherit;font-size:12.5px;
-  font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
-  transition:.15s;white-space:nowrap}
+
+/* O botao chapado que as propostas B e C ainda usam na tabela. Na proposta A ele
+   SAIU: ali o Abrir e' o botao animado da casa, que foi o que ele cobrou. Fica
+   aqui so' para as duas propostas nao aprovadas nao quebrarem. */
+.an-abrir{height:32px;padding:0 13px;border-radius:999px;
+  border:1px solid var(--rule-solid);background:var(--branco);color:var(--muted);
+  font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;
+  align-items:center;gap:7px;transition:.15s;white-space:nowrap}
 .an-abrir:hover{border-color:var(--accent);color:var(--accent);
                 background:var(--accent-tint)}
 .an-abrir svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;

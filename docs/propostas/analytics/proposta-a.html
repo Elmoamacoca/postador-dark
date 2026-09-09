@@ -15,98 +15,179 @@
 /* ================================================== PROPOSTA A: A FICHA DO PERFIL
    A tela e' UMA pagina so', de cima para baixo, na ordem em que a pergunta aparece:
    quem e' esta conta, como ela vem indo, o que puxou, e por fim a lista inteira do
-   que saiu. Nao ha' segunda tela: rolar e' a navegacao. */
+   que saiu. Nao ha' segunda tela: rolar e' a navegacao.
+
+   SEGUNDA RODADA, 09/09/2026. Ele aprovou a arquitetura e reprovou o acabamento.
+   O que mudou nesta folha:
+   1. Cartao de numero deixou de ser retangulo com numero: ganhou MINICURVA do
+      periodo, seta de variacao e relevo no passar do mouse.
+   2. "O que mais alcancou" trata CARROSSEL e REEL de verdade, cada um com o seu
+      selo, e ganhou PREVIA no passar do mouse: reel mostra o play e a duracao,
+      carrossel folheia as paginas sozinho.
+   3. O botao Abrir virou o BOTAO ANIMADO DA CASA, o mesmo gesto do Programar.
+   4. A tabela ficou legivel: coluna de publicacao com largura, formato no canto da
+      miniatura, e a coluna de acao presa a direita. */
 
 /* A identidade da conta ocupa a largura toda, porque a aba e' de UMA conta. */
 .pf{display:flex;align-items:center;gap:18px;background:var(--branco);
     border:1px solid var(--rule-solid);border-radius:var(--r-card);padding:18px 22px;
     margin-bottom:16px}
 .pf-av{width:70px;height:70px;border-radius:50%;flex:none;overflow:hidden;
-       background:var(--paper-2);display:grid;place-items:center}
+       background:var(--paper-2);border:1px solid var(--rule-solid);
+       display:grid;place-items:center}
 .pf-av img{width:100%;height:100%;object-fit:cover}
-.pf-txt h2{font-size:20px;font-weight:800;letter-spacing:-.3px;margin:0 0 4px}
-.pf-txt .sub{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;
+.pf-txt h2{font-size:20px;font-weight:800;letter-spacing:-.3px;margin:0 0 5px}
+.pf-txt .sub{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;
              color:var(--soft);font-weight:600}
-.pf-num{margin-left:auto;display:flex;gap:26px;text-align:right}
-.pf-num div b{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em;
-              font-variant-numeric:tabular-nums;line-height:1}
-.pf-num div span{display:block;margin-top:6px;font-size:10.5px;font-weight:700;
+.pf-num{margin-left:auto;display:flex;gap:0;text-align:right}
+.pf-num div{padding:0 22px;border-left:1px solid var(--rule-solid)}
+.pf-num div:first-child{border-left:0}
+.pf-num div:last-child{padding-right:0}
+.pf-num b{display:block;font-size:23px;font-weight:800;letter-spacing:-.03em;
+          font-variant-numeric:tabular-nums;line-height:1}
+.pf-num span{display:block;margin-top:7px;font-size:10.5px;font-weight:700;
   letter-spacing:.05em;text-transform:uppercase;color:var(--soft)}
 
-/* Os quatro numeros ganham minicurva: cartao sem relevo fica chapado, e chapado
-   foi exatamente o que ele reprovou na aba de Contas. */
+/* ------------------------------------------------------- os quatro numeros */
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
-.kpi{background:var(--branco);border:1px solid var(--rule-solid);
-     border-radius:var(--r-card);padding:17px 18px 14px;position:relative;
-     overflow:hidden;transition:border-color .16s,transform .16s}
-.kpi:hover{border-color:var(--soft);transform:translateY(-2px)}
-.kpi .rot{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
+.kpi{position:relative;background:var(--branco);border:1px solid var(--rule-solid);
+     border-radius:var(--r-card);padding:16px 18px 0;overflow:hidden;
+     transition:border-color .18s,transform .18s,box-shadow .18s}
+.kpi:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--rule-solid));
+           transform:translateY(-2px);box-shadow:var(--an-sombra)}
+.kpi .rot{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;
   letter-spacing:.05em;text-transform:uppercase;color:var(--soft)}
 .kpi .rot svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;
               stroke-linecap:round;stroke-linejoin:round}
-.kpi b{display:block;margin-top:11px;font-size:31px;font-weight:800;
-       letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
-.kpi .pe{margin-top:11px;display:flex;align-items:center;gap:7px;font-size:12px;
-         color:var(--muted)}
-.kpi .var{display:inline-flex;align-items:center;gap:4px;font-weight:800;
-          font-size:12px}
-.kpi .var svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.6;
+.kpi .valor{display:flex;align-items:flex-end;gap:9px;margin-top:12px}
+.kpi .valor b{font-size:30px;font-weight:800;letter-spacing:-.04em;line-height:.95;
+              font-variant-numeric:tabular-nums}
+.kpi .var{display:inline-flex;align-items:center;gap:3px;font-weight:800;font-size:12px;
+  padding:3px 8px;border-radius:999px;margin-bottom:2px}
+.kpi .var svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.8;
               stroke-linecap:round;stroke-linejoin:round}
-.kpi .var.sobe{color:var(--verde)}
-.kpi .var.desce{color:var(--vermelho)}
-.kpi .faixa{position:absolute;left:0;right:0;bottom:0;height:3px;
-            background:var(--accent);opacity:.16}
+.kpi .var.sobe{color:var(--verde);
+               background:color-mix(in srgb,var(--verde) 12%,transparent)}
+.kpi .var.desce{color:var(--vermelho);
+                background:color-mix(in srgb,var(--vermelho) 12%,transparent)}
+.kpi .var.nulo{color:var(--soft);background:var(--paper-2);font-weight:700}
+.kpi .pe{margin-top:7px;font-size:11.5px;color:var(--soft);font-weight:600}
+.kpi .curva{height:46px;margin:6px -18px 0}
 
 /* O grafico manda na tela: e' a peca que responde "vem subindo ou nao". */
-.cx-graf .caixa-topo{gap:14px}
-.gr-corpo{padding:8px 16px 12px}
+.gr-corpo{padding:10px 16px 14px}
 
-/* Melhores publicacoes: capa grande, numero grande, nada de tabela em miniatura. */
+/* --------------------------------------------- o que mais alcancou, com previa */
 .tops{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 18px 18px}
-.top{border:1px solid var(--rule-solid);border-radius:12px;overflow:hidden;
-     background:var(--branco);cursor:pointer;transition:.16s;text-align:left;
-     padding:0;font:inherit}
-.top:hover{border-color:var(--accent);transform:translateY(-2px)}
-.top-capa{display:block;position:relative;aspect-ratio:4/5;
-          background:var(--paper-2)}
-.top-capa img{width:100%;height:100%;object-fit:cover;display:block}
-.top-pos{position:absolute;top:9px;left:9px;width:24px;height:24px;border-radius:999px;
-  background:var(--ink);color:var(--paper);display:grid;place-items:center;
-  font-size:12px;font-weight:800}
-.top-b{display:block;padding:11px 12px 13px}
-.top-b b{display:block;font-size:18px;font-weight:800;
-         font-variant-numeric:tabular-nums;line-height:1}
-.top-b span{display:block;margin-top:5px;font-size:11px;color:var(--soft);
-            font-weight:600}
-.top-b p{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.4;
+.top{position:relative;border:1px solid var(--rule-solid);border-radius:13px;
+     overflow:hidden;background:var(--branco);cursor:pointer;text-align:left;
+     padding:0;font:inherit;color:var(--ink);
+     transition:transform .18s cubic-bezier(.22,1,.36,1),border-color .18s,
+     box-shadow .18s}
+.top:hover{transform:translateY(-3px);
+           border-color:color-mix(in srgb,var(--accent) 50%,var(--rule-solid));
+           box-shadow:var(--an-sombra)}
+.top-capa{display:block;position:relative;aspect-ratio:4/5;background:var(--paper-2)}
+.top-capa img{width:100%;height:100%;object-fit:cover;display:block;
+              transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.top:hover .top-capa img{transform:scale(1.045)}
+.top-veu{position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(14,14,14,.78),transparent 55%)}
+.top-pos{position:absolute;top:9px;left:9px;width:23px;height:23px;border-radius:999px;
+  background:rgba(255,255,255,.94);color:#0E0E0E;display:grid;place-items:center;
+  font-size:11.5px;font-weight:800}
+.top-fmt{position:absolute;top:9px;right:9px;height:23px;padding:0 8px;
+  border-radius:999px;background:rgba(14,14,14,.62);color:#fff;display:inline-flex;
+  align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase}
+.top-fmt svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.4;
+             stroke-linecap:round;stroke-linejoin:round}
+.top-fmt.reel svg{fill:currentColor;stroke:none}
+.top-n{position:absolute;left:12px;right:12px;bottom:10px;color:#fff}
+.top-n b{display:block;font-size:21px;font-weight:800;line-height:1;
+         font-variant-numeric:tabular-nums}
+.top-n span{display:block;margin-top:4px;font-size:10px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;opacity:.84}
+.top-b{display:block;padding:11px 12px 12px}
+.top-b p{margin:0;font-size:12.5px;line-height:1.4;color:var(--ink);
   overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;
   -webkit-box-orient:vertical}
+.top-b .pe{margin-top:8px;display:flex;align-items:center;gap:7px;font-size:11.5px;
+           color:var(--soft);font-weight:600}
+
+/* A PREVIA. Ele cobrou: "passo o mouse em cima e nao tem preview". Ela mostra a
+   peca grande, e diz o que ela e': reel ganha o play e a duracao, carrossel folheia
+   as paginas sozinho, com os pontos embaixo. */
+.prev{position:fixed;z-index:70;width:236px;background:var(--branco);
+  border:1px solid var(--rule-solid);border-radius:14px;overflow:hidden;
+  box-shadow:var(--an-sombra-forte);opacity:0;transform:translateY(6px) scale(.98);
+  transition:opacity .16s,transform .16s;pointer-events:none}
+.prev.on{opacity:1;transform:none}
+.prev-capa{position:relative;aspect-ratio:9/16;background:var(--paper-2)}
+.prev-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.prev-play{position:absolute;inset:0;display:grid;place-items:center}
+.prev-play i{width:46px;height:46px;border-radius:999px;background:rgba(255,255,255,.9);
+  display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.prev-play svg{width:18px;height:18px;fill:#0E0E0E;margin-left:2px}
+.prev-dur{position:absolute;right:9px;bottom:9px;height:22px;padding:0 8px;
+  border-radius:999px;background:rgba(14,14,14,.68);color:#fff;display:inline-flex;
+  align-items:center;font-size:11px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+.prev-pontos{position:absolute;left:0;right:0;bottom:10px;display:flex;
+             justify-content:center;gap:5px}
+.prev-pontos i{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.5)}
+.prev-pontos i.on{background:#fff;width:14px}
+.prev-b{padding:11px 13px 13px}
+.prev-b .lin{display:flex;align-items:center;justify-content:space-between;gap:10px;
+             font-size:12px;color:var(--soft);font-weight:600;margin-top:6px}
+.prev-b .lin:first-child{margin-top:0}
+.prev-b .lin b{color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
 
 /* Formato: duas barras horizontais. Sem pizza, que obriga a comparar angulo. */
 .fmt{padding:18px}
-.fmt-item{margin-bottom:16px}
-.fmt-item:last-child{margin-bottom:0}
-.fmt-lin{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.fmt-item{margin-bottom:18px}
+.fmt-item:last-of-type{margin-bottom:0}
+.fmt-lin{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
 .fmt-lin b{font-size:14px;font-weight:800}
 .fmt-lin span{font-size:12px;color:var(--soft);font-weight:600}
-.fmt-lin em{margin-left:auto;font-style:normal;font-size:15px;font-weight:800;
+.fmt-lin em{margin-left:auto;font-style:normal;font-size:16px;font-weight:800;
             font-variant-numeric:tabular-nums}
-.fmt-barra{height:9px;border-radius:999px;background:var(--paper-2);overflow:hidden}
+.fmt-barra{height:10px;border-radius:999px;background:var(--paper-2);overflow:hidden;
+           border:1px solid var(--rule-solid)}
 .fmt-barra i{display:block;height:100%;border-radius:999px;background:var(--accent);
-             transition:width .5s cubic-bezier(.22,1,.36,1)}
+             transition:width .55s cubic-bezier(.22,1,.36,1)}
 .fmt-barra.dois i{background:var(--chart-2)}
-.fmt-pe{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule-solid);
-        font-size:12.5px;color:var(--muted)}
+.fmt-pe{margin-top:16px;padding-top:15px;border-top:1px solid var(--rule-solid);
+        font-size:12.5px;color:var(--muted);line-height:1.5}
 .fmt-pe b{color:var(--ink);font-weight:700}
 
+/* --------------------------------------------------------------- a tabela */
 .busca{position:relative}
 .busca input{height:38px;padding:0 12px 0 34px;border-radius:10px;
   border:1px solid var(--rule-solid);background:var(--branco);font:inherit;
-  font-size:13px;color:var(--ink);width:230px;outline:0;transition:border-color .15s}
-.busca input:focus{border-color:var(--soft)}
+  font-size:13px;color:var(--ink);width:240px;outline:0;transition:border-color .15s}
+.busca input:focus{border-color:var(--accent)}
 .busca svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;
   height:15px;fill:none;stroke:var(--soft);stroke-width:2;stroke-linecap:round}
-.vazio{padding:40px 20px;text-align:center;color:var(--soft);font-size:13.5px}
+.tab th:first-child,.tab td:first-child{width:330px;min-width:330px;padding-left:20px}
+.tab td{padding:13px 10px}
+.tab th{padding:13px 10px}
+.tab th:first-child{padding-left:20px}
+.tab th:last-child,.tab td:last-child{position:sticky;right:0;z-index:2;
+  padding-right:20px;background:var(--branco);
+  box-shadow:-16px 0 16px -14px rgba(14,14,14,.16)}
+.tab tbody tr:hover td{background:var(--an-hover)}
+.tab tbody tr:hover td:last-child{background:
+  color-mix(in srgb,var(--paper-2) 96%,var(--branco))}
+.tab td.n{font-size:15px;font-weight:600}
+.tab .destaque{font-weight:800}
+
+/* O BOTAO ANIMADO DA CASA, em tamanho de linha de tabela. O gesto e' o mesmo do
+   Programar: circulo que engole, duas setas, texto que desliza. Nada de botao
+   chapado inventado, que foi o que ele reprovou. */
+.btn.linha{height:32px;padding:0 15px;font-size:12.5px;--desl:7px}
+.btn.linha .seta{width:12px;height:12px}
+.vazio{padding:44px 20px;text-align:center;color:var(--soft);font-size:13.5px}
 </style>
 </head>
 <body>
@@ -220,7 +301,7 @@
 
     <div class="kpis" id="kpis"></div>
 
-    <div class="caixa solta cx-graf">
+    <div class="caixa solta">
       <div class="caixa-topo">
         <h3>Como A Conta Vem Indo</h3>
         <div class="dir">
@@ -238,7 +319,7 @@
     <div class="g2" style="margin-top:16px">
       <div class="caixa solta">
         <div class="caixa-topo"><h3>O Que Mais Alcançou</h3>
-          <div class="dir"><span class="pp">no período</span></div></div>
+          <div class="dir"><span class="pp">passe o mouse para ver a peça</span></div></div>
         <div class="tops" id="tops"></div>
       </div>
       <div class="caixa solta">
@@ -251,6 +332,11 @@
       <div class="caixa-topo">
         <h3>Todas As Publicações</h3>
         <div class="dir">
+          <div class="ct-seg" id="formato">
+            <button data-f="" class="on">Todos</button>
+            <button data-f="reel">Reel</button>
+            <button data-f="carrossel">Carrossel</button>
+          </div>
           <div class="busca">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7"/>
               <path d="m20 20-3.2-3.2"/></svg>
@@ -259,7 +345,7 @@
         </div>
       </div>
       <div class="rolagem">
-        <table>
+        <table class="tab">
           <thead><tr>
             <th>Publicação</th>
             <th class="an-ord" data-o="quando">Quando<i>↓</i></th>
@@ -286,28 +372,21 @@
 (function () {
   'use strict';
   var A = window.AN, D = window.DADOS;
-  var conta = D.contas[0], dias = 30, metrica = 'alc', ordem = 'alc', invertido = false;
-  var pagina = 1, POR = 8, busca = '';
-  var grafico = new A.Grafico(document.getElementById('grafico'), { altura: 250 });
+  var conta = D.contas[0], dias = 30, metrica = 'alc';
+  var ordem = 'alc', invertido = false, pagina = 1, POR = 8, busca = '', formato = '';
+  var grafico = new A.Grafico(document.getElementById('grafico'), { altura: 258 });
 
-  function ico(d) {
-    return '<svg viewBox="0 0 24 24">' + d + '</svg>';
-  }
+  function ico(d) { return '<svg viewBox="0 0 24 24">' + d + '</svg>'; }
   var ICO = {
     alc: '<circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/>',
     vis: '<path d="M4 4v16h16"/><path d="M8 16v-5M13 16V7M18 16v-8"/>',
     inter: '<path d="M20.8 6.6a5 5 0 0 0-7.1 0L12 8.3l-1.7-1.7a5 5 0 1 0-7.1 7.1l8.8 8.8 8.8-8.8a5 5 0 0 0 0-7.1Z"/>',
     seg: '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-3.7 3.3-6 7.5-6s7.5 2.3 7.5 6"/>'
   };
+  var CIMA = '<path d="M12 19V5M5 12l7-7 7 7"/>';
+  var BAIXO = '<path d="M12 5v14M5 12l7 7 7-7"/>';
 
-  function variacao(v) {
-    if (v == null) return '<span class="pp">sem período anterior</span>';
-    var cima = v >= 0;
-    return '<span class="var ' + (cima ? 'sobe' : 'desce') + '">'
-      + ico(cima ? '<path d="M12 19V5M5 12l7-7 7 7"/>' : '<path d="M12 5v14M5 12l7 7 7-7"/>')
-      + Math.abs(v) + '%</span><span>contra o período anterior</span>';
-  }
-
+  /* ----------------------------------------------------------------- perfil */
   function pintarPerfil() {
     document.getElementById('pf-av').innerHTML = conta.avatar
       ? '<img src="' + conta.avatar + '" alt="">' : '';
@@ -323,49 +402,157 @@
       + '<div><b>' + conta.dias + '</b><span>Dias De Acesso</span></div>';
   }
 
+  /* ------------------------------------------------------- os quatro numeros */
   function pintarKpis() {
     var r = A.resumo(conta, dias);
-    document.getElementById('kpis').innerHTML = [
-      { rot: 'Alcance', ic: ICO.alc, v: A.n(r.alcance), var: r.varAlcance },
-      { rot: 'Visualizações', ic: ICO.vis, v: A.n(r.visualizacoes), var: r.varVis },
-      { rot: 'Interações', ic: ICO.inter, v: A.n(r.interacoes), var: r.varInter },
-      { rot: 'Seguidores Ganhos', ic: ICO.seg, v: A.n(r.seguidores), var: r.varSeg }
-    ].map(function (k) {
+    var passo = dias || 90;
+    function serieDe(campo) {
+      return A.serie(conta, passo, campo).map(function (p) { return p.v; });
+    }
+    var cartoes = [
+      { rot: 'Alcance', ic: ICO.alc, v: A.n(r.alcance), var: r.varAlcance,
+        s: serieDe('alc'), pe: 'mediana de ' + A.n(r.medianaAlcance) + ' por publicação' },
+      { rot: 'Visualizações', ic: ICO.vis, v: A.n(r.visualizacoes), var: r.varVis,
+        s: serieDe('vis'), pe: r.posts.length + ' publicações no período' },
+      { rot: 'Interações', ic: ICO.inter, v: A.n(r.interacoes), var: r.varInter,
+        s: serieDe('inter'), pe: A.pct(r.engajamento) + ' de engajamento sobre alcance' },
+      { rot: 'Seguidores Ganhos', ic: ICO.seg, v: A.n(r.seguidores), var: r.varSeg,
+        s: serieDe('seg'), pe: A.n(conta.seguidores) + ' seguidores no total' }
+    ];
+    document.getElementById('kpis').innerHTML = cartoes.map(function (k) {
+      var v = k.var;
+      var selo = v == null
+        ? '<span class="var nulo">sem base</span>'
+        : '<span class="var ' + (v >= 0 ? 'sobe' : 'desce') + '">'
+          + ico(v >= 0 ? CIMA : BAIXO) + Math.abs(v) + '%</span>';
+      var desce = v != null && v < 0;
       return '<div class="kpi"><div class="rot">' + ico(k.ic) + k.rot + '</div>'
-        + '<b>' + k.v + '</b><div class="pe">' + variacao(k.var) + '</div>'
-        + '<i class="faixa"></i></div>';
+        + '<div class="valor"><b>' + k.v + '</b>' + selo + '</div>'
+        + '<div class="pe">' + k.pe + '</div>'
+        + '<div class="curva' + (desce ? ' desce' : '') + '">'
+        + A.minicurva(k.s, 200, 46) + '</div></div>';
     }).join('');
+    document.querySelectorAll('.kpi .curva.desce .spark').forEach(function (s) {
+      s.classList.add('desce');
+    });
   }
 
-  function pintarGrafico() {
-    grafico.dar(A.serie(conta, dias || 90, metrica));
+  function pintarGrafico() { grafico.dar(A.serie(conta, dias || 90, metrica)); }
+
+  /* ------------------------------------------------- o que mais alcancou */
+  function seloFmt(p, classe) {
+    return '<span class="' + classe + (p.fmt === 'reel' ? ' reel' : '') + '">'
+      + (p.fmt === 'reel'
+        ? '<svg viewBox="0 0 24 24"><path d="m10 8 6 4-6 4V8Z"/></svg>Reel'
+        : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="13" height="13" rx="2.4"/>'
+          + '<path d="M20 8v11a2 2 0 0 1-2 2H7"/></svg>Carrossel') + '</span>';
   }
 
   function pintarTops() {
     var lista = A.janela(conta, dias).slice()
       .sort(function (a, b) { return b.alc - a.alc; }).slice(0, 3);
     var alvo = document.getElementById('tops');
-    if (!lista.length) { alvo.innerHTML = '<div class="vazio">Nada saiu no período.</div>'; return; }
+    if (!lista.length) {
+      alvo.innerHTML = '<div class="vazio" style="grid-column:1/-1">Nada saiu no '
+        + 'período.</div>';
+      return;
+    }
     alvo.innerHTML = lista.map(function (p, i) {
       return '<button class="top" data-sc="' + p.sc + '">'
         + '<span class="top-capa"><img src="' + A.capa(p.capa) + '" alt="">'
-        + '<span class="top-pos">' + (i + 1) + '</span></span>'
-        + '<span class="top-b"><b>' + A.n(p.alc) + '</b>'
-        + '<span>de alcance · ' + A.pct(p.eng) + ' de engajamento</span>'
-        + '<p>' + A.escapar(p.legenda) + '</p></span></button>';
+        + '<span class="top-veu"></span>'
+        + '<span class="top-pos">' + (i + 1) + '</span>'
+        + seloFmt(p, 'top-fmt')
+        + '<span class="top-n"><b>' + A.n(p.alc) + '</b><span>De Alcance</span></span>'
+        + '</span>'
+        + '<span class="top-b"><p>' + A.escapar(p.legenda) + '</p>'
+        + '<span class="pe">' + A.pct(p.eng) + ' de engajamento'
+        + (p.exemplo ? '<span class="an-selo-ex">Exemplo</span>' : '')
+        + '</span></span></button>';
     }).join('');
     alvo.querySelectorAll('.top').forEach(function (b) {
+      var p = achar(b.dataset.sc);
       b.addEventListener('click', function () { abrir(b.dataset.sc); });
+      ligarPrevia(b, p);
     });
   }
 
+  /* A PREVIA no passar do mouse. Reel mostra o play e a duracao; carrossel folheia
+     as paginas sozinho. Ela nasce depois de 260ms parado em cima: aparecer no
+     primeiro pixel do mouse vira poluicao. */
+  var previa = null, previaTempo = null, previaGiro = null;
+
+  function ligarPrevia(elemento, post) {
+    elemento.addEventListener('mouseenter', function () {
+      clearTimeout(previaTempo);
+      previaTempo = setTimeout(function () { mostrarPrevia(elemento, post); }, 260);
+    });
+    elemento.addEventListener('mouseleave', function () {
+      clearTimeout(previaTempo);
+      esconderPrevia();
+    });
+  }
+
+  function mostrarPrevia(elemento, post) {
+    if (!previa) {
+      previa = document.createElement('div');
+      previa.className = 'prev';
+      document.body.appendChild(previa);
+    }
+    var paginas = post.fmt === 'reel' ? 1 : 3 + (post.sc.charCodeAt(post.sc.length - 1) % 3);
+    var atual = 0;
+    function pintar() {
+      previa.innerHTML =
+        '<div class="prev-capa"><img src="' + A.capa(post.capa + atual) + '" alt="">'
+        + (post.fmt === 'reel'
+          ? '<div class="prev-play"><i><svg viewBox="0 0 24 24">'
+            + '<path d="m8 5 12 7-12 7V5Z"/></svg></i></div>'
+            + '<span class="prev-dur">' + A.seg(post.dur) + '</span>'
+          : '<div class="prev-pontos">' + Array.apply(null, { length: paginas })
+              .map(function (x, i) {
+                return '<i class="' + (i === atual ? 'on' : '') + '"></i>';
+              }).join('') + '</div>')
+        + '</div>'
+        + '<div class="prev-b">'
+        + '<div class="lin">Alcance<b>' + A.n(post.alc) + '</b></div>'
+        + '<div class="lin">Visualizações<b>' + A.n(post.vis) + '</b></div>'
+        + '<div class="lin">Engajamento<b>' + A.pct(post.eng) + '</b></div>'
+        + (post.fmt === 'reel'
+          ? '<div class="lin">Assistido<b>' + A.pct(post.ret) + '</b></div>'
+          : '<div class="lin">Páginas<b>' + paginas + '</b></div>')
+        + '</div>';
+    }
+    pintar();
+
+    var caixa = elemento.getBoundingClientRect();
+    var largura = 236, folga = 12;
+    var esquerda = caixa.right + folga;
+    if (esquerda + largura > window.innerWidth - 8) esquerda = caixa.left - largura - folga;
+    previa.style.left = Math.max(esquerda, 8) + 'px';
+    var alto = Math.min(Math.max(caixa.top - 40, 12),
+      window.innerHeight - previa.offsetHeight - 12);
+    previa.style.top = alto + 'px';
+    previa.classList.add('on');
+
+    clearInterval(previaGiro);
+    if (post.fmt !== 'reel') {
+      previaGiro = setInterval(function () {
+        atual = (atual + 1) % paginas; pintar();
+      }, 950);
+    }
+  }
+
+  function esconderPrevia() {
+    clearInterval(previaGiro);
+    if (previa) previa.classList.remove('on');
+  }
+
+  /* ------------------------------------------------------------- formatos */
   function pintarFormatos() {
     var lista = A.janela(conta, dias);
     var reels = lista.filter(function (p) { return p.fmt === 'reel'; });
     var carr = lista.filter(function (p) { return p.fmt !== 'reel'; });
-    function medio(l) {
-      return l.length ? Math.round(A.soma(l, 'alc') / l.length) : 0;
-    }
+    function medio(l) { return l.length ? Math.round(A.soma(l, 'alc') / l.length) : 0; }
     var maior = Math.max(medio(reels), medio(carr), 1);
     function barra(nome, l, dois) {
       var m = medio(l);
@@ -375,15 +562,23 @@
         + '<div class="fmt-barra' + (dois ? ' dois' : '') + '"><i style="width:'
         + (m / maior * 100).toFixed(1) + '%"></i></div></div>';
     }
+    var alvo = document.getElementById('fmt');
+    if (!lista.length) { alvo.innerHTML = '<div class="vazio">Nada saiu no período.</div>'; return; }
     var venc = medio(reels) >= medio(carr) ? 'Reel' : 'Carrossel';
-    document.getElementById('fmt').innerHTML =
-      barra('Reel', reels, false) + barra('Carrossel', carr, true)
+    var quanto = Math.max(medio(reels), medio(carr))
+      / Math.max(Math.min(medio(reels), medio(carr)), 1);
+    alvo.innerHTML = barra('Reel', reels, false) + barra('Carrossel', carr, true)
       + '<div class="fmt-pe">Alcance médio por publicação. No período, <b>' + venc
-      + '</b> entrega mais nesta conta.</div>';
+      + '</b> entrega <b>' + quanto.toFixed(1).replace('.', ',')
+      + 'x</b> mais alcance nesta conta.</div>';
   }
 
+  /* -------------------------------------------------------------- a tabela */
   function filtradas() {
     var lista = A.janela(conta, dias);
+    if (formato) lista = lista.filter(function (p) {
+      return formato === 'reel' ? p.fmt === 'reel' : p.fmt !== 'reel';
+    });
     if (busca) {
       var b = busca.toLowerCase();
       lista = lista.filter(function (p) {
@@ -398,63 +593,76 @@
     return lista;
   }
 
+  function achar(sc) {
+    return conta.posts.filter(function (x) { return x.sc === sc; })[0];
+  }
+
   function pintarTabela() {
-    var lista = filtradas();
-    var total = lista.length;
+    var lista = filtradas(), total = lista.length;
     var paginas = Math.max(Math.ceil(total / POR), 1);
     if (pagina > paginas) pagina = paginas;
-    var ini = (pagina - 1) * POR;
-    var pedaco = lista.slice(ini, ini + POR);
+    var ini = (pagina - 1) * POR, pedaco = lista.slice(ini, ini + POR);
 
     document.getElementById('linhas').innerHTML = pedaco.length ? pedaco.map(function (p) {
-      return '<tr>'
-        + '<td><div class="an-post"><img class="an-mini" src="' + A.capa(p.capa)
-        + '" alt=""><div class="an-post-txt"><b>' + A.escapar(p.legenda) + '</b>'
-        + '<span>' + (p.fmt === 'reel' ? 'Reel' : 'Carrossel')
-        + (p.exemplo ? ' · <span class="an-selo-ex">Exemplo</span>' : '')
+      var marca = p.fmt === 'reel'
+        ? '<i><svg viewBox="0 0 24 24"><path d="m9 7 8 5-8 5V7Z"/></svg></i>'
+        : '<i class="carr"><svg viewBox="0 0 24 24" fill="none">'
+          + '<rect x="4" y="4" width="11" height="11" rx="2"/>'
+          + '<path d="M19 8v9a2 2 0 0 1-2 2H8"/></svg></i>';
+      return '<tr data-sc="' + p.sc + '">'
+        + '<td><div class="an-post"><span class="an-mini"><img src="' + A.capa(p.capa)
+        + '" alt="">' + marca + '</span>'
+        + '<div class="an-post-txt"><b>' + A.escapar(p.legenda) + '</b>'
+        + '<span>' + A.nomeFmt(p)
+        + (p.exemplo ? '<span class="an-selo-ex">Exemplo</span>' : '')
         + '</span></div></div></td>'
         + '<td><b style="font-size:13.5px">' + A.dia(p.quando) + '</b><br>'
         + '<span class="pp">' + A.idade(p.quando) + '</span></td>'
-        + '<td class="n">' + A.n(p.alc) + '</td>'
+        + '<td class="n destaque">' + A.n(p.alc) + '</td>'
         + '<td class="n">' + A.n(p.vis) + '</td>'
         + '<td class="n">' + A.pct(p.eng) + '</td>'
         + '<td class="n">' + A.n(p.sal) + '</td>'
-        + '<td class="n"><button class="an-abrir" data-sc="' + p.sc + '">'
-        + '<svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/>'
-        + '<path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>'
-        + 'Abrir</button></td></tr>';
-    }).join('') : '<tr><td colspan="7"><div class="vazio">Nenhuma publicação com esse '
-      + 'texto no período escolhido.</div></td></tr>';
+        + '<td class="n"><button class="btn linha" data-sc="' + p.sc + '">'
+        + '<svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>'
+        + '<span class="txt">Abrir</span><span class="circ"></span>'
+        + '<svg class="seta seta-dir" viewBox="0 0 24 24"><use href="#i-seta"/></svg>'
+        + '</button></td></tr>';
+    }).join('') : '<tr><td colspan="7"><div class="vazio">Nenhuma publicação com '
+      + 'esses filtros.</div></td></tr>';
 
     document.getElementById('conta-pag').textContent = total
       ? (ini + 1) + ' a ' + Math.min(ini + POR, total) + ' de ' + total + ' publicações'
       : 'Nenhuma publicação';
 
-    var botoes = '<button class="an-pg" data-p="' + (pagina - 1) + '"'
+    var b = '<button class="an-pg" data-p="' + (pagina - 1) + '"'
       + (pagina === 1 ? ' disabled' : '')
       + '><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>';
     for (var i = 1; i <= paginas; i++) {
-      botoes += '<button class="an-pg' + (i === pagina ? ' on' : '') + '" data-p="' + i
-        + '">' + i + '</button>';
+      b += '<button class="an-pg' + (i === pagina ? ' on' : '') + '" data-p="' + i + '">'
+        + i + '</button>';
     }
-    botoes += '<button class="an-pg" data-p="' + (pagina + 1) + '"'
+    b += '<button class="an-pg" data-p="' + (pagina + 1) + '"'
       + (pagina === paginas ? ' disabled' : '')
       + '><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>';
-    document.getElementById('paginas').innerHTML = botoes;
+    document.getElementById('paginas').innerHTML = b;
 
-    document.querySelectorAll('#paginas .an-pg').forEach(function (b) {
-      b.addEventListener('click', function () {
-        pagina = +b.dataset.p; pintarTabela();
-      });
+    document.querySelectorAll('#paginas .an-pg').forEach(function (x) {
+      x.addEventListener('click', function () { pagina = +x.dataset.p; pintarTabela(); });
     });
-    document.querySelectorAll('.an-abrir').forEach(function (b) {
-      b.addEventListener('click', function () { abrir(b.dataset.sc); });
+    document.querySelectorAll('#linhas .btn.linha').forEach(function (x) {
+      x.addEventListener('click', function (e) { e.stopPropagation(); abrir(x.dataset.sc); });
+    });
+    document.querySelectorAll('#linhas .an-mini').forEach(function (m) {
+      var tr = m.closest('tr');
+      ligarPrevia(m, achar(tr.dataset.sc));
     });
   }
 
+  /* A lista do painel lateral e' a MESMA da tela: as setas do painel andam na ordem
+     que voce esta vendo, e nao numa ordem escondida. */
   function abrir(sc) {
-    var p = conta.posts.filter(function (x) { return x.sc === sc; })[0];
-    if (p) A.abrirJanela(p, conta);
+    var p = achar(sc);
+    if (p) { esconderPrevia(); A.abrirPainel(p, conta, filtradas()); }
   }
 
   function tudo() {
@@ -462,28 +670,25 @@
     pintarFormatos(); pintarTabela();
   }
 
-  /* O trocador se redesenha inteiro na troca, porque o botao mostra o retrato e o
-     arroba da conta escolhida. Funcao nomeada, e nao `arguments.callee`: o script
-     roda em modo estrito e la' isso e' erro. */
   function ligarTrocador() {
     A.trocador(document.getElementById('troca'), D.contas, conta, function (u) {
       conta = D.contas.filter(function (c) { return c.u === u; })[0];
       pagina = 1; busca = ''; document.getElementById('busca').value = '';
-      ligarTrocador(); tudo();
+      A.fecharPainel(); ligarTrocador(); tudo();
     });
   }
 
-  document.getElementById('periodo').addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b) return;
-    this.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
-    b.classList.add('on'); dias = +b.dataset.d; pagina = 1; tudo();
-  });
+  function segmentado(id, aoEscolher) {
+    document.getElementById(id).addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      this.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); aoEscolher(b);
+    });
+  }
 
-  document.getElementById('metrica').addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b) return;
-    this.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
-    b.classList.add('on'); metrica = b.dataset.m; pintarGrafico();
-  });
+  segmentado('periodo', function (b) { dias = +b.dataset.d; pagina = 1; tudo(); });
+  segmentado('metrica', function (b) { metrica = b.dataset.m; pintarGrafico(); });
+  segmentado('formato', function (b) { formato = b.dataset.f; pagina = 1; pintarTabela(); });
 
   document.querySelectorAll('.an-ord').forEach(function (th) {
     th.addEventListener('click', function () {
@@ -500,6 +705,7 @@
   document.getElementById('busca').addEventListener('input', function () {
     busca = this.value.trim(); pagina = 1; pintarTabela();
   });
+  window.addEventListener('scroll', esconderPrevia, { passive: true });
 
   A.ligarMoldura();
   ligarTrocador();
