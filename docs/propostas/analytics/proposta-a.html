@@ -10,184 +10,148 @@
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="painel.css">
+<link rel="stylesheet" href="sala.css">
 <link rel="stylesheet" href="comum.css">
 <style>
 /* ================================================== PROPOSTA A: A FICHA DO PERFIL
-   A tela e' UMA pagina so', de cima para baixo, na ordem em que a pergunta aparece:
-   quem e' esta conta, como ela vem indo, o que puxou, e por fim a lista inteira do
-   que saiu. Nao ha' segunda tela: rolar e' a navegacao.
 
-   SEGUNDA RODADA, 09/09/2026. Ele aprovou a arquitetura e reprovou o acabamento.
-   O que mudou nesta folha:
-   1. Cartao de numero deixou de ser retangulo com numero: ganhou MINICURVA do
-      periodo, seta de variacao e relevo no passar do mouse.
-   2. "O que mais alcancou" trata CARROSSEL e REEL de verdade, cada um com o seu
-      selo, e ganhou PREVIA no passar do mouse: reel mostra o play e a duracao,
-      carrossel folheia as paginas sozinho.
-   3. O botao Abrir virou o BOTAO ANIMADO DA CASA, o mesmo gesto do Programar.
-   4. A tabela ficou legivel: coluna de publicacao com largura, formato no canto da
-      miniatura, e a coluna de acao presa a direita. */
+   TERCEIRA RODADA, 09/09/2026. As duas primeiras foram desenhadas no braco e ele
+   reprovou as duas: "onde era pra ser KPI voce colocou grafico", "esteticamente
+   horroroso". O erro nao era detalhe, era metodo: eu estava inventando desenho em
+   vez de usar o que a casa ja tem aprovado.
 
-/* A identidade da conta ocupa a largura toda, porque a aba e' de UMA conta. */
-.pf{display:flex;align-items:center;gap:18px;background:var(--branco);
-    border:1px solid var(--rule-solid);border-radius:var(--r-card);padding:18px 22px;
-    margin-bottom:16px}
-.pf-av{width:70px;height:70px;border-radius:50%;flex:none;overflow:hidden;
-       background:var(--paper-2);border:1px solid var(--rule-solid);
-       display:grid;place-items:center}
+   ENTAO ESTA VERSAO NAO INVENTA NADA. Ela veste a SALA DE CONTROLE do
+   portal.borusa.com.br, a tela que ele mesmo apontou como regua de qualidade em
+   29/08. O `sala.css` e' recortado do repo `borusa-iscas` pelo `montar.py`, e as
+   classes usadas aqui sao as de la', com o mesmo nome:
+
+     .rs            traz as variaveis (sombra, raio, cores de dado, tema escuro)
+     .rs-cd         o cartao, com sombra dupla
+     .rs-kpi        o cartao de numero: rotulo pequeno, NUMERO GRANDE, delta e
+                    minicurva de 92 por 30 na mesma linha
+     .rs-delta      a pilula de variacao
+     .rs-lista      lista com barra, que e' como a casa ranqueia
+     .rs-seg        o segmentado dos filtros
+     .rs-rot1/2/3   as tres receitas de rotulo, nunca mais que tres
+
+   O que sobra nesta folha e' o pouco que a sala nao tem: a faixa de identidade da
+   conta e a linha da tabela com miniatura. */
+
+/* A identidade da conta, na linguagem do cartao da sala. */
+.pf{display:flex;align-items:center;gap:18px;padding:18px 20px}
+.pf-av{width:64px;height:64px;border-radius:50%;flex:none;overflow:hidden;
+       background:var(--rs-trilho);border:1px solid var(--rule-solid)}
 .pf-av img{width:100%;height:100%;object-fit:cover}
-.pf-txt h2{font-size:20px;font-weight:800;letter-spacing:-.3px;margin:0 0 5px}
-.pf-txt .sub{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;
-             color:var(--soft);font-weight:600}
-.pf-num{margin-left:auto;display:flex;gap:0;text-align:right}
-.pf-num div{padding:0 22px;border-left:1px solid var(--rule-solid)}
-.pf-num div:first-child{border-left:0}
-.pf-num div:last-child{padding-right:0}
-.pf-num b{display:block;font-size:23px;font-weight:800;letter-spacing:-.03em;
-          font-variant-numeric:tabular-nums;line-height:1}
-.pf-num span{display:block;margin-top:7px;font-size:10.5px;font-weight:700;
-  letter-spacing:.05em;text-transform:uppercase;color:var(--soft)}
+.pf-txt h2{font-size:19px;font-weight:800;letter-spacing:-.3px;margin:0 0 6px}
+.pf-txt .sub{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pf-num{margin-left:auto;display:flex;text-align:right}
+.pf-num div{padding:0 20px;border-left:1px solid var(--rule-solid)}
+.pf-num div:last-child{padding-right:2px}
+.pf-num b{display:block;font-size:var(--rs-n3);font-weight:800;letter-spacing:-.03em;
+          line-height:1.1;font-variant-numeric:tabular-nums}
+.pf-num span{display:block;margin-top:5px}
 
-/* ------------------------------------------------------- os quatro numeros */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
-.kpi{position:relative;background:var(--branco);border:1px solid var(--rule-solid);
-     border-radius:var(--r-card);padding:16px 18px 0;overflow:hidden;
-     transition:border-color .18s,transform .18s,box-shadow .18s}
-.kpi:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--rule-solid));
-           transform:translateY(-2px);box-shadow:var(--an-sombra)}
-.kpi .rot{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;
-  letter-spacing:.05em;text-transform:uppercase;color:var(--soft)}
-.kpi .rot svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;
-              stroke-linecap:round;stroke-linejoin:round}
-.kpi .valor{display:flex;align-items:flex-end;gap:9px;margin-top:12px}
-.kpi .valor b{font-size:30px;font-weight:800;letter-spacing:-.04em;line-height:.95;
-              font-variant-numeric:tabular-nums}
-.kpi .var{display:inline-flex;align-items:center;gap:3px;font-weight:800;font-size:12px;
-  padding:3px 8px;border-radius:999px;margin-bottom:2px}
-.kpi .var svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.8;
-              stroke-linecap:round;stroke-linejoin:round}
-.kpi .var.sobe{color:var(--verde);
-               background:color-mix(in srgb,var(--verde) 12%,transparent)}
-.kpi .var.desce{color:var(--vermelho);
-                background:color-mix(in srgb,var(--vermelho) 12%,transparent)}
-.kpi .var.nulo{color:var(--soft);background:var(--paper-2);font-weight:700}
-.kpi .pe{margin-top:7px;font-size:11.5px;color:var(--soft);font-weight:600}
-.kpi .curva{height:46px;margin:6px -18px 0}
+/* O pe' da variacao nunca quebra linha: com quatro cartoes em 1400 ele empurrava a
+   minicurva para baixo e o cartao crescia sozinho. */
+.rs-kpi .lin > span{display:flex;align-items:center;gap:0;min-width:0}
+.rs-delta-pe{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* O grafico manda na tela: e' a peca que responde "vem subindo ou nao". */
-.gr-corpo{padding:10px 16px 14px}
+/* O grafico ocupa o corpo do cartao: a sala reserva altura, quem desenha e' o
+   motor em SVG do `comum.js`. */
+.gr{height:250px}
+.gr .gr-svg{height:100%}
 
-/* --------------------------------------------- o que mais alcancou, com previa */
-.tops{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 18px 18px}
-.top{position:relative;border:1px solid var(--rule-solid);border-radius:13px;
-     overflow:hidden;background:var(--branco);cursor:pointer;text-align:left;
-     padding:0;font:inherit;color:var(--ink);
-     transition:transform .18s cubic-bezier(.22,1,.36,1),border-color .18s,
-     box-shadow .18s}
-.top:hover{transform:translateY(-3px);
-           border-color:color-mix(in srgb,var(--accent) 50%,var(--rule-solid));
-           box-shadow:var(--an-sombra)}
-.top-capa{display:block;position:relative;aspect-ratio:4/5;background:var(--paper-2)}
-.top-capa img{width:100%;height:100%;object-fit:cover;display:block;
-              transition:transform .5s cubic-bezier(.22,1,.36,1)}
-.top:hover .top-capa img{transform:scale(1.045)}
-.top-veu{position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(14,14,14,.78),transparent 55%)}
-.top-pos{position:absolute;top:9px;left:9px;width:23px;height:23px;border-radius:999px;
-  background:rgba(255,255,255,.94);color:#0E0E0E;display:grid;place-items:center;
-  font-size:11.5px;font-weight:800}
-.top-fmt{position:absolute;top:9px;right:9px;height:23px;padding:0 8px;
-  border-radius:999px;background:rgba(14,14,14,.62);color:#fff;display:inline-flex;
-  align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:.05em;
-  text-transform:uppercase}
-.top-fmt svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.4;
-             stroke-linecap:round;stroke-linejoin:round}
-.top-fmt.reel svg{fill:currentColor;stroke:none}
-.top-n{position:absolute;left:12px;right:12px;bottom:10px;color:#fff}
-.top-n b{display:block;font-size:21px;font-weight:800;line-height:1;
-         font-variant-numeric:tabular-nums}
-.top-n span{display:block;margin-top:4px;font-size:10px;font-weight:700;
-  letter-spacing:.05em;text-transform:uppercase;opacity:.84}
-.top-b{display:block;padding:11px 12px 12px}
-.top-b p{margin:0;font-size:12.5px;line-height:1.4;color:var(--ink);
+/* Ranking com capa: a lista da sala, com a miniatura no lugar do logotipo. */
+.an-rank{display:flex;flex-direction:column;gap:14px}
+.an-rk{display:grid;grid-template-columns:44px 1fr auto;gap:11px;align-items:center;
+       cursor:pointer;background:none;border:0;padding:0;font:inherit;text-align:left;
+       width:100%}
+.an-rk .cp{position:relative;width:44px;height:56px;border-radius:9px;overflow:hidden;
+  background:var(--rs-trilho);border:1px solid var(--rule-solid)}
+.an-rk .cp img{width:100%;height:100%;object-fit:cover;display:block}
+.an-rk .cp i{position:absolute;right:3px;bottom:3px;width:15px;height:15px;
+  border-radius:5px;background:rgba(14,14,14,.68);display:grid;place-items:center}
+.an-rk .cp i svg{width:9px;height:9px}
+.an-rk .nm{min-width:0}
+.an-rk .nm b{display:block;font-size:13px;font-weight:700;line-height:1.35;
   overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;
   -webkit-box-orient:vertical}
-.top-b .pe{margin-top:8px;display:flex;align-items:center;gap:7px;font-size:11.5px;
-           color:var(--soft);font-weight:600}
+.an-rk .nm span{display:block;margin-top:3px;font-size:11.5px;font-weight:600;
+                color:var(--soft)}
+.an-rk .vl{text-align:right}
+.an-rk .vl b{display:block;font-size:var(--rs-n3);font-weight:800;letter-spacing:-.03em;
+             line-height:1.1;font-variant-numeric:tabular-nums}
+.an-rk .vl small{display:block;margin-top:3px;font-size:11px;font-weight:700;
+                 color:var(--soft)}
+.an-rk .tr{grid-column:1/-1;height:7px;background:var(--rs-trilho);border-radius:99px;
+           overflow:hidden}
+.an-rk .tr i{display:block;height:100%;border-radius:99px;
+  transition:width .55s cubic-bezier(.22,1,.36,1)}
+.an-rk:hover .nm b{color:var(--link)}
 
-/* A PREVIA. Ele cobrou: "passo o mouse em cima e nao tem preview". Ela mostra a
-   peca grande, e diz o que ela e': reel ganha o play e a duracao, carrossel folheia
-   as paginas sozinho, com os pontos embaixo. */
-.prev{position:fixed;z-index:70;width:236px;background:var(--branco);
-  border:1px solid var(--rule-solid);border-radius:14px;overflow:hidden;
-  box-shadow:var(--an-sombra-forte);opacity:0;transform:translateY(6px) scale(.98);
-  transition:opacity .16s,transform .16s;pointer-events:none}
-.prev.on{opacity:1;transform:none}
-.prev-capa{position:relative;aspect-ratio:9/16;background:var(--paper-2)}
-.prev-capa img{width:100%;height:100%;object-fit:cover;display:block}
-.prev-play{position:absolute;inset:0;display:grid;place-items:center}
-.prev-play i{width:46px;height:46px;border-radius:999px;background:rgba(255,255,255,.9);
-  display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.28)}
-.prev-play svg{width:18px;height:18px;fill:#0E0E0E;margin-left:2px}
-.prev-dur{position:absolute;right:9px;bottom:9px;height:22px;padding:0 8px;
-  border-radius:999px;background:rgba(14,14,14,.68);color:#fff;display:inline-flex;
-  align-items:center;font-size:11px;font-weight:700;
-  font-variant-numeric:tabular-nums}
-.prev-pontos{position:absolute;left:0;right:0;bottom:10px;display:flex;
-             justify-content:center;gap:5px}
-.prev-pontos i{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.5)}
-.prev-pontos i.on{background:#fff;width:14px}
-.prev-b{padding:11px 13px 13px}
-.prev-b .lin{display:flex;align-items:center;justify-content:space-between;gap:10px;
-             font-size:12px;color:var(--soft);font-weight:600;margin-top:6px}
-.prev-b .lin:first-child{margin-top:0}
-.prev-b .lin b{color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
-
-/* Formato: duas barras horizontais. Sem pizza, que obriga a comparar angulo. */
-.fmt{padding:18px}
-.fmt-item{margin-bottom:18px}
-.fmt-item:last-of-type{margin-bottom:0}
-.fmt-lin{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
-.fmt-lin b{font-size:14px;font-weight:800}
-.fmt-lin span{font-size:12px;color:var(--soft);font-weight:600}
-.fmt-lin em{margin-left:auto;font-style:normal;font-size:16px;font-weight:800;
-            font-variant-numeric:tabular-nums}
-.fmt-barra{height:10px;border-radius:999px;background:var(--paper-2);overflow:hidden;
-           border:1px solid var(--rule-solid)}
-.fmt-barra i{display:block;height:100%;border-radius:999px;background:var(--accent);
-             transition:width .55s cubic-bezier(.22,1,.36,1)}
-.fmt-barra.dois i{background:var(--chart-2)}
-.fmt-pe{margin-top:16px;padding-top:15px;border-top:1px solid var(--rule-solid);
-        font-size:12.5px;color:var(--muted);line-height:1.5}
-.fmt-pe b{color:var(--ink);font-weight:700}
+/* Formato: duas linhas com barra, mesma receita da lista. */
+.an-fmt{display:flex;flex-direction:column;gap:15px}
+.an-fl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline}
+.an-fl .nm b{font-size:13px;font-weight:700}
+.an-fl .nm span{font-size:11.5px;font-weight:600;color:var(--soft);margin-left:7px}
+.an-fl .vl{font-size:var(--rs-n3);font-weight:800;letter-spacing:-.03em;
+           font-variant-numeric:tabular-nums}
+.an-fl .tr{grid-column:1/-1;height:7px;background:var(--rs-trilho);border-radius:99px;
+           overflow:hidden}
+.an-fl .tr i{display:block;height:100%;border-radius:99px}
+.an-fmt-pe{margin-top:4px;padding-top:14px;border-top:1px solid var(--rule-solid);
+           font-size:12.5px;color:var(--muted);line-height:1.5}
+.an-fmt-pe b{color:var(--ink);font-weight:700}
 
 /* --------------------------------------------------------------- a tabela */
 .busca{position:relative}
 .busca input{height:38px;padding:0 12px 0 34px;border-radius:10px;
   border:1px solid var(--rule-solid);background:var(--branco);font:inherit;
-  font-size:13px;color:var(--ink);width:240px;outline:0;transition:border-color .15s}
+  font-size:13px;color:var(--ink);width:220px;outline:0;transition:border-color .15s}
 .busca input:focus{border-color:var(--accent)}
 .busca svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;
   height:15px;fill:none;stroke:var(--soft);stroke-width:2;stroke-linecap:round}
-.tab th:first-child,.tab td:first-child{width:330px;min-width:330px;padding-left:20px}
-.tab td{padding:13px 10px}
-.tab th{padding:13px 10px}
-.tab th:first-child{padding-left:20px}
+.tab{border-top:1px solid var(--rule-solid)}
+.tab th{padding:12px 10px}
+.tab td{padding:12px 10px}
+.tab th:first-child,.tab td:first-child{width:330px;min-width:330px;padding-left:17px}
 .tab th:last-child,.tab td:last-child{position:sticky;right:0;z-index:2;
-  padding-right:20px;background:var(--branco);
+  padding-right:17px;background:var(--branco);
   box-shadow:-16px 0 16px -14px rgba(14,14,14,.16)}
 .tab tbody tr:hover td{background:var(--an-hover)}
 .tab tbody tr:hover td:last-child{background:
   color-mix(in srgb,var(--paper-2) 96%,var(--branco))}
-.tab td.n{font-size:15px;font-weight:600}
-.tab .destaque{font-weight:800}
-
-/* O BOTAO ANIMADO DA CASA, em tamanho de linha de tabela. O gesto e' o mesmo do
-   Programar: circulo que engole, duas setas, texto que desliza. Nada de botao
-   chapado inventado, que foi o que ele reprovou. */
-.btn.linha{height:32px;padding:0 15px;font-size:12.5px;--desl:7px}
+.tab td.n{font-size:14.5px;font-weight:600}
+.tab .destaque{font-weight:800;font-size:15px}
+.btn.linha{height:31px;padding:0 14px;font-size:12.5px;--desl:7px}
 .btn.linha .seta{width:12px;height:12px}
-.vazio{padding:44px 20px;text-align:center;color:var(--soft);font-size:13.5px}
+.vazio{padding:38px 20px;text-align:center;color:var(--soft);font-size:13.5px}
+
+/* A previa ao passar o mouse. */
+.prev{position:fixed;z-index:70;width:230px;background:var(--branco);
+  border:1px solid var(--rule-solid);border-radius:var(--rs-rg);overflow:hidden;
+  box-shadow:var(--rs-sombra-g);opacity:0;transform:translateY(6px);
+  transition:opacity .16s,transform .16s;pointer-events:none}
+.prev.on{opacity:1;transform:none}
+.prev-capa{position:relative;aspect-ratio:9/16;background:var(--rs-trilho)}
+.prev-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.prev-play{position:absolute;inset:0;display:grid;place-items:center}
+.prev-play i{width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.92);
+  display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.prev-play svg{width:17px;height:17px;fill:#0E0E0E;margin-left:2px}
+.prev-dur{position:absolute;right:9px;bottom:9px;height:22px;padding:0 8px;
+  border-radius:999px;background:rgba(14,14,14,.7);color:#fff;display:inline-flex;
+  align-items:center;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.prev-pontos{position:absolute;left:0;right:0;bottom:10px;display:flex;
+             justify-content:center;gap:5px}
+.prev-pontos i{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.5);
+               transition:width .2s}
+.prev-pontos i.on{background:#fff;width:14px}
+.prev-b{padding:11px 13px 12px}
+.prev-b .lin{display:flex;align-items:center;justify-content:space-between;gap:10px;
+             font-size:12px;color:var(--soft);font-weight:600;margin-top:6px}
+.prev-b .lin:first-child{margin-top:0}
+.prev-b .lin b{color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -280,88 +244,96 @@
         viva entrar.</div>
     </div>
 
-    <div class="pf">
-      <div class="pf-av" id="pf-av"></div>
-      <div class="pf-txt">
-        <h2 id="pf-nome"></h2>
-        <div class="sub" id="pf-sub"></div>
+    <!-- Tudo daqui para baixo mora dentro do `.rs`, que traz as variaveis da sala
+         de controle: sombra, raio, cores de dado e o tema escuro pronto. -->
+    <div class="rs">
+
+      <div class="rs-cd">
+        <div class="pf">
+          <div class="pf-av" id="pf-av"></div>
+          <div class="pf-txt">
+            <h2 id="pf-nome"></h2>
+            <div class="sub" id="pf-sub"></div>
+          </div>
+          <div class="pf-num" id="pf-num"></div>
+        </div>
       </div>
-      <div class="pf-num" id="pf-num"></div>
-    </div>
 
-    <div class="ct-filtros" style="margin-bottom:16px">
-      <span class="rot-filtro">Período</span>
-      <div class="ct-seg" id="periodo">
-        <button data-d="7">7 dias</button>
-        <button data-d="30" class="on">30 dias</button>
-        <button data-d="90">90 dias</button>
-        <button data-d="0">Tudo</button>
+      <div class="rs-topo">
+        <span class="rs-rot2">Período</span>
+        <div class="rs-dir">
+          <div class="rs-seg" id="periodo">
+            <button data-d="7">7 dias</button>
+            <button data-d="30" class="on">30 dias</button>
+            <button data-d="90">90 dias</button>
+            <button data-d="0">Tudo</button>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="kpis" id="kpis"></div>
+      <div class="rs-grade rs-g4" id="kpis"></div>
 
-    <div class="caixa solta">
-      <div class="caixa-topo">
-        <h3>Como A Conta Vem Indo</h3>
-        <div class="dir">
-          <div class="ct-seg" id="metrica">
+      <div class="rs-cd estica">
+        <div class="rs-cd-h">
+          <h3>Como A Conta Vem Indo</h3>
+          <div class="rs-seg" id="metrica">
             <button data-m="alc" class="on">Alcance</button>
             <button data-m="vis">Visualizações</button>
             <button data-m="inter">Interações</button>
             <button data-m="seg-total">Seguidores</button>
           </div>
         </div>
+        <div class="rs-cd-b"><div class="gr" id="grafico"></div></div>
       </div>
-      <div class="gr-corpo"><div class="gr" id="grafico"></div></div>
-    </div>
 
-    <div class="g2" style="margin-top:16px">
-      <div class="caixa solta">
-        <div class="caixa-topo"><h3>O Que Mais Alcançou</h3>
-          <div class="dir"><span class="pp">passe o mouse para ver a peça</span></div></div>
-        <div class="tops" id="tops"></div>
-      </div>
-      <div class="caixa solta">
-        <div class="caixa-topo"><h3>Formato Que Entrega</h3></div>
-        <div class="fmt" id="fmt"></div>
-      </div>
-    </div>
-
-    <div class="caixa solta" style="margin-top:16px">
-      <div class="caixa-topo">
-        <h3>Todas As Publicações</h3>
-        <div class="dir">
-          <div class="ct-seg" id="formato">
-            <button data-f="" class="on">Todos</button>
-            <button data-f="reel">Reel</button>
-            <button data-f="carrossel">Carrossel</button>
-          </div>
-          <div class="busca">
-            <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7"/>
-              <path d="m20 20-3.2-3.2"/></svg>
-            <input id="busca" placeholder="Procurar na legenda" aria-label="Procurar">
-          </div>
+      <div class="rs-grade rs-g21">
+        <div class="rs-cd">
+          <div class="rs-cd-h"><h3>O Que Mais Alcançou</h3>
+            <span class="rs-rot3">passe o mouse para ver a peça</span></div>
+          <div class="rs-cd-b"><div class="an-rank" id="tops"></div></div>
+        </div>
+        <div class="rs-cd">
+          <div class="rs-cd-h"><h3>Formato Que Entrega</h3></div>
+          <div class="rs-cd-b"><div id="fmt"></div></div>
         </div>
       </div>
-      <div class="rolagem">
-        <table class="tab">
-          <thead><tr>
-            <th>Publicação</th>
-            <th class="an-ord" data-o="quando">Quando<i>↓</i></th>
-            <th class="n an-ord on" data-o="alc">Alcance<i>↓</i></th>
-            <th class="n an-ord" data-o="vis">Visualizações<i>↓</i></th>
-            <th class="n an-ord" data-o="eng">Engajamento<i>↓</i></th>
-            <th class="n an-ord" data-o="sal">Salvamentos<i>↓</i></th>
-            <th></th>
-          </tr></thead>
-          <tbody id="linhas"></tbody>
-        </table>
+
+      <div class="rs-cd">
+        <div class="rs-cd-h">
+          <h3>Todas As Publicações</h3>
+          <div class="rs-dir">
+            <div class="rs-seg" id="formato">
+              <button data-f="" class="on">Todos</button>
+              <button data-f="reel">Reel</button>
+              <button data-f="carrossel">Carrossel</button>
+            </div>
+            <div class="busca">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7"/>
+                <path d="m20 20-3.2-3.2"/></svg>
+              <input id="busca" placeholder="Procurar na legenda" aria-label="Procurar">
+            </div>
+          </div>
+        </div>
+        <div class="rolagem">
+          <table class="tab">
+            <thead><tr>
+              <th>Publicação</th>
+              <th class="an-ord" data-o="quando">Quando<i>↓</i></th>
+              <th class="n an-ord on" data-o="alc">Alcance<i>↓</i></th>
+              <th class="n an-ord" data-o="vis">Visualizações<i>↓</i></th>
+              <th class="n an-ord" data-o="eng">Engajamento<i>↓</i></th>
+              <th class="n an-ord" data-o="sal">Salvamentos<i>↓</i></th>
+              <th></th>
+            </tr></thead>
+            <tbody id="linhas"></tbody>
+          </table>
+        </div>
+        <div class="an-pag">
+          <span class="conta" id="conta-pag"></span>
+          <div class="dir" id="paginas"></div>
+        </div>
       </div>
-      <div class="an-pag">
-        <span class="conta" id="conta-pag"></span>
-        <div class="dir" id="paginas"></div>
-      </div>
+
     </div>
   </section>
 </main>
@@ -374,35 +346,46 @@
   var A = window.AN, D = window.DADOS;
   var conta = D.contas[0], dias = 30, metrica = 'alc';
   var ordem = 'alc', invertido = false, pagina = 1, POR = 8, busca = '', formato = '';
-  var grafico = new A.Grafico(document.getElementById('grafico'), { altura: 258 });
+  var grafico = new A.Grafico(document.getElementById('grafico'), { altura: 250 });
 
-  function ico(d) { return '<svg viewBox="0 0 24 24">' + d + '</svg>'; }
+  /* Os icones sao os da sala: traco de 1,9, tamanho `s` ou `xs`. */
+  function ico(d, cls) {
+    return '<svg class="rs-i ' + (cls || 's') + '" viewBox="0 0 24 24">' + d + '</svg>';
+  }
   var ICO = {
     alc: '<circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/>',
     vis: '<path d="M4 4v16h16"/><path d="M8 16v-5M13 16V7M18 16v-8"/>',
     inter: '<path d="M20.8 6.6a5 5 0 0 0-7.1 0L12 8.3l-1.7-1.7a5 5 0 1 0-7.1 7.1l8.8 8.8 8.8-8.8a5 5 0 0 0 0-7.1Z"/>',
-    seg: '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-3.7 3.3-6 7.5-6s7.5 2.3 7.5 6"/>'
+    seg: '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-3.7 3.3-6 7.5-6s7.5 2.3 7.5 6"/>',
+    cima: '<path d="M7 17 17 7M9 7h8v8"/>',
+    baixo: '<path d="M7 7l10 10M17 9v8H9"/>',
+    reto: '<path d="M5 12h14"/>'
   };
-  var CIMA = '<path d="M12 19V5M5 12l7-7 7 7"/>';
-  var BAIXO = '<path d="M12 5v14M5 12l7 7 7-7"/>';
 
-  /* ----------------------------------------------------------------- perfil */
   function pintarPerfil() {
     document.getElementById('pf-av').innerHTML = conta.avatar
       ? '<img src="' + conta.avatar + '" alt="">' : '';
     document.getElementById('pf-nome').textContent = conta.nome;
     document.getElementById('pf-sub').innerHTML =
-      '<span>@' + A.escapar(conta.u) + '</span><span class="sep"></span>'
-      + '<span>' + A.escapar(conta.mercado) + '</span><span class="sep"></span>'
-      + '<span class="pino ok">Conectada</span><span class="sep"></span>'
-      + '<span>No Postador desde ' + A.dia(conta.desde) + '</span>';
+      '<span class="rs-rot3">@' + A.escapar(conta.u) + '</span>'
+      + '<span class="sep"></span>'
+      + '<span class="rs-rot3">' + A.escapar(conta.mercado) + '</span>'
+      + '<span class="sep"></span><span class="pino ok">Conectada</span>'
+      + '<span class="sep"></span>'
+      + '<span class="rs-rot3">No Postador desde ' + A.dia(conta.desde) + '</span>';
     document.getElementById('pf-num').innerHTML =
-      '<div><b>' + A.n(conta.seguidores) + '</b><span>Seguidores</span></div>'
-      + '<div><b>' + A.n(conta.posts.length) + '</b><span>Publicações</span></div>'
-      + '<div><b>' + conta.dias + '</b><span>Dias De Acesso</span></div>';
+      '<div><b class="rs-tn">' + A.n(conta.seguidores) + '</b>'
+      + '<span class="rs-rot1">Seguidores</span></div>'
+      + '<div><b class="rs-tn">' + A.n(conta.posts.length) + '</b>'
+      + '<span class="rs-rot1">Publicações</span></div>'
+      + '<div><b class="rs-tn">' + conta.dias + '</b>'
+      + '<span class="rs-rot1">Dias De Acesso</span></div>';
   }
 
-  /* ------------------------------------------------------- os quatro numeros */
+  /* -------------------------------------------------- os cartoes de numero
+     Marcacao identica a' do `Kpi` da sala de controle: cabeca com icone e rotulo,
+     numero grande, e a linha de baixo com a pilula de variacao e a minicurva de
+     92 por 30. O numero manda; a curva e' do tamanho de um selo. */
   function pintarKpis() {
     var r = A.resumo(conta, dias);
     var passo = dias || 90;
@@ -410,86 +393,112 @@
       return A.serie(conta, passo, campo).map(function (p) { return p.v; });
     }
     var cartoes = [
-      { rot: 'Alcance', ic: ICO.alc, v: A.n(r.alcance), var: r.varAlcance,
-        s: serieDe('alc'), pe: 'mediana de ' + A.n(r.medianaAlcance) + ' por publicação' },
-      { rot: 'Visualizações', ic: ICO.vis, v: A.n(r.visualizacoes), var: r.varVis,
-        s: serieDe('vis'), pe: r.posts.length + ' publicações no período' },
-      { rot: 'Interações', ic: ICO.inter, v: A.n(r.interacoes), var: r.varInter,
-        s: serieDe('inter'), pe: A.pct(r.engajamento) + ' de engajamento sobre alcance' },
-      { rot: 'Seguidores Ganhos', ic: ICO.seg, v: A.n(r.seguidores), var: r.varSeg,
-        s: serieDe('seg'), pe: A.n(conta.seguidores) + ' seguidores no total' }
+      { rot: 'Alcance', ic: ICO.alc, v: A.n(r.alcance), d: r.varAlcance,
+        s: serieDe('alc'), pe: 'mediana ' + A.curto(r.medianaAlcance),
+        cor: 'var(--rs-1)' },
+      { rot: 'Visualizações', ic: ICO.vis, v: A.n(r.visualizacoes), d: r.varVis,
+        s: serieDe('vis'), pe: r.posts.length + ' posts', cor: 'var(--rs-2)' },
+      { rot: 'Interações', ic: ICO.inter, v: A.n(r.interacoes), d: r.varInter,
+        s: serieDe('inter'), pe: A.pct(r.engajamento) + ' eng.', cor: 'var(--rs-3)' },
+      { rot: 'Seguidores Ganhos', ic: ICO.seg, v: A.n(r.seguidores), d: r.varSeg,
+        s: serieDe('seg'), pe: A.n(conta.seguidores) + ' hoje', cor: 'var(--rs-4)' }
     ];
     document.getElementById('kpis').innerHTML = cartoes.map(function (k) {
-      var v = k.var;
-      var selo = v == null
-        ? '<span class="var nulo">sem base</span>'
-        : '<span class="var ' + (v >= 0 ? 'sobe' : 'desce') + '">'
-          + ico(v >= 0 ? CIMA : BAIXO) + Math.abs(v) + '%</span>';
-      var desce = v != null && v < 0;
-      return '<div class="kpi"><div class="rot">' + ico(k.ic) + k.rot + '</div>'
-        + '<div class="valor"><b>' + k.v + '</b>' + selo + '</div>'
-        + '<div class="pe">' + k.pe + '</div>'
-        + '<div class="curva' + (desce ? ' desce' : '') + '">'
-        + A.minicurva(k.s, 200, 46) + '</div></div>';
+      var cls = k.d == null ? 'fl' : k.d > 0.5 ? 'up' : k.d < -0.5 ? 'dw' : 'fl';
+      var seta = k.d == null ? ICO.reto : k.d > 0.5 ? ICO.cima
+        : k.d < -0.5 ? ICO.baixo : ICO.reto;
+      var delta = k.d == null ? ''
+        : '<span class="rs-delta ' + cls + '">' + ico(seta, 'xs')
+          + (k.d > 0 ? '+' : '') + k.d + '%</span>';
+      return '<div class="rs-cd rs-kpi">'
+        + '<div class="cab">' + ico(k.ic, 's')
+        + '<span class="rs-rot2">' + k.rot + '</span></div>'
+        + '<div class="num rs-tn">' + k.v + '</div>'
+        + '<div class="lin"><span>' + delta
+        + '<span class="rs-delta-pe">' + k.pe + '</span></span>'
+        + A.minicurva(k.s, 92, 30, k.cor) + '</div></div>';
     }).join('');
-    document.querySelectorAll('.kpi .curva.desce .spark').forEach(function (s) {
-      s.classList.add('desce');
-    });
   }
 
   function pintarGrafico() { grafico.dar(A.serie(conta, dias || 90, metrica)); }
 
-  /* ------------------------------------------------- o que mais alcancou */
-  function seloFmt(p, classe) {
-    return '<span class="' + classe + (p.fmt === 'reel' ? ' reel' : '') + '">'
-      + (p.fmt === 'reel'
-        ? '<svg viewBox="0 0 24 24"><path d="m10 8 6 4-6 4V8Z"/></svg>Reel'
-        : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="13" height="13" rx="2.4"/>'
-          + '<path d="M20 8v11a2 2 0 0 1-2 2H7"/></svg>Carrossel') + '</span>';
+  /* ------------------------------------------------------ ranking com barra */
+  function marcaFmt(p) {
+    return p.fmt === 'reel'
+      ? '<i><svg viewBox="0 0 24 24" fill="#fff"><path d="m9 7 8 5-8 5V7Z"/></svg></i>'
+      : '<i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4">'
+        + '<rect x="4" y="4" width="11" height="11" rx="2"/>'
+        + '<path d="M19 8v9a2 2 0 0 1-2 2H8"/></svg></i>';
   }
 
   function pintarTops() {
     var lista = A.janela(conta, dias).slice()
-      .sort(function (a, b) { return b.alc - a.alc; }).slice(0, 3);
+      .sort(function (a, b) { return b.alc - a.alc; }).slice(0, 4);
     var alvo = document.getElementById('tops');
     if (!lista.length) {
-      alvo.innerHTML = '<div class="vazio" style="grid-column:1/-1">Nada saiu no '
-        + 'período.</div>';
+      alvo.innerHTML = '<p class="rs-sem">Nada saiu no período.</p>';
       return;
     }
+    var max = Math.max.apply(null, lista.map(function (p) { return p.alc; }).concat([1]));
+    var cores = ['var(--rs-1)', 'var(--rs-2)', 'var(--rs-3)', 'var(--rs-4)'];
     alvo.innerHTML = lista.map(function (p, i) {
-      return '<button class="top" data-sc="' + p.sc + '">'
-        + '<span class="top-capa"><img src="' + A.capa(p.capa) + '" alt="">'
-        + '<span class="top-veu"></span>'
-        + '<span class="top-pos">' + (i + 1) + '</span>'
-        + seloFmt(p, 'top-fmt')
-        + '<span class="top-n"><b>' + A.n(p.alc) + '</b><span>De Alcance</span></span>'
-        + '</span>'
-        + '<span class="top-b"><p>' + A.escapar(p.legenda) + '</p>'
-        + '<span class="pe">' + A.pct(p.eng) + ' de engajamento'
-        + (p.exemplo ? '<span class="an-selo-ex">Exemplo</span>' : '')
-        + '</span></span></button>';
+      return '<button class="an-rk" data-sc="' + p.sc + '">'
+        + '<span class="cp"><img src="' + A.capa(p.capa) + '" alt="">'
+        + marcaFmt(p) + '</span>'
+        + '<span class="nm"><b>' + A.escapar(p.legenda) + '</b>'
+        + '<span>' + A.nomeFmt(p) + ' · ' + A.idade(p.quando) + '</span></span>'
+        + '<span class="vl"><b class="rs-tn">' + A.n(p.alc) + '</b>'
+        + '<small>' + A.pct(p.eng) + ' eng.</small></span>'
+        + '<span class="tr"><i style="width:' + (p.alc / max * 100).toFixed(1) + '%;'
+        + 'background:' + cores[i % cores.length] + '"></i></span>'
+        + '</button>';
     }).join('');
-    alvo.querySelectorAll('.top').forEach(function (b) {
-      var p = achar(b.dataset.sc);
+    alvo.querySelectorAll('.an-rk').forEach(function (b) {
       b.addEventListener('click', function () { abrir(b.dataset.sc); });
-      ligarPrevia(b, p);
+      ligarPrevia(b, achar(b.dataset.sc));
     });
   }
 
-  /* A PREVIA no passar do mouse. Reel mostra o play e a duracao; carrossel folheia
-     as paginas sozinho. Ela nasce depois de 260ms parado em cima: aparecer no
-     primeiro pixel do mouse vira poluicao. */
+  /* ------------------------------------------------------------- formatos */
+  function pintarFormatos() {
+    var lista = A.janela(conta, dias);
+    var reels = lista.filter(function (p) { return p.fmt === 'reel'; });
+    var carr = lista.filter(function (p) { return p.fmt !== 'reel'; });
+    function medio(l) { return l.length ? Math.round(A.soma(l, 'alc') / l.length) : 0; }
+    var maior = Math.max(medio(reels), medio(carr), 1);
+    function linha(nome, l, cor) {
+      var m = medio(l);
+      return '<div class="an-fl"><span class="nm"><b>' + nome + '</b>'
+        + '<span>' + l.length + (l.length === 1 ? ' publicação' : ' publicações')
+        + '</span></span>'
+        + '<span class="vl rs-tn">' + A.n(m) + '</span>'
+        + '<span class="tr"><i style="width:' + (m / maior * 100).toFixed(1) + '%;'
+        + 'background:' + cor + '"></i></span></div>';
+    }
+    var alvo = document.getElementById('fmt');
+    if (!lista.length) { alvo.innerHTML = '<p class="rs-sem">Nada saiu no período.</p>'; return; }
+    var venc = medio(reels) >= medio(carr) ? 'Reel' : 'Carrossel';
+    var quanto = Math.max(medio(reels), medio(carr))
+      / Math.max(Math.min(medio(reels), medio(carr)), 1);
+    alvo.innerHTML = '<div class="an-fmt">'
+      + linha('Reel', reels, 'var(--rs-1)')
+      + linha('Carrossel', carr, 'var(--rs-2)')
+      + '</div><div class="an-fmt-pe">Alcance médio por publicação. No período, <b>'
+      + venc + '</b> entrega <b>' + quanto.toFixed(1).replace('.', ',')
+      + 'x</b> mais alcance nesta conta.</div>';
+  }
+
+  /* --------------------------------------------------------------- previa */
   var previa = null, previaTempo = null, previaGiro = null;
 
   function ligarPrevia(elemento, post) {
+    if (!post) return;
     elemento.addEventListener('mouseenter', function () {
       clearTimeout(previaTempo);
-      previaTempo = setTimeout(function () { mostrarPrevia(elemento, post); }, 260);
+      previaTempo = setTimeout(function () { mostrarPrevia(elemento, post); }, 240);
     });
     elemento.addEventListener('mouseleave', function () {
-      clearTimeout(previaTempo);
-      esconderPrevia();
+      clearTimeout(previaTempo); esconderPrevia();
     });
   }
 
@@ -499,7 +508,8 @@
       previa.className = 'prev';
       document.body.appendChild(previa);
     }
-    var paginas = post.fmt === 'reel' ? 1 : 3 + (post.sc.charCodeAt(post.sc.length - 1) % 3);
+    var paginas = post.fmt === 'reel' ? 1
+      : 3 + (post.sc.charCodeAt(post.sc.length - 1) % 3);
     var atual = 0;
     function pintar() {
       previa.innerHTML =
@@ -512,8 +522,7 @@
               .map(function (x, i) {
                 return '<i class="' + (i === atual ? 'on' : '') + '"></i>';
               }).join('') + '</div>')
-        + '</div>'
-        + '<div class="prev-b">'
+        + '</div><div class="prev-b">'
         + '<div class="lin">Alcance<b>' + A.n(post.alc) + '</b></div>'
         + '<div class="lin">Visualizações<b>' + A.n(post.vis) + '</b></div>'
         + '<div class="lin">Engajamento<b>' + A.pct(post.eng) + '</b></div>'
@@ -524,14 +533,14 @@
     }
     pintar();
 
-    var caixa = elemento.getBoundingClientRect();
-    var largura = 236, folga = 12;
+    var caixa = elemento.getBoundingClientRect(), largura = 230, folga = 12;
     var esquerda = caixa.right + folga;
-    if (esquerda + largura > window.innerWidth - 8) esquerda = caixa.left - largura - folga;
+    if (esquerda + largura > window.innerWidth - 8) {
+      esquerda = caixa.left - largura - folga;
+    }
     previa.style.left = Math.max(esquerda, 8) + 'px';
-    var alto = Math.min(Math.max(caixa.top - 40, 12),
-      window.innerHeight - previa.offsetHeight - 12);
-    previa.style.top = alto + 'px';
+    previa.style.top = Math.min(Math.max(caixa.top - 30, 12),
+      window.innerHeight - previa.offsetHeight - 12) + 'px';
     previa.classList.add('on');
 
     clearInterval(previaGiro);
@@ -545,32 +554,6 @@
   function esconderPrevia() {
     clearInterval(previaGiro);
     if (previa) previa.classList.remove('on');
-  }
-
-  /* ------------------------------------------------------------- formatos */
-  function pintarFormatos() {
-    var lista = A.janela(conta, dias);
-    var reels = lista.filter(function (p) { return p.fmt === 'reel'; });
-    var carr = lista.filter(function (p) { return p.fmt !== 'reel'; });
-    function medio(l) { return l.length ? Math.round(A.soma(l, 'alc') / l.length) : 0; }
-    var maior = Math.max(medio(reels), medio(carr), 1);
-    function barra(nome, l, dois) {
-      var m = medio(l);
-      return '<div class="fmt-item"><div class="fmt-lin"><b>' + nome + '</b>'
-        + '<span>' + l.length + (l.length === 1 ? ' publicação' : ' publicações')
-        + '</span><em>' + A.n(m) + '</em></div>'
-        + '<div class="fmt-barra' + (dois ? ' dois' : '') + '"><i style="width:'
-        + (m / maior * 100).toFixed(1) + '%"></i></div></div>';
-    }
-    var alvo = document.getElementById('fmt');
-    if (!lista.length) { alvo.innerHTML = '<div class="vazio">Nada saiu no período.</div>'; return; }
-    var venc = medio(reels) >= medio(carr) ? 'Reel' : 'Carrossel';
-    var quanto = Math.max(medio(reels), medio(carr))
-      / Math.max(Math.min(medio(reels), medio(carr)), 1);
-    alvo.innerHTML = barra('Reel', reels, false) + barra('Carrossel', carr, true)
-      + '<div class="fmt-pe">Alcance médio por publicação. No período, <b>' + venc
-      + '</b> entrega <b>' + quanto.toFixed(1).replace('.', ',')
-      + 'x</b> mais alcance nesta conta.</div>';
   }
 
   /* -------------------------------------------------------------- a tabela */
@@ -604,24 +587,20 @@
     var ini = (pagina - 1) * POR, pedaco = lista.slice(ini, ini + POR);
 
     document.getElementById('linhas').innerHTML = pedaco.length ? pedaco.map(function (p) {
-      var marca = p.fmt === 'reel'
-        ? '<i><svg viewBox="0 0 24 24"><path d="m9 7 8 5-8 5V7Z"/></svg></i>'
-        : '<i class="carr"><svg viewBox="0 0 24 24" fill="none">'
-          + '<rect x="4" y="4" width="11" height="11" rx="2"/>'
-          + '<path d="M19 8v9a2 2 0 0 1-2 2H8"/></svg></i>';
       return '<tr data-sc="' + p.sc + '">'
         + '<td><div class="an-post"><span class="an-mini"><img src="' + A.capa(p.capa)
-        + '" alt="">' + marca + '</span>'
+        + '" alt="">' + marcaFmt(p) + '</span>'
         + '<div class="an-post-txt"><b>' + A.escapar(p.legenda) + '</b>'
         + '<span>' + A.nomeFmt(p)
         + (p.exemplo ? '<span class="an-selo-ex">Exemplo</span>' : '')
         + '</span></div></div></td>'
-        + '<td><b style="font-size:13.5px">' + A.dia(p.quando) + '</b><br>'
-        + '<span class="pp">' + A.idade(p.quando) + '</span></td>'
-        + '<td class="n destaque">' + A.n(p.alc) + '</td>'
-        + '<td class="n">' + A.n(p.vis) + '</td>'
-        + '<td class="n">' + A.pct(p.eng) + '</td>'
-        + '<td class="n">' + A.n(p.sal) + '</td>'
+        + '<td><b style="font-size:13px">' + A.dia(p.quando) + '</b><br>'
+        + '<span class="rs-rot3" style="font-size:11.5px">' + A.idade(p.quando)
+        + '</span></td>'
+        + '<td class="n destaque rs-tn">' + A.n(p.alc) + '</td>'
+        + '<td class="n rs-tn">' + A.n(p.vis) + '</td>'
+        + '<td class="n rs-tn">' + A.pct(p.eng) + '</td>'
+        + '<td class="n rs-tn">' + A.n(p.sal) + '</td>'
         + '<td class="n"><button class="btn linha" data-sc="' + p.sc + '">'
         + '<svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>'
         + '<span class="txt">Abrir</span><span class="circ"></span>'
@@ -650,16 +629,15 @@
       x.addEventListener('click', function () { pagina = +x.dataset.p; pintarTabela(); });
     });
     document.querySelectorAll('#linhas .btn.linha').forEach(function (x) {
-      x.addEventListener('click', function (e) { e.stopPropagation(); abrir(x.dataset.sc); });
+      x.addEventListener('click', function (e) {
+        e.stopPropagation(); abrir(x.dataset.sc);
+      });
     });
     document.querySelectorAll('#linhas .an-mini').forEach(function (m) {
-      var tr = m.closest('tr');
-      ligarPrevia(m, achar(tr.dataset.sc));
+      ligarPrevia(m, achar(m.closest('tr').dataset.sc));
     });
   }
 
-  /* A lista do painel lateral e' a MESMA da tela: as setas do painel andam na ordem
-     que voce esta vendo, e nao numa ordem escondida. */
   function abrir(sc) {
     var p = achar(sc);
     if (p) { esconderPrevia(); A.abrirPainel(p, conta, filtradas()); }

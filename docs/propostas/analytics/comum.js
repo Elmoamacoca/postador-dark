@@ -193,22 +193,42 @@
   }
 
   /* ------------------------------------------------------------- a minicurva
-     Vai dentro do cartao de numero. Sem eixo e sem rotulo, so' o formato do
-     periodo: o cartao deixa de ser um retangulo com um numero no meio. */
-  function minicurva(valores, largura, altura) {
-    if (!valores.length) return '';
-    var max = Math.max.apply(null, valores), min = Math.min.apply(null, valores);
-    var faixa = (max - min) || 1;
-    var pontos = valores.map(function (v, i) {
-      return [i * largura / (valores.length - 1 || 1),
-              altura - 3 - (v - min) / faixa * (altura - 6)];
+     COPIADA DA SALA DE CONTROLE do Portal (`componentes/rastreio/comum.tsx`),
+     que e' a tela que ele apontou como regua: 92 por 30, gradiente proprio,
+     traco de 1,9 e um ponto no fim. Peca da casa nao se imita, usa-se a fonte.
+
+     Cada minicurva precisa do SEU identificador de gradiente: id repetido faz a
+     segunda curva ser pintada com a cor da primeira. E serie toda em zero nao vira
+     desenho, porque reta colorida no meio do cartao parece dado. */
+  var contaSpark = 0;
+
+  function minicurva(vals, largura, altura, cor) {
+    if (!vals.length || !vals.some(function (v) { return v > 0; })) return '';
+    largura = largura || 92; altura = altura || 30;
+    cor = cor || 'var(--rs-1, var(--accent))';
+    var max = Math.max.apply(null, vals.concat([1]));
+    var dx = largura / Math.max(1, vals.length - 1);
+    var pts = vals.map(function (v, i) {
+      return [i * dx, altura - 2.5 - (v / max) * (altura - 7)];
     });
-    var traco = tracoSuave(pontos);
-    var area = traco + ' L' + largura + ' ' + altura + ' L0 ' + altura + ' Z';
-    return '<svg class="spark" viewBox="0 0 ' + largura + ' ' + altura + '" '
+    var linha = pts.map(function (p, i) {
+      return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    }).join('');
+    contaSpark += 1;
+    var gid = 'sp' + contaSpark;
+    var fim = pts[pts.length - 1];
+    return '<svg class="rs-spark" viewBox="0 0 ' + largura + ' ' + altura + '" '
       + 'preserveAspectRatio="none" aria-hidden="true">'
-      + '<path class="spark-area" d="' + area + '"/>'
-      + '<path class="spark-linha" d="' + traco + '"/></svg>';
+      + '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="' + cor + '" stop-opacity=".34"/>'
+      + '<stop offset="1" stop-color="' + cor + '" stop-opacity="0"/>'
+      + '</linearGradient></defs>'
+      + '<path d="' + linha + 'L' + largura + ' ' + altura + 'L0 ' + altura + 'Z" '
+      + 'fill="url(#' + gid + ')"/>'
+      + '<path d="' + linha + '" fill="none" stroke="' + cor + '" stroke-width="1.9" '
+      + 'vector-effect="non-scaling-stroke" stroke-linejoin="round"/>'
+      + '<circle cx="' + fim[0].toFixed(1) + '" cy="' + fim[1].toFixed(1) + '" r="2.2" '
+      + 'fill="' + cor + '" vector-effect="non-scaling-stroke"/></svg>';
   }
 
   /* ------------------------------------------------------------- teto redondo

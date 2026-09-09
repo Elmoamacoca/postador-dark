@@ -15,7 +15,7 @@ import urllib.request
 
 AQUI = pathlib.Path(__file__).resolve().parent
 COFRE = pathlib.Path.home() / '.claude' / 'secrets' / 'vercel_token.txt'
-JUNTOS = ['painel.css', 'comum.css', 'comum.js', 'dados.js',
+JUNTOS = ['painel.css', 'sala.css', 'comum.css', 'comum.js', 'dados.js',
           'marca-clara.png', 'marca-escura.png']
 PROPOSTAS = {
     'borusa-analytics-a': 'proposta-a.html',

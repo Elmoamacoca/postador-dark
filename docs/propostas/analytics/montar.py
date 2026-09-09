@@ -28,6 +28,10 @@ from datetime import datetime, timedelta
 
 RAIZ = pathlib.Path(__file__).resolve().parents[3]
 SAIDA = pathlib.Path(__file__).resolve().parent
+# o clone do Portal, de onde sai a SALA DE CONTROLE: a tela que ele apontou como
+# regua de qualidade em 29/08. Copiar o desenho a mao produz imitacao; peca da casa
+# nao se imita, usa-se a fonte.
+PORTAL = pathlib.Path.home() / 'repos' / 'borusa-iscas'
 
 # A ORDEM E' LEI: os blocos se concatenam em ordem numerica e reproduzem o painel.
 # `11-programar.css` entra por causa do botao Programar do menu: sem ele o circulo
@@ -91,10 +95,28 @@ def main():
         'window.DADOS = ' + json.dumps(dados, ensure_ascii=False) + ';\n',
         encoding='utf-8')
 
+    montar_sala()
     for marca in ('marca-clara.png', 'marca-escura.png'):
         shutil.copy(RAIZ / 'painel' / marca, SAIDA / marca)
-    for nome in ('painel.css', 'dados.js'):
+    for nome in ('painel.css', 'dados.js', 'sala.css'):
         print(nome.ljust(11), round((SAIDA / nome).stat().st_size / 1024), 'KB')
+
+
+def montar_sala():
+    """Recorta do Portal as pecas emprestadas: o botao animado, a sala de controle
+    (cartao, KPI, delta, minicurva, lista com barra, segmentado) e o rodape. Sem o
+    clone, avisa e segue: o `sala.css` que ja esta na pasta continua servindo."""
+    if not PORTAL.exists():
+        print('sala.css   PULADO, falta o clone em', PORTAL)
+        return
+    pedacos = [
+        '/* ===== anda.css: O BOTAO ANIMADO DA CASA (repo borusa-iscas) ===== */',
+        (PORTAL / 'app' / 'anda.css').read_text(encoding='utf-8'),
+        '/* ===== rastreamento.css: A SALA DE CONTROLE (repo borusa-iscas) ===== */',
+        (PORTAL / 'app' / '(painel)' / 'rastreamento'
+         / 'rastreamento.css').read_text(encoding='utf-8'),
+    ]
+    (SAIDA / 'sala.css').write_text(chr(10).join(pedacos), encoding='utf-8')
 
 
 def posts_da_conta(conta, reais, capas):
