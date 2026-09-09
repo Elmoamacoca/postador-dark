@@ -384,7 +384,14 @@
     if (!painel) {
       painel = document.createElement('div');
       painel.className = 'sp-fora';
-      painel.innerHTML = '<div class="sp-veu"></div><aside class="sp" role="dialog" '
+      /* O PAINEL LEVA A ROUPA DA SALA. Ele mora no `body`, para se posicionar pela
+         janela, e la' fora as variaveis `--rs-*` nao existem: `.rs-delta` ficava com
+         cor nao resolvida e o numero saia PRETO no tema escuro. A folha do portal
+         ja' preve isso qualificando os seletores, e o `montar.py` acrescenta `.sp` e
+         `.prev` a' lista quando recorta a folha. NAO se usa a classe `.rs-palco`
+         aqui: ela e' `position:fixed;inset:0` e joga o painel para a esquerda. */
+      painel.innerHTML = '<div class="sp-veu"></div>'
+        + '<aside class="sp" role="dialog" '
         + 'aria-label="Métricas da publicação"></aside>';
       document.body.appendChild(painel);
       painel.querySelector('.sp-veu').addEventListener('click', fecharPainel);

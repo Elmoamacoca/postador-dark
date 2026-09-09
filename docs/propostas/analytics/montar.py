@@ -116,7 +116,21 @@ def montar_sala():
         (PORTAL / 'app' / '(painel)' / 'rastreamento'
          / 'rastreamento.css').read_text(encoding='utf-8'),
     ]
-    (SAIDA / 'sala.css').write_text(chr(10).join(pedacos), encoding='utf-8')
+    folha = chr(10).join(pedacos)
+    # AS PECAS QUE VIAJAM PARA O `body` PRECISAM DA MESMA ROUPA. O painel lateral e a
+    # previa moram fora da pagina, para se posicionarem pela janela, e la' as
+    # variaveis `--rs-*` nao existem: a pilula ficava sem cor e o numero saia PRETO no
+    # tema escuro. Estender o seletor e' melhor que copiar os valores, que
+    # envelheceriam no dia seguinte. Nao se usa a classe `.rs-palco` para isso: ela e'
+    # `position:fixed;inset:0` e joga o painel para a esquerda da tela.
+    folha = folha.replace('.rs, .rs-palco, .rs-tip {',
+                          '.rs, .rs-palco, .rs-tip, .sp, .prev {')
+    escuro = ':root[data-theme="dark"] '
+    folha = folha.replace(escuro + '.rs-tip {',
+                          escuro + '.rs-tip,' + chr(10)
+                          + escuro + '.sp,' + chr(10)
+                          + escuro + '.prev {')
+    (SAIDA / 'sala.css').write_text(folha, encoding='utf-8')
 
 
 def posts_da_conta(conta, reais, capas):

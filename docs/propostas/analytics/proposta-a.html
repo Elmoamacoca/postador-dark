@@ -269,7 +269,7 @@
 
       <div class="rs-cd estica">
         <div class="rs-cd-h">
-          <h3>Como A Conta Vem Indo</h3>
+          <h3>Desempenho No Período</h3>
           <div class="rs-seg" id="metrica">
             <button data-m="alc" class="on">Alcance</button>
             <button data-m="vis">Visualizações</button>
@@ -282,12 +282,12 @@
 
       <div class="rs-grade rs-g21">
         <div class="rs-cd">
-          <div class="rs-cd-h"><h3>O Que Mais Alcançou</h3>
+          <div class="rs-cd-h"><h3>Melhores Publicações</h3>
             <span class="rs-rot3">passe o mouse para ver a peça</span></div>
           <div class="rs-cd-b"><div class="an-rank" id="tops"></div></div>
         </div>
         <div class="rs-cd">
-          <div class="rs-cd-h"><h3>Formato Que Entrega</h3></div>
+          <div class="rs-cd-h"><h3>Desempenho Por Formato</h3></div>
           <div class="rs-cd-b"><div id="fmt"></div></div>
         </div>
       </div>
@@ -423,9 +423,11 @@
     }).join('');
   }
 
+  /* LINHA PARA TODAS AS METRICAS. A barra foi tentada e reprovada: ele quer o
+     mesmo desenho em todas, e uma tela que troca de forma a cada botao parece
+     quebrada. */
   function pintarGrafico() {
-    grafico.dar(A.serie(conta, dias || 90, metrica),
-      metrica === 'seg-total' ? 'linha' : 'barras');
+    grafico.dar(A.serie(conta, dias || 90, metrica), 'linha');
   }
 
   /* ------------------------------------------------------ ranking com barra */
@@ -517,6 +519,7 @@
   function mostrarPrevia(elemento, post) {
     if (!previa) {
       previa = document.createElement('div');
+      /* A previa tambem mora no `body` e tambem precisa das variaveis da sala. */
       previa.className = 'prev';
       document.body.appendChild(previa);
     }

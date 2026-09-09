@@ -122,7 +122,11 @@
 .sp-fora{position:fixed;inset:0;z-index:80;pointer-events:none}
 .sp-veu{position:absolute;inset:0;background:var(--an-veu);opacity:0;
         transition:opacity .26s}
-.sp{position:absolute;top:0;right:0;height:100%;width:min(520px,94vw);
+/* FIXO NA JANELA, e nao absoluto dentro do veu: dentro do veu o painel nascia
+   colado a' esquerda, porque o bloco de variaveis herdado da sala torna o elemento
+   um flex container e o `right` deixava de mandar sozinho. Fixo, ele so' depende da
+   janela, que e' o que o painel lateral precisa. */
+.sp{position:fixed;top:0;right:0;left:auto;height:100%;width:min(520px,94vw);
   background:var(--paper);border-left:1px solid var(--rule-solid);
   box-shadow:var(--an-sombra-forte);display:flex;flex-direction:column;
   transform:translateX(100%);transition:transform .26s cubic-bezier(.22,1,.36,1)}
