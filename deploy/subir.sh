@@ -25,8 +25,7 @@ subir() {
   # na versao velha. Recriar o caddy e barato (os certificados moram no volume).
   docker compose -f deploy/docker-compose.yml up -d --force-recreate caddy
   docker compose -f deploy/docker-compose.yml ps
-  echo "agora rode o portao de provas a partir do PC:"
-  echo "  python provas/prova.py --url https://postador.borusa.com.br --usuario ... --senha-arquivo ..."
+  echo "subiu. confira na tela: https://postador.borusa.com.br"
 }
 
 subir "$@"
