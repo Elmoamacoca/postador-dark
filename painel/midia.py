@@ -568,11 +568,26 @@ def estado() -> dict:
 
 
 def navegar(pasta_id: str, busca: str = "") -> dict:
+    """As pastas de dentro de uma pasta, para a tela de escolher.
+
+    CONTAR VIDEO CUSTA UMA IDA AO GOOGLE POR PASTA. Numa pasta com poucas subpastas
+    isso e' barato e o numero ajuda a escolher. Dentro da leva 31, que tem 180, sao
+    180 chamadas: a janela ficava em "Lendo o Drive" por quase um minuto. Acima do
+    teto a contagem e' pulada, e a tela diz "abrir para ver o que tem" no lugar do
+    numero. Quem apura de verdade e' a varredura, na hora de ligar.
+    """
     f = fonte()
     ok, motivo = f.pronta()
     if not ok:
         return {"erro": motivo}
-    pastas = f.listar_pastas(pasta_id)
+    pastas = f.listar_pastas(pasta_id, contar=False)
+    if len(pastas) <= 25:
+        for p in pastas:
+            try:
+                p["videos"] = f.contar(
+                    p["id"] if f.nome == "drive" else Path(p["caminho"]))
+            except Exception:
+                p["videos"] = None
     if busca:
         b = busca.lower()
         pastas = [p for p in pastas if b in p["nome"].lower()]
