@@ -1,0 +1,86 @@
+/* ================================================= PROPOSTA C: A FILA (CSS)
+   Barra lateral estreita a esquerda, fila agrupada por dia no meio. Mesmo desenho da
+   sub-aba Midias aprovada em 10/09: filtro sempre a vista, cabecalho de grupo preso
+   no topo e a barra de rolagem da casa. */
+
+.fl{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;
+  align-items:start}
+
+/* ------------------------------------------------------------ a barra lateral */
+.fl-lado{display:flex;flex-direction:column;gap:14px;position:sticky;top:16px}
+.fl-lado .cl-sel-bt{width:100%;min-width:0}
+.fl-lado .cl-sel-cx{width:100%}
+
+.fl-filtros{display:flex;flex-direction:column;gap:2px;
+  border:1px solid var(--rule-solid);border-radius:11px;padding:5px;
+  background:var(--branco,var(--paper))}
+.fl-filtros button{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;height:34px;padding:0 11px;border-radius:8px;border:0;background:none;
+  cursor:pointer;color:var(--soft);font-size:12px;font-weight:600;text-align:left}
+.fl-filtros button:hover{background:var(--paper-2)}
+.fl-filtros button.on{background:var(--ink);color:var(--paper)}
+.fl-filtros button b{font-size:11px;font-weight:800;
+  font-variant-numeric:tabular-nums;opacity:.85}
+
+/* ------------------------------------------------------------- o mes miudo */
+.fl-mini{border:1px solid var(--rule-solid);border-radius:11px;padding:11px;
+  background:var(--branco,var(--paper))}
+.fl-mini-cab{display:flex;align-items:center;justify-content:space-between;gap:6px;
+  margin-bottom:9px}
+.fl-mini-cab b{font-size:11.5px;font-weight:800}
+.fl-mini-cab button{width:24px;height:24px;border-radius:7px;border:0;background:none;
+  color:var(--soft);cursor:pointer;display:grid;place-items:center}
+.fl-mini-cab button:hover{background:var(--paper-2);color:var(--ink)}
+.fl-mini-cab svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.fl-mini-dias{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:3px}
+.fl-mini-dias span{text-align:center;font-size:8.5px;font-weight:800;color:var(--soft);
+  text-transform:uppercase}
+.fl-mini-grade{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.fl-mini-d{position:relative;aspect-ratio:1;border:0;background:none;cursor:pointer;
+  border-radius:6px;font-size:10.5px;font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums;display:grid;place-items:center}
+.fl-mini-d:hover{background:var(--paper-2)}
+.fl-mini-d.fora{opacity:.32}
+.fl-mini-d.hoje{background:var(--ink);color:var(--paper);font-weight:800}
+/* O PONTO SOB O DIA diz que ha' algo la', e a cor diz se ja' passou ou se vem. */
+.fl-mini-d.saiu::after,.fl-mini-d.vem::after{content:'';position:absolute;bottom:3px;
+  left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:999px}
+.fl-mini-d.saiu::after{background:var(--soft)}
+.fl-mini-d.vem::after{background:var(--accent)}
+.fl-mini-d.hoje::after{background:var(--paper)}
+
+.fl-buraco{border:1px solid var(--rule-solid);border-radius:11px;padding:12px 13px;
+  background:var(--branco,var(--paper))}
+.fl-buraco b{display:block;font-size:22px;font-weight:800;letter-spacing:-.5px;
+  line-height:1;font-variant-numeric:tabular-nums}
+.fl-buraco span{display:block;font-size:10.5px;color:var(--soft);margin-top:4px;
+  line-height:1.45}
+.fl-buraco.mau b{color:var(--vermelho)}
+
+/* ---------------------------------------------------------------- a fila */
+.fl-meio{border:1px solid var(--rule-solid);border-radius:12px;overflow:hidden;
+  background:var(--branco,var(--paper))}
+.fl-corpo{max-height:calc(100vh - 210px);overflow:auto}
+.fl-grupo h4{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:9px;
+  background:var(--paper-2);padding:8px 18px;margin:0;
+  border-bottom:1px solid var(--rule-solid);border-top:1px solid var(--rule-solid)}
+.fl-grupo:first-child h4{border-top:0}
+.fl-grupo h4 b{font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+.fl-grupo h4 span{font-size:10px;font-weight:700;letter-spacing:.4px;
+  text-transform:uppercase;color:var(--soft)}
+.fl-grupo h4 em{margin-left:auto;font-style:normal;font-size:10px;color:var(--soft)}
+
+/* O RISCO DE HOJE separa o historico da agenda. */
+.fl-hoje{display:flex;align-items:center;gap:10px;padding:9px 18px;
+  background:var(--branco,var(--paper))}
+.fl-hoje i{flex:1;height:1px;background:var(--ink);opacity:.28}
+.fl-hoje span{flex:none;font-size:9.5px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 9px;
+  border-radius:999px}
+.fl-vazio{padding:70px 10px;text-align:center;font-size:12.5px;color:var(--soft)}
+
+@media (max-width:1080px){
+  .fl{grid-template-columns:minmax(0,1fr)}
+  .fl-lado{position:static}
+}

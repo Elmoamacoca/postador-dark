@@ -1,0 +1,119 @@
+/* ======================================= O COMPARTILHADO DO CALENDARIO (CSS)
+   O seletor de conta, o painel lateral de um dia e as pecas de saida que as tres
+   propostas usam. Cor, sombra e raio saem das variaveis do painel; a pilula de
+   estado e a barra de rolagem vem do `06-midias.css`, que ja' esta' na casa. */
+
+/* ---------------------------------------------------------- o seletor de conta */
+.cl-sel{position:relative;flex:none}
+.cl-sel-bt{display:flex;align-items:center;gap:11px;height:52px;padding:0 14px 0 10px;
+  border-radius:12px;border:1px solid var(--rule-solid);background:var(--branco,var(--paper));
+  cursor:pointer;color:inherit;min-width:264px;text-align:left}
+.cl-sel-bt:hover{border-color:var(--soft)}
+.cl-av{width:34px;height:34px;flex:none;border-radius:50%;object-fit:cover;
+  display:grid;place-items:center;color:#fff;font-size:11.5px;font-weight:800;
+  border:1px solid var(--rule-solid)}
+.cl-av.cl-rede{background:var(--paper-2);color:var(--soft)}
+.cl-av.cl-rede svg{width:17px;height:17px}
+.cl-sel-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.cl-sel-txt b{font-size:13.5px;font-weight:800;letter-spacing:-.2px}
+.cl-sel-txt span{font-size:10.5px;color:var(--soft)}
+.cl-sel-cv{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;color:var(--soft)}
+
+.cl-sel-cx{position:absolute;top:calc(100% + 7px);left:0;z-index:40;width:320px;
+  background:var(--branco,var(--paper));border:1px solid var(--rule-solid);
+  border-radius:12px;box-shadow:0 18px 44px rgba(14,14,14,.16);overflow:hidden}
+.cl-sel-cx[hidden]{display:none}
+:root[data-theme="dark"] .cl-sel-cx{box-shadow:0 18px 44px rgba(0,0,0,.5)}
+.cl-sel-busca{display:flex;align-items:center;gap:8px;padding:11px 13px;
+  border-bottom:1px solid var(--rule-solid)}
+.cl-sel-busca svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;color:var(--soft)}
+.cl-sel-busca input{flex:1;min-width:0;border:0;background:none;outline:none;
+  font-family:inherit;font-size:12.5px;color:var(--ink)}
+.cl-sel-lista{max-height:284px;overflow:auto;padding:5px}
+.cl-op{width:100%;display:flex;align-items:center;gap:10px;padding:8px 9px;
+  border-radius:9px;border:0;background:none;cursor:pointer;color:inherit;
+  text-align:left}
+.cl-op:hover,.cl-op.marcado{background:var(--paper-2)}
+.cl-op.on{background:var(--ink)}
+.cl-op.on .cl-op-txt b,.cl-op.on .cl-op-n{color:var(--paper)}
+.cl-op.on .cl-op-txt span{color:var(--paper);opacity:.66}
+.cl-op .cl-av{width:29px;height:29px;font-size:10.5px}
+.cl-op-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.cl-op-txt b{font-size:12.5px;font-weight:700}
+.cl-op-txt span{font-size:10px;color:var(--soft)}
+.cl-op-n{font-size:11px;font-weight:800;color:var(--soft);
+  font-variant-numeric:tabular-nums}
+.cl-op-sem{padding:22px 10px;text-align:center;font-size:12px;color:var(--soft)}
+
+/* ------------------------------------------------------------- a legenda */
+.cl-legenda{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cl-lg{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--soft)}
+.cl-lg i{width:8px;height:8px;border-radius:999px;flex:none}
+.cl-lg.tracado i{background:transparent;box-shadow:inset 0 0 0 2px currentColor}
+
+/* ------------------------------------------------ o painel lateral de um dia
+   A MESMA PECA DA SUB-ABA MIDIAS, aprovada em 10/09. Aqui ele mostra o DIA. A
+   entrada e' por `transform`, e nao por largura: transicao de layout pausada trava o
+   valor e ja' custou uma tela que nao recuava. */
+.cl-fundo{position:fixed;inset:0;z-index:60;background:rgba(14,14,14,.34);opacity:0;
+  transition:opacity .22s ease}
+.cl-fundo.on{opacity:1}
+.cl-fundo[hidden]{display:none}
+:root[data-theme="dark"] .cl-fundo{background:rgba(0,0,0,.56)}
+
+.cl-peek{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:92vw;z-index:61;
+  background:var(--branco,var(--paper));border-left:1px solid var(--rule-solid);
+  box-shadow:-18px 0 48px rgba(14,14,14,.18);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .26s cubic-bezier(.32,.72,0,1)}
+.cl-peek.on{transform:none}
+.cl-peek[hidden]{display:none}
+:root[data-theme="dark"] .cl-peek{box-shadow:-18px 0 48px rgba(0,0,0,.5)}
+
+.cl-peek-cab{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex:none;padding:17px 18px;border-bottom:1px solid var(--rule-solid)}
+.cl-peek-quem b{display:block;font-size:16px;font-weight:800;letter-spacing:-.3px}
+.cl-peek-quem span{display:block;font-size:11px;color:var(--soft);margin-top:2px}
+.cl-peek-setas{display:flex;gap:6px}
+.cl-peek-setas button{width:30px;height:30px;border-radius:8px;
+  border:1px solid var(--rule-solid);background:var(--paper);color:var(--soft);
+  cursor:pointer;display:grid;place-items:center}
+.cl-peek-setas button:hover{color:var(--ink);border-color:var(--ink)}
+.cl-peek-setas svg{width:14px;height:14px;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cl-peek-corpo{flex:1;min-height:0;overflow:auto;padding:8px 0}
+.cl-peek-vazio{padding:44px 22px;text-align:center}
+.cl-peek-vazio p{font-size:12.5px;line-height:1.6;color:var(--soft);margin:0 0 8px}
+.cl-peek-vazio p b{color:var(--ink);font-weight:800}
+.cl-peek-vazio .ct-bt{margin-top:8px}
+
+/* ------------------------------------------------------- a linha de uma saida */
+.cl-li{display:flex;align-items:center;gap:11px;padding:9px 18px;
+  border-bottom:1px solid var(--rule-solid)}
+.cl-li:last-child{border-bottom:0}
+.cl-li-hora{flex:none;width:44px;font-size:12px;font-weight:800;
+  font-variant-numeric:tabular-nums}
+.cl-li.vem .cl-li-hora{color:var(--accent)}
+.cl-li-capa{flex:none;width:34px;height:46px;border-radius:6px;overflow:hidden;
+  background:var(--paper-2);border:1px solid var(--rule-solid)}
+.cl-li-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.cl-li-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cl-li-txt b{font-size:12px;font-weight:600;line-height:1.35;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.cl-li-txt > span{display:flex;align-items:center;gap:5px;font-size:10.5px;
+  color:var(--soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-li-txt > span i{width:6px;height:6px;border-radius:999px;flex:none}
+.cl-li-dir{flex:none;text-align:right;display:flex;flex-direction:column;gap:2px;
+  align-items:flex-end}
+.cl-li-dir b{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.cl-li-dir > span{font-size:9.5px;color:var(--soft)}
+
+/* O selo de exemplo, no mesmo desenho da sub-aba Midias. */
+.mid-ex{display:inline-block;width:6px;height:6px;border-radius:999px;
+  background:var(--soft);opacity:.5;flex:none}
+.mid-nota-ex{display:flex;align-items:flex-start;gap:7px;margin-top:16px;
+  font-size:11px;color:var(--soft);line-height:1.5;max-width:760px}
+.mid-nota-ex .mid-ex{margin-top:5px}
+
+.cl-torrada{z-index:130}

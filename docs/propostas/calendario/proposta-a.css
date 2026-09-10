@@ -1,0 +1,77 @@
+/* =============================================== PROPOSTA A: A AGENDA (CSS)
+   O mes da casa, mas com capa dentro do dia e o vazio dito por extenso. */
+
+.ag-topo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.ag-nums{display:flex;align-items:stretch;gap:10px;margin-left:auto;flex-wrap:wrap}
+.ag-n{min-width:112px;border:1px solid var(--rule-solid);border-radius:11px;
+  padding:10px 14px;background:var(--branco,var(--paper));display:flex;
+  flex-direction:column;gap:2px}
+.ag-n b{font-size:21px;font-weight:800;letter-spacing:-.5px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.ag-n span{font-size:10px;color:var(--soft);line-height:1.35}
+.ag-n.vem b{color:var(--accent)}
+.ag-n.mau b{color:var(--vermelho)}
+
+.ag-caixa{padding:0;overflow:hidden}
+.ag-barra{display:flex;align-items:center;gap:10px;padding:13px 16px;
+  border-bottom:1px solid var(--rule-solid)}
+.ag-seta{width:30px;height:30px;border-radius:8px;border:1px solid var(--rule-solid);
+  background:var(--paper);color:var(--soft);cursor:pointer;display:grid;
+  place-items:center}
+.ag-seta:hover{color:var(--ink);border-color:var(--ink)}
+.ag-seta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.ag-titulo{font-size:14px;font-weight:800;letter-spacing:-.2px}
+.ag-barra .cl-legenda{margin-left:auto}
+
+.ag-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  border-bottom:1px solid var(--rule-solid)}
+.ag-dias span{padding:8px 12px;font-size:10px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--soft)}
+.ag-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+
+.ag-cel{position:relative;min-height:114px;padding:8px 9px 9px;text-align:left;
+  background:none;border:0;border-right:1px solid var(--rule-solid);
+  border-bottom:1px solid var(--rule-solid);cursor:pointer;color:inherit;
+  display:flex;flex-direction:column;gap:6px}
+.ag-cel:nth-child(7n){border-right:0}
+.ag-cel:nth-last-child(-n+7){border-bottom:0}
+.ag-cel:hover{background:var(--paper-2)}
+.ag-cel.fora{opacity:.4}
+.ag-cel.aberto{background:var(--paper-2);box-shadow:inset 0 0 0 2px var(--ink)}
+.ag-num{font-size:12px;font-weight:700;color:var(--soft);display:flex;
+  align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.ag-cel.hoje .ag-num{color:var(--ink)}
+.ag-num i{font-style:normal;font-size:9px;font-weight:800;letter-spacing:.4px;
+  text-transform:uppercase;background:var(--ink);color:var(--paper);
+  padding:2px 6px;border-radius:999px}
+
+/* AS CAPAS DENTRO DO DIA. Sao pequenas de proposito: elas dizem "tem conteudo aqui"
+   e dao o horario; quem quer detalhe abre o dia. */
+.ag-capas{display:flex;align-items:center;gap:4px}
+.ag-capa{position:relative;width:26px;height:35px;border-radius:5px;overflow:hidden;
+  background:var(--paper-2);border:1px solid var(--rule-solid);flex:none}
+.ag-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.ag-capa.vem{border-color:color-mix(in srgb,var(--accent) 55%,var(--rule-solid));
+  border-style:dashed}
+.ag-capa.vem img{opacity:.62}
+.ag-capa em{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:7.5px;
+  font-weight:700;text-align:center;background:rgba(14,14,14,.72);color:#fff;
+  padding:1px 0}
+.ag-mais{font-size:10px;font-weight:800;color:var(--soft);
+  font-variant-numeric:tabular-nums}
+.ag-pe{font-size:9.5px;color:var(--soft);margin-top:auto}
+.ag-pe.vem{color:var(--accent);font-weight:700}
+
+/* O DIA VAZIO DO FUTURO. Passado sem post e' historia; futuro sem post e' conta que
+   vai parar, e a tela tem que dizer isso sem que ninguem precise contar celula. */
+.ag-cel.vazio{background:repeating-linear-gradient(135deg,transparent,transparent 7px,
+  color-mix(in srgb,var(--vermelho) 6%,transparent) 7px,
+  color-mix(in srgb,var(--vermelho) 6%,transparent) 14px)}
+.ag-vazio{font-size:10px;font-weight:700;color:var(--vermelho);opacity:.8;
+  margin-top:auto}
+
+@media (max-width:1180px){
+  .ag-nums{margin-left:0;width:100%}
+  .ag-cel{min-height:96px}
+}
