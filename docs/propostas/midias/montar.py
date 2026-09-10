@@ -225,6 +225,14 @@ def contas_js():
              "    contaDe: function(u){ return (DADOS.contas||[]).filter(function(x){\n"
              "      return x.arroba === u; })[0]; },\n"
              "    redesenhar: function(){ desenhar(); }};")
+    # A MAQUETE JA' VIROU TELA. Depois da implantacao em 10/09 o `07-contas.js` do
+    # painel passou a ter a sub-aba de verdade, e os enxertos deixaram de encaixar.
+    # Isso nao e' falha: e' o fim da vida util deste montador. Ele avisa e mantem o
+    # `contas.js` que ja' esta' na pasta, para as tres propostas publicadas
+    # continuarem abrindo.
+    if 'data-aba="midias"' in fonte:
+        print('contas.js  MANTIDO: o painel ja tem a sub-aba Midias de verdade')
+        return
     for alvo in (alvo1, alvo2, alvo3):
         if fonte.count(alvo) != 1:
             raise SystemExit('ENXERTO RECUSADO: nao achei exatamente uma vez -> '

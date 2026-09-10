@@ -109,7 +109,12 @@
 
    Aqui ela cresce para o tamanho do trabalho e ganha cabeca fixa, corpo que rola e
    rodape fixo, para a busca e os filtros nunca sairem da tela. */
-.ct-jan.enorme .ct-jan-cx{width:min(1180px,94vw);max-height:min(880px,92vh);
+/* A DUPLA CLASSE NO SELETOR NAO E' ENFEITE. No painel esta folha carrega ANTES do
+   `13-contas.css`, porque a ordem dos blocos e' numerica e e' lei. La' existe
+   `.ct-jan.larga .ct-jan-cx{width:min(680px,100%)}`, com a MESMA especificidade desta
+   regra: no empate ganha a ultima do documento, e a janela subiu com 680 pixels em vez
+   de 1180. Somar `.larga` aqui desempata sem furar a numeracao. */
+.ct-jan.enorme.larga .ct-jan-cx{width:min(1180px,94vw);max-height:min(880px,92vh);
   height:min(880px,92vh)}
 .ct-jan.enorme .ct-jan-rolo{flex:1;min-height:0;display:flex;flex-direction:column;
   padding:0}

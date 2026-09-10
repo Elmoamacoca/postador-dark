@@ -75,7 +75,7 @@ def conferir(css: str) -> None:
     # a sub-aba subiu com os tres numeros em texto corrido. Cada peca visivel da tela
     # tem que ter aqui uma regra que prove que ela existe.
     for alvo in ('.ar{', '.ar.com-peek{', '.ar-peek{', '.mid-drive', '.bc-par',
-                 '.ct-jan.enorme', '.ct-jan.inteira',
+                 '.ct-jan.enorme.larga', '.ct-jan.inteira.larga',
                  '.gv-nums{', '.gv-barra{', '.gv-pasta{', '.gv-abrir{',
                  '.ar-lado{', '.ar-grade{', '.ar-filtros button{',
                  '.mid-capa{', '.mid-pin{', '.md-vazio{', '.lp-lista{'):

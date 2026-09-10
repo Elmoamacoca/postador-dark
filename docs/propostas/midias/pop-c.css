@@ -3,7 +3,7 @@
    pela direita. O painel reaproveita o desenho de detalhe da bancada (`.bc-*`), que
    e' o mesmo do painel lateral aprovado na aba de Analytics. */
 
-.ct-jan.inteira .ct-jan-cx{width:96vw;max-width:1560px;height:92vh;
+.ct-jan.inteira.larga .ct-jan-cx{width:96vw;max-width:1560px;height:92vh;
   max-height:92vh}
 
 /* O PAINEL E' UMA COLUNA DE VERDADE, e nao um bloco solto por cima.
