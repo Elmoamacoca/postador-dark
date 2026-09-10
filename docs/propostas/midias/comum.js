@@ -258,13 +258,45 @@
 
   /* -------------------------------------------------------- a janela grande */
   var IC = {
-    drive: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12' +
-           'a2 2 0 0 0 2-2v-2"/>',
     agenda: '<rect x="3" y="5" width="18" height="16" rx="2.5"/>' +
             '<path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',
     ig: '<rect x="3" y="3" width="18" height="18" rx="5"/>' +
         '<circle cx="12" cy="12" r="3.6"/><path d="M17.4 6.7h.01"/>'
   };
+
+  /* A LOGO DO DRIVE, nas cores dela. Pedido dele em 10/09: o botao que leva ao
+     arquivo tem que ser reconhecivel de longe, e desenho de linha nao e'. Ela vem
+     com `fill` proprio, entao nao herda a cor do botao como os outros icones. */
+  var LOGO_DRIVE =
+    '<svg class="mid-drive-logo" viewBox="0 0 87.3 78" aria-hidden="true">' +
+    '<path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8' +
+      'H0c0 1.55.4 3.1 1.2 4.5z"/>' +
+    '<path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44' +
+      'A9.06 9.06 0 0 0 0 53h27.5z"/>' +
+    '<path fill="#ea4335" d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5' +
+      'c.8-1.4 1.2-2.95 1.2-4.5H59.798l5.852 11.5z"/>' +
+    '<path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4' +
+      'c-1.6 0-3.15.45-4.5 1.2z"/>' +
+    '<path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8' +
+      'c1.6 0 3.15-.45 4.5-1.2z"/>' +
+    '<path fill="#ffba00" d="M73.4 26.5 60.7 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25' +
+      'l16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z"/></svg>';
+
+  /* O ENDERECO DA PASTA NO DRIVE. E' a pasta, e nao o arquivo: foi o que ele pediu,
+     e e' o que serve, porque de dentro dela ele ve' a leva inteira. */
+  function pastaNoDrive(m) {
+    return m && m.pasta_id
+      ? 'https://drive.google.com/drive/folders/' + m.pasta_id : '';
+  }
+
+  function botaoDrive(m, classe) {
+    var endereco = pastaNoDrive(m);
+    if (!endereco) return '';
+    return '<a class="mid-drive ' + (classe || '') + '" href="' + endereco +
+      '" target="_blank" rel="noopener" title="Abrir a pasta ' +
+      escapar(m.pasta) + ' no Drive" aria-label="Abrir a pasta no Google Drive">' +
+      LOGO_DRIVE + '</a>';
+  }
 
   /* SO' AS ACOES QUE EXISTEM. Abrir no Drive (o arquivo tem id de la'), mandar para o
      assistente de programar (o botao ja' existe na ficha) e ver no Instagram (so' se
@@ -276,7 +308,7 @@
         '><svg viewBox="0 0 24 24">' + IC[simbolo] + '</svg></button>';
     }
     return '<span class="mid-acoes">' +
-      bt('drive', 'Abrir o arquivo no Drive', true, 'drive') +
+      botaoDrive(m, 'como-bt') +
       bt('agenda', 'Programar este vídeo', m.estado !== 'publicado', 'programar') +
       bt('ig', 'Ver a publicação no Instagram', !!m.sc, 'instagram') +
       '</span>';
@@ -291,7 +323,6 @@
     var a = e.target.closest('[data-acao-mid]');
     if (!a) return;
     torrada({
-      drive: 'Maquete: aqui o arquivo abriria no Google Drive.',
       programar: 'Maquete: aqui este vídeo entraria no assistente de programar.',
       instagram: 'Maquete: aqui a publicação abriria no Instagram.'
     }[a.dataset.acaoMid] || 'Maquete: ação desligada.');
@@ -379,7 +410,10 @@
        maquete nao tem, entao o que existe e' a capa. */
     var lupa = document.getElementById('mid-lupa');
     document.addEventListener('click', function (e) {
+      /* A LUPA SO' AGE ONDE A CAPA NAO E' BOTAO. Na grade, a capa ja' abre o painel
+         do video: sem esta trava, um clique abria os dois ao mesmo tempo. */
       var alvo = e.target.closest('.mid-capa');
+      if (alvo && (alvo.closest('button') || alvo.closest('a'))) alvo = null;
       if (alvo && lupa) {
         var img = alvo.querySelector('img');
         lupa.querySelector('img').src = img ? img.src : '';
@@ -408,6 +442,7 @@
     folego: folego, ordenar: ordenar,
     ligarPrevia: ligarPrevia, ligarTudo: ligarTudo, torrada: torrada,
     abrirLigarPasta: abrirLigarPasta, ligarCasca: ligarCasca,
-    acoes: acoes, abrirGrande: abrirGrande, IC: IC
+    acoes: acoes, abrirGrande: abrirGrande, IC: IC,
+    botaoDrive: botaoDrive, pastaNoDrive: pastaNoDrive
   };
 })();

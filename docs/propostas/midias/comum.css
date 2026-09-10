@@ -124,6 +124,17 @@
 .mid-ac[disabled]{opacity:.32;cursor:default}
 .mid-ac[disabled]:hover{color:var(--soft);border-color:var(--rule-solid)}
 
+/* A LOGO DO DRIVE dentro da fila de acoes: mesma caixa dos outros botoes, mas com as
+   cores dela. Nao vira icone de linha, porque logo em linha deixa de ser reconhecivel,
+   que era o ponto do pedido. */
+.mid-drive.como-bt{width:29px;height:29px;flex:none;border-radius:8px;display:grid;
+  place-items:center;border:1px solid var(--rule-solid);background:var(--paper);
+  transition:border-color .15s ease}
+.mid-drive.como-bt:hover{border-color:var(--ink)}
+.mid-drive.como-bt .mid-drive-logo{width:14px;height:14px}
+.bc-acoes .mid-drive.como-bt{width:34px;height:34px}
+.bc-acoes .mid-drive.como-bt .mid-drive-logo{width:16px;height:16px}
+
 /* ------------------------------------------- o detalhe de uma midia
    Usado pela bancada da proposta B e pelo painel lateral da proposta C. Um desenho
    so' para os dois: duas copias viram dois detalhes diferentes na primeira correcao. */

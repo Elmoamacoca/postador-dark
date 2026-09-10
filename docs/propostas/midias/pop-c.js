@@ -150,19 +150,28 @@
     M.ligarTudo(alvo);
   }
 
+  /* O QUADRO E' UM `div`, e nao um `button`.
+
+     Ele carrega DOIS destinos: o corpo abre o painel do video, e a logo do Drive
+     abre a pasta numa aba nova. Endereco dentro de botao e' HTML invalido, e o
+     navegador desmonta a marcacao; por isso o botao cobre o quadro e o endereco fica
+     por cima dele. */
   function quadro(m) {
     var pe = m.estado === 'publicado'
       ? '<b>' + M.curto(m.vis) + '</b><span>Visualizações</span>'
       : (m.estado === 'programado'
         ? '<b>' + M.hora(m.quando) + '</b><span>' + M.dia(m.quando) + '</span>'
         : '<b>' + M.mb(m.mb) + '</b><span>Sem uso</span>');
-    return '<button type="button" class="ar-q" data-abrir-peek="' + M.escapar(m.id) +
-      '" data-mid="' + M.escapar(m.id) + '">' +
-      '<span class="mid-capa ar-capa"><img src="' + M.capa(m.capa) + '" alt="">' +
-        '<span class="dur">' + M.seg(m.dur) + '</span>' +
-        '<span class="ar-e ' + m.estado + '"></span></span>' +
-      '<span class="ar-q-pe">' + pe + '</span>' +
-    '</button>';
+    return '<div class="ar-q" data-mid="' + M.escapar(m.id) + '">' +
+      '<button type="button" class="ar-q-face" data-abrir-peek="' + M.escapar(m.id) +
+        '">' +
+        '<span class="mid-capa ar-capa"><img src="' + M.capa(m.capa) + '" alt="">' +
+          '<span class="dur">' + M.seg(m.dur) + '</span>' +
+          '<span class="ar-e ' + m.estado + '"></span></span>' +
+        '<span class="ar-q-pe">' + pe + '</span>' +
+      '</button>' +
+      M.botaoDrive(m, 'ar-drive') +
+    '</div>';
   }
 
   /* --------------------------------------------------------- o painel lateral */
@@ -219,7 +228,7 @@
     alvo.closest('.ar').classList.add('com-peek');
     alvo.classList.add('on');
     document.querySelectorAll('.ar-q').forEach(function (q) {
-      q.classList.toggle('on', q.dataset.abrirPeek === id);
+      q.classList.toggle('on', q.dataset.mid === id);
     });
   }
 

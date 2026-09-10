@@ -78,7 +78,8 @@
 
 .ar-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
   gap:15px}
-.ar-q{padding:0;background:none;border:0;cursor:pointer;display:flex;
+.ar-q{position:relative}
+.ar-q-face{width:100%;padding:0;background:none;border:0;cursor:pointer;display:flex;
   flex-direction:column;gap:6px;color:inherit;text-align:left}
 .ar-capa{position:relative;width:100%;height:auto;aspect-ratio:9/16;
   transition:transform .16s ease}
@@ -90,6 +91,18 @@
 .ar-e.programado{background:var(--accent)}
 .ar-e.guardado{background:transparent;box-shadow:0 0 0 2px rgba(255,255,255,.85),
   inset 0 0 0 2px var(--soft)}
+/* A LOGO DO DRIVE fica no alto da capa, do lado oposto ao ponto de estado. Ela
+   aparece sozinha quando o mouse chega no quadro, e fica sempre visivel no quadro
+   aberto: com 36 capas na tela, 36 logos acesas virariam ruido. */
+.ar-drive{position:absolute;top:6px;right:6px;z-index:3;width:26px;height:26px;
+  border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.94);
+  box-shadow:0 2px 8px rgba(14,14,14,.22);opacity:0;transform:scale(.86);
+  transition:opacity .15s ease,transform .15s ease}
+.ar-q:hover .ar-drive,.ar-q.on .ar-drive,.ar-drive:focus-visible{opacity:1;
+  transform:none}
+.ar-drive:hover{background:#fff;box-shadow:0 3px 12px rgba(14,14,14,.3)}
+.mid-drive-logo{width:14px;height:14px;display:block}
+
 .ar-q-pe{display:flex;flex-direction:column;gap:0;font-variant-numeric:tabular-nums}
 .ar-q-pe b{font-size:12px;font-weight:800;line-height:1.25}
 .ar-q-pe span{font-size:9.5px;color:var(--soft)}

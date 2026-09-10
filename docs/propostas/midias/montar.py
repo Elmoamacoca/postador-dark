@@ -45,12 +45,16 @@ ORDEM = ['01-base.css', '02-menu.css', '03-componentes.css', '08-filtros.css',
 
 HOJE = datetime(2026, 9, 10, 11, 0)
 
-# Nomes de arquivo no formato que sai de uma leva de cortes. A pasta e' real: ela
-# existe no Drive dele, foi lida agora pela rota `midia/navegar`.
+# A PASTA E' A DE VERDADE, e a mesma nas tres contas, porque hoje so' existe uma
+# ligada: a regra "uma pasta por perfil" foi decidida em 10/09 e ainda nao foi
+# construida. Inventar uma pasta diferente por conta daria um botao do Drive que abre
+# um endereco que nao existe, e ele clica nesse botao.
+PASTA_ID = '14DGC5IVp05TdtSHsQTOygLdOy7EZ10a3'
+PASTA_NOME = 'leva 31 de leisdamentemilionaria'
 PASTAS = {
-    'borusaof': {'nome': 'leva 31 de leisdamentemilionaria', 'id': 'lv31'},
-    'macrofoco.br': {'nome': 'macrofoco cortes setembro', 'id': 'mf09'},
-    'perdeunovar': {'nome': 'perdeu novar leva 08', 'id': 'pn08'},
+    'borusaof': {'nome': PASTA_NOME, 'id': PASTA_ID},
+    'macrofoco.br': {'nome': PASTA_NOME, 'id': PASTA_ID},
+    'perdeunovar': {'nome': PASTA_NOME, 'id': PASTA_ID},
 }
 
 TEMAS = [
@@ -105,7 +109,7 @@ def midias_da_conta(u, capas, publicados_reais):
     as 7 publicacoes da @borusaof, que a Meta conhece e que entram com data, legenda,
     visualizacao e miniatura de verdade."""
     rnd = random.Random('midias' + u)
-    pasta = PASTAS[u]['nome']
+    pasta = PASTAS[u]
     fora = []
 
     # 1. o que ja' foi ao ar
@@ -151,7 +155,8 @@ def arquivo(rnd, i, u):
 def item(ident, nome, estado, quando, capa, legenda, vis, alc, rnd, exemplo, pasta, sc):
     dur = round(rnd.uniform(21, 68), 1)
     fora = {'id': ident, 'nome': nome, 'estado': estado, 'quando': quando,
-            'capa': capa, 'legenda': legenda, 'pasta': pasta, 'sc': sc,
+            'capa': capa, 'legenda': legenda, 'pasta': pasta['nome'],
+            'pasta_id': pasta['id'], 'sc': sc,
             'dur': dur, 'mb': round(rnd.uniform(4.2, 38.6), 1), 'exemplo': exemplo}
     if vis is not None:
         fora['vis'] = vis
