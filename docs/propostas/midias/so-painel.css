@@ -34,6 +34,17 @@
   border-color:color-mix(in srgb,var(--vermelho) 26%,transparent)}
 .bc-leg.erro{color:var(--vermelho)}
 
+/* --------------------------------------------------------- o rodape da janela
+   A NOTA EMPURRA OS BOTOES PARA A DIREITA, e a acao secundaria e' texto. Dois botoes
+   grandes de pilula lado a lado num rodape de 67 pixels ficavam pesados e disputavam
+   atencao entre si: "Fechar" so' sai da tela, nao merece o mesmo destaque de uma acao
+   que vai ao Drive. */
+.md-secundario{font-size:12px;font-weight:700;color:var(--soft);background:none;
+  border:0;padding:6px 2px;cursor:pointer;text-decoration:underline;
+  text-underline-offset:4px;text-decoration-color:var(--rule-solid);
+  transition:color .15s ease}
+.md-secundario:hover{color:var(--ink);text-decoration-color:var(--ink)}
+
 /* ------------------------------------------------- a navegacao do Drive real */
 .lp-carregando{padding:40px 10px;text-align:center;font-size:12.5px;color:var(--soft)}
 .lp-trilha{display:flex;align-items:center;gap:6px;flex-wrap:wrap;

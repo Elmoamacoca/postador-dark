@@ -291,10 +291,15 @@
       '</div>';
   }
 
+  /* UM BOTAO SO' TEM PESO DE BOTAO. Na primeira versao o rodape tinha dois botoes
+     grandes lado a lado, com a mesma forca: "Fechar", que so' sai da tela, disputava
+     atencao com "Reler A Pasta", que vai ao Drive. Ele apontou em 10/09 que ficaram
+     esquisitos, e estavam: acao secundaria agora e' texto, na linguagem que o cartao
+     desta mesma aba ja' usa no "Ligar Pasta". */
   function rodape(u) {
     return '<span class="ct-jan-nota">Uma pasta pertence a um perfil só.</span>' +
-      '<button class="ct-bt" type="button" data-reler-midias="' + seguro(u) +
-      '"><span class="txt">Reler A Pasta</span><span class="circ"></span></button>' +
+      '<button class="md-secundario" type="button" data-reler-midias="' + seguro(u) +
+      '">Reler A Pasta</button>' +
       '<button class="ct-bt" type="button" data-ct-fechar>' +
       '<span class="txt">Fechar</span><span class="circ"></span></button>';
   }
