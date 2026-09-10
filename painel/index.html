@@ -349,18 +349,112 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
 
   <!-- ------------------------------------------------------------ Contas -->
   <!-- ------------------------------------------------------- Analytics -->
+  <!-- ---------------------------------------------------------- Analytics
+       UMA CONTA POR VEZ, e nunca uma visao global: cada perfil e' um negocio
+       proprio, e somar tres perfis num numero so' nao ajuda a decidir nada. A tela
+       desce na ordem em que a pergunta aparece: quem e' esta conta, como ela vem
+       indo, o que puxou o resultado, e por fim a lista inteira do que saiu.
+
+       O DESENHO E' O DA SALA DE CONTROLE do portal, a tela-regua da casa, trazida
+       pelo `04-analytics.css`, que e' gerado. As classes `rs-*` sao as de la'. -->
   <section class="pagina" id="pag-analytics">
     <div class="cab">
       <div>
         <h1>Analytics</h1>
-        <p class="p">O retrato de cada conta ligada, na mesma tela de perfil do Social Tracker.</p>
+        <p class="p">Uma conta por vez, do resumo até a publicação isolada.</p>
       </div>
-      <div class="dir" id="troca-conta"></div>
+      <div class="dir" id="an-troca"></div>
     </div>
 
-    <!-- O escopo do desenho copiado. Tudo que veio do tracker so' vale aqui dentro. -->
-    <div id="tela-analytics">
-      <div class="secao pf-pagina"><div id="pf-conteudo"></div></div>
+    <div class="rs" id="an-tela">
+      <div class="rs-cd">
+        <div class="pf">
+          <div class="pf-av" id="an-av"></div>
+          <div class="pf-txt">
+            <h2 id="an-nome">Carregando</h2>
+            <div class="sub" id="an-sub"></div>
+          </div>
+          <div class="pf-num" id="an-num"></div>
+        </div>
+      </div>
+
+      <div class="rs-topo">
+        <span class="rs-rot2">Período</span>
+        <div class="rs-dir">
+          <div class="rs-seg" id="an-periodo">
+            <button data-d="7">7 dias</button>
+            <button data-d="30" class="on">30 dias</button>
+            <button data-d="90">90 dias</button>
+            <button data-d="0">Tudo</button>
+          </div>
+          <button class="bt" id="an-atualizar" type="button">Atualizar</button>
+          <span class="rs-rot3" id="an-lido"></span>
+        </div>
+      </div>
+
+      <div class="rs-grade rs-g4" id="an-kpis"></div>
+
+      <div class="rs-cd estica">
+        <div class="rs-cd-h">
+          <h3>Desempenho No Período</h3>
+          <div class="rs-seg" id="an-metrica">
+            <button data-m="alc" class="on">Alcance</button>
+            <button data-m="vis">Visualizações</button>
+            <button data-m="inter">Interações</button>
+            <button data-m="seg">Seguidores</button>
+          </div>
+        </div>
+        <div class="rs-cd-b"><div class="gr" id="an-grafico"></div></div>
+      </div>
+
+      <div class="rs-grade rs-g21">
+        <div class="rs-cd">
+          <div class="rs-cd-h"><h3>Melhores Publicações</h3>
+            <span class="rs-rot3">passe o mouse para ver a peça</span></div>
+          <div class="rs-cd-b"><div id="an-tops"></div></div>
+        </div>
+        <div class="rs-cd">
+          <div class="rs-cd-h"><h3>Desempenho Por Formato</h3></div>
+          <div class="rs-cd-b"><div id="an-fmt"></div></div>
+        </div>
+      </div>
+
+      <div class="rs-cd">
+        <div class="rs-cd-h">
+          <h3>Todas As Publicações</h3>
+          <div class="rs-dir">
+            <div class="rs-seg" id="an-formato">
+              <button data-f="" class="on">Todos</button>
+              <button data-f="reel">Reel</button>
+              <button data-f="carrossel">Carrossel</button>
+            </div>
+            <div class="busca">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7"/>
+                <path d="m20 20-3.2-3.2"/></svg>
+              <input id="an-busca" placeholder="Procurar na legenda"
+                     aria-label="Procurar">
+            </div>
+          </div>
+        </div>
+        <div class="rolagem">
+          <table class="tab">
+            <thead><tr>
+              <th>Publicação</th>
+              <th class="an-ord" data-o="quando">Quando<i>↓</i></th>
+              <th class="n an-ord on" data-o="alc">Alcance<i>↓</i></th>
+              <th class="n an-ord" data-o="vis">Visualizações<i>↓</i></th>
+              <th class="n an-ord" data-o="eng">Engajamento<i>↓</i></th>
+              <th class="n an-ord" data-o="sal">Salvamentos<i>↓</i></th>
+              <th></th>
+            </tr></thead>
+            <tbody id="an-linhas"></tbody>
+          </table>
+        </div>
+        <div class="an-pag">
+          <span class="conta" id="an-conta-pag"></span>
+          <div class="dir" id="an-paginas"></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -471,6 +565,10 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
 
 </main>
 
+<!-- O COMPARTILHADO CARREGA ANTES DE TODOS. Ele guarda o que mais de uma aba usa
+     (seletor, paginacao, motor de grafico do tracker). Ja custou uma tela quebrada
+     ter isso morando dentro da folha de uma aba. -->
+<script src="codigo/00-comum.js"></script>
 <script src="codigo/01-nucleo.js"></script>
 
 <!-- ================================================================ ANALYTICS
@@ -480,7 +578,6 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
      mudando o formato, seria preciso mexer no motor, e a copia deixaria de ser copia. -->
 <script src="codigo/02-analytics.js"></script>
 
-<script src="codigo/03-trocador-conta.js"></script>
 <!-- ================================================== A JANELA DE UM POST
      Uma so' para o painel inteiro: ela e' preenchida na hora de abrir. Duas janelas
      iguais no HTML seriam duas manutencoes para o mesmo desenho. AQUI NAO SE EDITA

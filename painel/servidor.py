@@ -496,6 +496,42 @@ class SemCache(http.server.SimpleHTTPRequestHandler):
             self.send_error(404)
             return
 
+        # ------------------------------------------------------ a aba de Analytics
+        # UMA CONTA POR VEZ, e o dado vem da API oficial do Instagram, pelo modulo
+        # `analytics.py`. O guardado serve por quinze minutos; `atualizar=1` e' o
+        # botao da tela dizendo que quer perguntar a Meta agora.
+        if rota == "analytics/estado":
+            q = urllib.parse.parse_qs(p.query)
+            quem = (q.get("u", [""])[0] or "").lower()
+            try:
+                dias = int(q.get("dias", ["30"])[0])
+            except ValueError:
+                dias = 30
+            if not quem:
+                return self.responder({"erro": "falta dizer de qual conta"}, 400)
+            import analytics
+            return self.responder(analytics.estado(
+                quem, dias, forcar=q.get("atualizar", [""])[0] == "1"))
+
+        # A CAPA E SERVIDA PELA CASA. O endereco da Meta expira e o CDN dela recusa o
+        # pedido vindo desta pagina: apontar a tag `img` para la' rende quadrado
+        # quebrado, o mesmo que ja' aconteceu com o retrato do perfil.
+        if rota == "analytics/capa":
+            import analytics
+            caminho = analytics.capa_em_disco(
+                urllib.parse.parse_qs(p.query).get("id", [""])[0])
+            if not caminho:
+                self.send_error(404)
+                return
+            corpo = caminho.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "image/jpeg")
+            self.send_header("Content-Length", str(len(corpo)))
+            self.send_header("Cache-Control", "private, max-age=604800")
+            self.end_headers()
+            self.wfile.write(corpo)
+            return
+
         if rota in ("perfis", "conta", "posts"):
             quem = (urllib.parse.parse_qs(p.query).get("u", [""])[0] or "").lower()
             try:

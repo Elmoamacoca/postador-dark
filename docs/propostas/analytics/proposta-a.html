@@ -37,6 +37,19 @@
    O que sobra nesta folha e' o pouco que a sala nao tem: a faixa de identidade da
    conta e a linha da tabela com miniatura. */
 
+/* A GRADE MEDE O ESPACO, e nao a janela. As quebras da sala foram escritas para o
+   portal, onde a pagina tem a largura inteira; aqui o menu come 236 pixels e a regra
+   de 1320 disparava numa janela de 1400, jogando os quatro cartoes em duas colunas.
+   Com `auto-fit` quem decide e' o espaco que sobra, que e' o certo nos dois lugares. */
+#pag-analytics .rs-grade.rs-g4,
+.rs-grade.rs-g4{grid-template-columns:repeat(auto-fit,minmax(226px,1fr))}
+#pag-analytics .rs-grade.rs-g21,
+.rs-grade.rs-g21{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+@media (max-width:1100px){
+  #pag-analytics .rs-grade.rs-g21,
+  .rs-grade.rs-g21{grid-template-columns:minmax(0,1fr)}
+}
+
 /* A identidade da conta, na linguagem do cartao da sala. */
 .pf{display:flex;align-items:center;gap:18px;padding:18px 20px}
 .pf-av{width:64px;height:64px;border-radius:50%;flex:none;overflow:hidden;
