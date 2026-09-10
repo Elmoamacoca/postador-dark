@@ -507,8 +507,13 @@
         + quanto.toFixed(1).replace('.', ',') + 'x</b> mais alcance por publicação '
         + 'nesta conta.</div>';
     }
-    alvo.innerHTML = '<div class="rs-lista">' + item('Reel', reels, 'var(--rs-1)')
-      + item('Carrossel', carr, 'var(--rs-2)') + '</div>' + pe;
+    /* FORMATO SEM PUBLICACAO NAO GANHA LINHA. "Carrossel 0, alcance medio 0" ocupa
+       espaco para dizer que nao aconteceu nada, e o que nao aconteceu nao decide
+       nada. Mesma regra da lista da sala de controle. */
+    alvo.innerHTML = '<div class="rs-lista">'
+      + (reels.length ? item('Reel', reels, 'var(--rs-1)') : '')
+      + (carr.length ? item('Carrossel', carr, 'var(--rs-2)') : '')
+      + '</div>' + pe;
   }
 
   /* --------------------------------------------------------------- a previa */
