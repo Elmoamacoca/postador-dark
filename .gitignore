@@ -21,6 +21,7 @@ docs/propostas/**/sala.css
 docs/propostas/**/marca-*.png
 docs/propostas/**/contas.js
 docs/propostas/midias/proposta-?.html
+docs/propostas/midias/pop-?.html
 # retrato das contas e leitura logada do painel no ar
 docs/propostas/**/reais.json
 docs/propostas/_*.json
