@@ -57,65 +57,105 @@ CABECA = """/* =================================================================
 """
 
 
+def conferir(css: str) -> None:
+    """RECUSA A FOLHA QUEBRADA. Duas vezes o escopador produziu seletor invalido (um
+    comentario prefixado, um `@keyframes` picotado), e nas duas o navegador jogou
+    fora O BLOCO SEGUINTE sem reclamar: a aba subiu sem o painel lateral. Erro de
+    gerador tem que morrer aqui, e nao na tela dele."""
+    problemas = []
+    if re.search(r'#pag-analytics\s*/\*', css):
+        problemas.append('comentario prefixado como seletor')
+    if re.search(r'#pag-analytics\s*}', css):
+        problemas.append('chave de fechamento prefixada')
+    if re.search(r'#pag-analytics\s*(from|to)\s*{', css):
+        problemas.append('quadro de animacao prefixado')
+    if css.count('{') != css.count('}'):
+        problemas.append('chaves desbalanceadas: %d abrem, %d fecham'
+                         % (css.count('{'), css.count('}')))
+    for alvo in ('.sp{', '.sp-fora{', '@keyframes spEntra'):
+        if alvo not in css:
+            problemas.append('sumiu do resultado: ' + alvo)
+    if problemas:
+        raise SystemExit('FOLHA RECUSADA: ' + '; '.join(problemas))
+
+
 def escopar(css: str, escopo: str) -> str:
     """Prefixa cada seletor com o escopo, respeitando quem mora no `body`.
 
-    Escrito na mao de proposito: puxar um pre-processador para prefixar uma folha
-    seria trocar uma dependencia nova por trinta linhas de leitura simples."""
+    Escrito na mao de proposito: puxar um pre-processador so' para prefixar uma folha
+    seria trocar trinta linhas de leitura simples por uma dependencia nova. Em
+    compensacao, o resultado passa pelo `conferir` antes de virar arquivo.
+
+    O QUE ELE PRECISA RESPEITAR, e ja' errou nos tres:
+      1. COMENTARIO entre regras nao e' seletor.
+      2. BLOCO ARROBA (`@media`, `@keyframes`, `@supports`) tem chave dentro de
+         chave, e o `@keyframes` nao pode ser escopado por dentro: `from` e `to` nao
+         sao seletores de elemento.
+      3. Espaco e quebra de linha antes do `@` nao podem esconder o bloco arroba.
+    """
     saida, i, n = [], 0, len(css)
     while i < n:
-        # comentario passa inteiro
+        # 1. espaco solto e comentario passam inteiros
+        if css[i].isspace():
+            j = i
+            while j < n and css[j].isspace():
+                j += 1
+            saida.append(css[i:j])
+            i = j
+            continue
         if css.startswith('/*', i):
             fim = css.find('*/', i + 2)
             fim = n if fim < 0 else fim + 2
             saida.append(css[i:fim])
             i = fim
             continue
-        # bloco arroba (media, keyframes, supports): o conteudo vai sem tocar
+
+        # 2. bloco arroba: consome do `@` ate' a chave que fecha, contando
         if css[i] == '@':
-            fim = css.find('{', i)
-            if fim < 0:
-                saida.append(css[i:])
-                break
-            profundidade, j = 1, fim + 1
+            abre = css.find('{', i)
+            fim_linha = css.find(';', i)
+            if abre < 0 or (0 <= fim_linha < abre):      # `@import`, `@charset`
+                fim = n if fim_linha < 0 else fim_linha + 1
+                saida.append(css[i:fim])
+                i = fim
+                continue
+            profundidade, j = 1, abre + 1
             while j < n and profundidade:
                 if css[j] == '{':
                     profundidade += 1
                 elif css[j] == '}':
                     profundidade -= 1
                 j += 1
-            saida.append(css[i:j])
+            regra = css[i:abre]
+            dentro = css[abre + 1:j - 1]
+            # `@keyframes` vai inteiro; `@media` e afins tem seletor de verdade dentro
+            if regra.lstrip('@').lower().startswith(('keyframes', 'font-face',
+                                                     'property', 'counter-style')):
+                saida.append(css[i:j])
+            else:
+                saida.append(regra + '{' + escopar(dentro, escopo) + '}')
             i = j
             continue
-        fim = css.find('{', i)
-        if fim < 0:
+
+        # 3. regra comum
+        abre = css.find('{', i)
+        if abre < 0:
             saida.append(css[i:])
             break
-        j = css.find('}', fim)
-        j = n if j < 0 else j + 1
-        corpo = css[fim:j]
-
-        # O COMENTARIO NAO E' SELETOR. Entre o fim de uma regra e o inicio da
-        # proxima quase sempre ha' um comentario, e prefixar aquilo inteiro produzia
-        # `#pag-analytics /* ... */` picotado por virgulas: seletor invalido, e o
-        # navegador joga fora O BLOCO SEGUINTE. Foi assim que o painel lateral e a
-        # tabela chegaram ao ar sem estilo nenhum, em 09/09. O comentario sai antes,
-        # e volta na frente do seletor ja' escopado.
-        bruto = css[i:fim]
+        fecha = css.find('}', abre)
+        fecha = n if fecha < 0 else fecha + 1
+        bruto = css[i:abre]
         comentarios = re.findall(r'/\*.*?\*/', bruto, re.S)
         seletor = re.sub(r'/\*.*?\*/', '', bruto, flags=re.S).strip()
-        if seletor:
-            partes = []
-            for parte in seletor.split(','):
-                p = parte.strip()
-                if not p or p.startswith(LIVRES):
-                    partes.append(p)
-                else:
-                    partes.append(escopo + ' ' + p)
-            seletor = ',\n'.join(partes)
+        partes = []
+        for parte in seletor.split(','):
+            p = parte.strip()
+            if not p:
+                continue
+            partes.append(p if p.startswith(LIVRES) else escopo + ' ' + p)
         saida.append((chr(10).join(comentarios) + chr(10) if comentarios else '')
-                     + seletor + corpo)
-        i = j
+                     + (',' + chr(10)).join(partes) + css[abre:fecha])
+        i = fecha
     return ''.join(saida)
 
 
@@ -138,15 +178,16 @@ def main():
     pagina = (AQUI / 'proposta-a.html').read_text(encoding='utf-8')
     proprio = re.search(r'<style>(.*?)</style>', pagina, re.S).group(1)
 
-    ALVO.write_text(
+    folha = (
         CABECA
         + '/* ====== 1. a sala de controle, recortada do portal ====== */' + chr(10)
         + sala + chr(10)
         + '/* ====== 2. o compartilhado das propostas ====== */' + chr(10)
         + escopar(comum, '#pag-analytics') + chr(10)
         + '/* ====== 3. o especifico desta aba ====== */' + chr(10)
-        + escopar(proprio, '#pag-analytics'),
-        encoding='utf-8')
+        + escopar(proprio, '#pag-analytics'))
+    conferir(folha)
+    ALVO.write_text(folha, encoding='utf-8')
     print('04-analytics.css', round(ALVO.stat().st_size / 1024), 'KB')
 
 

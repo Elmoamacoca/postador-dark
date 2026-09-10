@@ -158,6 +158,21 @@
 .sp-tit h3{font-size:16px;font-weight:800;line-height:1.35;margin:0 0 6px}
 .sp-tit p{margin:0}
 .sp-corpo{flex:1;overflow:auto;padding:18px 20px 26px}
+/* A BARRA DE ROLAGEM E' A DA CASA, e nao a do sistema. A do Windows entra BRANCA e
+   larga, e no tema escuro ela vira uma faixa acesa no meio da tela: foi o que ele
+   fotografou. A receita e' a mesma do `portal.css`: fina, trilho transparente e
+   polegar na cor da regua, que troca junto com o tema. Vale para todo lugar que
+   rola dentro desta aba. */
+.sp-corpo,.cb-lista,.sp{scrollbar-width:thin;
+  scrollbar-color:var(--rule-solid) transparent}
+.sp-corpo::-webkit-scrollbar,.cb-lista::-webkit-scrollbar{width:10px;height:10px}
+.sp-corpo::-webkit-scrollbar-track,.cb-lista::-webkit-scrollbar-track{
+  background:transparent}
+.sp-corpo::-webkit-scrollbar-thumb,.cb-lista::-webkit-scrollbar-thumb{
+  background:var(--rule-solid);border-radius:999px;
+  border:2px solid transparent;background-clip:padding-box}
+.sp-corpo::-webkit-scrollbar-thumb:hover,.cb-lista::-webkit-scrollbar-thumb:hover{
+  background:var(--soft);background-clip:padding-box}
 .sp-corpo.entra > *{animation:spEntra .34s cubic-bezier(.22,1,.36,1) both}
 .sp-corpo.entra > *:nth-child(2){animation-delay:.04s}
 .sp-corpo.entra > *:nth-child(3){animation-delay:.08s}
