@@ -1,0 +1,125 @@
+/* ======================================================= O COMPARTILHADO (CSS)
+   As pecas que as tres propostas usam por igual: a previa ao passar o mouse, a
+   torrada, a janela de ligar pasta e a barra de rolagem da casa.
+
+   NADA AQUI INVENTA COR NEM SOMBRA. Tudo sai das variaveis do painel
+   (`--paper`, `--ink`, `--rule-solid`, `--accent`) e da sala de controle
+   (`--rs-*`), que e' a regua estetica que ele aprovou em 29/08.
+   ========================================================================== */
+
+/* ------------------------------------------------------ a barra de rolagem
+   PADRAO DA CASA, e nao a do sistema. A do Windows chega branca e larga, e no tema
+   escuro vira uma faixa acesa no meio da tela. Cobranca dele em 09/09. */
+.mid-rolo, .lp-lista, .ct-jan-rolo{
+  scrollbar-width:thin;
+  scrollbar-color:var(--rule-solid) transparent}
+.mid-rolo::-webkit-scrollbar,
+.lp-lista::-webkit-scrollbar,
+.ct-jan-rolo::-webkit-scrollbar{width:10px;height:10px}
+.mid-rolo::-webkit-scrollbar-track,
+.lp-lista::-webkit-scrollbar-track,
+.ct-jan-rolo::-webkit-scrollbar-track{background:transparent}
+.mid-rolo::-webkit-scrollbar-thumb,
+.lp-lista::-webkit-scrollbar-thumb,
+.ct-jan-rolo::-webkit-scrollbar-thumb{
+  background:var(--rule-solid);border-radius:999px;
+  border:2px solid transparent;background-clip:padding-box}
+
+/* ------------------------------------------------------------- a miniatura
+   9 por 16, que e' a forma do que este painel publica. */
+.mid-capa{position:relative;flex:none;border-radius:7px;overflow:hidden;
+  background:var(--rs-trilho,var(--paper-2));border:1px solid var(--rule-solid);
+  display:block;padding:0;cursor:zoom-in}
+.mid-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.mid-capa .dur{position:absolute;right:3px;bottom:3px;height:15px;padding:0 4px;
+  border-radius:4px;background:rgba(14,14,14,.74);color:#fff;font-size:9.5px;
+  font-weight:700;display:flex;align-items:center;font-variant-numeric:tabular-nums}
+.mid-capa.g{width:44px;height:59px}
+.mid-capa.m{width:34px;height:46px}
+.mid-capa.p{width:27px;height:36px}
+
+/* ------------------------------------------------------- a pilula de estado */
+.mid-pin{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;
+  border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.1px;
+  background:var(--paper-2);color:var(--soft);border:1px solid var(--rule-solid);
+  white-space:nowrap}
+.mid-pin i{width:5px;height:5px;border-radius:999px;background:currentColor}
+/* A HIERARQUIA E' POR TEMPO, E NAO POR DUAS CORES PARECIDAS. O `--accent` do painel
+   ja' e' verde (#3F7D53), entao pintar "foi ao ar" de verde-bom e "marcado" de accent
+   dava dois verdes quase iguais lado a lado. O que passou fica neutro; o que ainda vai
+   acontecer leva a cor da casa; o que nunca saiu fica so' de contorno. */
+.mid-pin.foi{color:var(--soft);background:var(--paper-2)}
+.mid-pin.foi i{opacity:.55}
+.mid-pin.marcado{color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 11%,transparent);
+  border-color:color-mix(in srgb,var(--accent) 30%,transparent);font-weight:800}
+.mid-pin.guardado{background:transparent;border-style:dashed}
+.mid-pin.guardado i{background:transparent;box-shadow:inset 0 0 0 1.5px currentColor}
+
+/* O SELO DE EXEMPLO. O livro-caixa esta com ZERO videos: tudo que e' arquivo aqui
+   e' invencao para a tela poder ser julgada, e a tela diz isso na cara. */
+.mid-ex{display:inline-block;width:6px;height:6px;border-radius:999px;
+  background:var(--soft);opacity:.5;flex:none}
+.mid-nota-ex{display:flex;align-items:center;gap:7px;margin-top:10px;
+  font-size:11px;color:var(--soft);line-height:1.45}
+
+/* -------------------------------------------------------------- a previa */
+.prev{position:fixed;z-index:70;width:230px;background:var(--branco,var(--paper));
+  border:1px solid var(--rule-solid);border-radius:12px;overflow:hidden;
+  box-shadow:0 18px 44px rgba(14,14,14,.17);opacity:0;transform:translateY(5px);
+  transition:opacity .16s ease,transform .16s ease;pointer-events:none}
+.prev.on{opacity:1;transform:none}
+.prev-capa{position:relative;aspect-ratio:9/16;background:var(--rs-trilho,var(--paper-2))}
+.prev-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.prev-play{position:absolute;inset:0;display:grid;place-items:center}
+.prev-play i{width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.92);
+  display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.22)}
+.prev-play svg{width:17px;height:17px;fill:#0E0E0E;margin-left:2px}
+.prev-dur{position:absolute;right:9px;bottom:9px;height:22px;padding:0 8px;
+  border-radius:6px;background:rgba(14,14,14,.76);color:#fff;font-size:11px;
+  font-weight:700;display:flex;align-items:center;font-variant-numeric:tabular-nums}
+.prev-b{padding:11px 13px 12px}
+.prev-b .lin{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:11.5px;color:var(--soft);margin-top:6px}
+.prev-b .lin:first-child{margin-top:0}
+.prev-b .lin b{color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
+.prev-leg{margin-top:9px;padding-top:9px;border-top:1px solid var(--rule-solid);
+  font-size:11px;line-height:1.5;color:var(--soft)}
+
+/* -------------------------------------------------------------- a torrada */
+.mid-torrada{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
+  z-index:120;background:var(--ink);color:var(--paper);font-size:12.5px;
+  font-weight:600;padding:11px 17px;border-radius:999px;opacity:0;
+  transition:opacity .2s ease,transform .2s ease;pointer-events:none;
+  box-shadow:0 12px 30px rgba(14,14,14,.24)}
+.mid-torrada.on{opacity:1;transform:translate(-50%,0)}
+
+/* ------------------------------------------------- a janela de ligar pasta */
+.lp-p{font-size:12.5px;line-height:1.6;color:var(--soft);margin:0 0 14px}
+.lp-p b{color:var(--ink);font-weight:700}
+.lp-trilha{font-size:11px;font-weight:700;color:var(--soft);letter-spacing:.3px;
+  text-transform:uppercase;margin-bottom:8px}
+.lp-lista{max-height:330px;overflow:auto;border:1px solid var(--rule-solid);
+  border-radius:10px}
+.lp-li{display:flex;align-items:center;gap:11px;padding:11px 13px;
+  border-bottom:1px solid var(--rule-solid)}
+.lp-li:last-child{border-bottom:0}
+.lp-ic{width:30px;height:30px;flex:none;border-radius:8px;display:grid;
+  place-items:center;background:var(--paper-2);color:var(--soft)}
+.lp-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linejoin:round}
+.lp-nome{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.lp-nome b{font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.lp-nome span{font-size:11px;color:var(--soft)}
+.lp-vazio{padding:22px;text-align:center;font-size:12px;color:var(--soft)}
+.ct-jan-nota{font-size:11.5px;color:var(--soft);margin-right:auto}
+
+/* ------------------------------------------------------------- a lupa da capa */
+.mid-lupa{position:fixed;inset:0;z-index:130;display:grid;place-items:center;
+  background:rgba(14,14,14,.62);opacity:0;transition:opacity .18s ease}
+.mid-lupa.on{opacity:1}
+.mid-lupa[hidden]{display:none}
+.mid-lupa img{width:min(320px,80vw);border-radius:14px;display:block;
+  box-shadow:0 24px 60px rgba(0,0,0,.4)}
+:root[data-theme="dark"] .mid-lupa{background:rgba(0,0,0,.74)}

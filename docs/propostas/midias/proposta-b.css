@@ -1,0 +1,69 @@
+/* ================================================= PROPOSTA B: A GAVETA (CSS)
+   O cartao so' tem tres numeros e uma barra; o resto mora na janela larga que a aba
+   de Contas ja' tinha. Cor, sombra e raio saem das variaveis do painel. */
+
+/* ------------------------------------------------------- os tres numeros */
+.gv-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.gv-n{border:1px solid var(--rule-solid);border-radius:10px;padding:11px 12px 10px;
+  background:var(--paper-2);display:flex;flex-direction:column;gap:2px}
+.gv-n b{font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.gv-n span{font-size:10px;font-weight:600;color:var(--soft);letter-spacing:.2px}
+.gv-n.foi b{color:var(--rs-bom,#1F7A4D)}
+.gv-n.marcado b{color:var(--accent)}
+
+/* --------------------------------------------------------- a barra de uso */
+.gv-barra{height:7px;border-radius:999px;background:var(--rule-solid);margin-top:13px;
+  overflow:hidden}
+.gv-barra i{display:block;height:100%;border-radius:999px;background:var(--ink);
+  transition:width .3s ease}
+.gv-legenda{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:7px;font-size:11px;color:var(--soft);font-variant-numeric:tabular-nums}
+.gv-legenda b{color:var(--ink);font-weight:800}
+
+/* -------------------------------------------------------------- a pasta */
+.gv-pasta{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:12px;padding-top:11px;border-top:1px solid var(--rule-solid)}
+.gv-pasta-n{font-size:11.5px;font-weight:600;color:var(--soft);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.gv-ligar{font-size:11px;font-weight:700;color:var(--ink);background:none;border:0;
+  padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--rule-solid);flex:none}
+.gv-ligar:hover{text-decoration-color:var(--ink)}
+.gv-abrir{width:100%;margin-top:12px;justify-content:center}
+
+/* ------------------------------------------------------ dentro da janela */
+.gv-topo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.gv-topo .ct-seg{flex:1;min-width:0}
+.gv-topo .ct-seg button{display:inline-flex;align-items:center;gap:6px}
+.gv-topo .ct-seg button .n{font-size:10px;font-weight:800;min-width:16px;height:16px;
+  padding:0 4px;border-radius:999px;display:inline-flex;align-items:center;
+  justify-content:center;background:var(--rule-solid);color:var(--soft);
+  font-variant-numeric:tabular-nums}
+.gv-topo .ct-seg button.on .n{background:var(--ink);color:var(--paper)}
+.gv-busca{flex:none;width:190px}
+
+.gv-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));
+  gap:14px}
+.gv-q{margin:0;display:flex;flex-direction:column;gap:8px}
+.gv-capa{width:100%;height:auto;aspect-ratio:9/16}
+.gv-q figcaption{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gv-q figcaption b{font-size:11.5px;font-weight:600;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gv-q figcaption > span{font-size:10px;color:var(--soft);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.gv-q .mid-pin{align-self:flex-start}
+.gv-vis{font-variant-numeric:tabular-nums}
+.gv-vis b{color:var(--ink);font-weight:700}
+.gv-vazio{padding:44px 10px;text-align:center;font-size:12.5px;color:var(--soft)}
+
+.gv-paginas{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-top:16px;padding-top:13px;border-top:1px solid var(--rule-solid);
+  font-size:11.5px;color:var(--soft);font-variant-numeric:tabular-nums}
+.gv-paginas.so-conta{justify-content:center}
+.gv-paginas b{color:var(--ink);font-weight:800}
+.gv-paginas button{height:29px;padding:0 13px;border-radius:8px;
+  border:1px solid var(--rule-solid);background:var(--paper);color:var(--ink);
+  font-size:11.5px;font-weight:700;cursor:pointer}
+.gv-paginas button:hover:not(:disabled){background:var(--paper-2)}
+.gv-paginas button:disabled{opacity:.42;cursor:default}

@@ -1,0 +1,78 @@
+/* ================================================ PROPOSTA C: A ESTEIRA (CSS)
+   Uma faixa horizontal com o risco de HOJE no meio. Cor, sombra e raio saem das
+   variaveis do painel; o unico desenho novo e' o risco e a pilha. */
+
+/* ------------------------------------------------------------- o cabecalho */
+.es-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:9px}
+.es-pasta{font-size:11px;font-weight:700;color:var(--soft);letter-spacing:.2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.es-ligar{font-size:10.5px;font-weight:700;color:var(--ink);background:none;border:0;
+  padding:0;cursor:pointer;flex:none;text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--rule-solid)}
+.es-ligar:hover{text-decoration-color:var(--ink)}
+
+/* ---------------------------------------------------------------- a faixa */
+.es-faixa{overflow-x:auto;overflow-y:hidden;margin:0 -15px;padding:2px 15px 10px;
+  cursor:grab}
+.es-faixa.puxando{cursor:grabbing;user-select:none}
+.es-trilho{display:flex;align-items:flex-start;gap:9px;width:max-content}
+
+.es-q{flex:none;width:52px;display:flex;flex-direction:column;gap:5px}
+.es-capa{width:52px;height:70px}
+.es-q.vai .es-capa{border-style:dashed;border-color:color-mix(in srgb,
+  var(--accent) 46%,var(--rule-solid))}
+.es-q.vai .es-capa img{opacity:.62}
+.es-q-pe{display:flex;flex-direction:column;gap:0;text-align:center;
+  font-variant-numeric:tabular-nums}
+.es-q-pe b{font-size:11px;font-weight:800;line-height:1.25}
+.es-q-pe span{font-size:9px;color:var(--soft)}
+.es-q-pe .mid-ex{margin:2px auto 0}
+.es-q.vai .es-q-pe b{color:var(--accent)}
+
+/* O RISCO DE HOJE. Ele e' a peca que faz a faixa virar linha do tempo: sem ele, o
+   que ja' saiu e o que vai sair sao a mesma fila de capas. */
+.es-hoje{flex:none;width:1px;align-self:stretch;position:relative;margin:0 13px}
+.es-hoje i{position:absolute;top:0;bottom:20px;left:0;width:2px;border-radius:2px;
+  background:var(--ink)}
+.es-hoje span{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+  color:var(--paper);background:var(--ink);padding:2px 7px;border-radius:999px;
+  white-space:nowrap}
+.es-sem{flex:none;align-self:center;font-size:11px;color:var(--soft);
+  padding:0 14px;white-space:nowrap}
+
+/* ---------------------------------------------------------------- a pilha */
+.es-pilha{flex:none;margin-left:10px;width:72px;padding:0;background:none;border:0;
+  display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;
+  color:inherit}
+.es-pilha-capas{position:relative;width:52px;height:70px}
+.es-pilha-capas img{position:absolute;top:0;left:0;width:46px;height:62px;
+  object-fit:cover;border-radius:6px;border:1px solid var(--rule-solid);
+  background:var(--paper-2);
+  transform:translate(calc(var(--i) * 4px), calc(var(--i) * 4px));
+  opacity:calc(1 - var(--i) * .26);transition:transform .18s ease}
+.es-pilha:hover img{transform:translate(calc(var(--i) * 6px), calc(var(--i) * 6px))}
+.es-pilha b{font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+.es-pilha span{font-size:9px;color:var(--soft)}
+
+/* ---------------------------------------------------------------- o rodape */
+.es-pe{display:flex;align-items:center;gap:14px;margin-top:4px;padding-top:11px;
+  border-top:1px solid var(--rule-solid);flex-wrap:wrap}
+.es-pe-n{display:flex;align-items:baseline;gap:5px}
+.es-pe-n b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.es-pe-n span{font-size:10px;color:var(--soft)}
+.es-pe-f{margin-left:auto;font-size:11px;color:var(--soft);
+  font-variant-numeric:tabular-nums}
+.es-pe-f b{color:var(--ink);font-weight:800}
+
+/* ----------------------------------------------------- a grade da janela */
+.es-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
+  gap:13px}
+.es-gq{margin:0;display:flex;flex-direction:column;gap:6px}
+.es-gq .es-capa{width:100%;height:auto;aspect-ratio:9/16}
+.es-gq figcaption{display:flex;flex-direction:column;gap:2px;min-width:0}
+.es-gq figcaption b{font-size:10.5px;font-weight:600;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.es-gq figcaption span{font-size:9.5px;color:var(--soft);
+  font-variant-numeric:tabular-nums}

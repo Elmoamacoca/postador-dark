@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "propostas-midias",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8823", "--directory",
+                      "docs/propostas/midias"],
+      "port": 8823
+    }
+  ]
+}
