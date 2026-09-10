@@ -445,12 +445,33 @@
     grafico.dar(serie());
   }
 
+  /* PERIODO VAZIO NAO E' DEFEITO, mas parece um. Uma conta que publicou ha' tres
+     meses abre "30 dias" com quatro zeros e uma tela morta, e ele leu isso como bug.
+     Entao o vazio DIZ o que aconteceu e oferece o caminho: ver o periodo inteiro. */
+  function vazioExplicado() {
+    if (!dado.total_posts) {
+      return '<p class="rs-sem">Esta conta ainda não publicou nada.</p>';
+    }
+    if (!dado.ultima) return '<p class="rs-sem">Nada saiu no período.</p>';
+    return '<p class="rs-sem">Nada saiu neste período. A última publicação foi '
+      + idade(dado.ultima) + ', em ' + dia(dado.ultima) + '.'
+      + ' <button class="an-vertudo" type="button">Ver o período inteiro</button></p>';
+  }
+
+  function ligarVerTudo(alvo) {
+    var b = alvo.querySelector('.an-vertudo');
+    if (b) b.addEventListener('click', function () {
+      document.querySelector('#an-periodo [data-d="0"]').click();
+    });
+  }
+
   function pintarTops() {
     var lista = (dado.posts || []).slice()
       .sort(function (a, b) { return b.alc - a.alc; }).slice(0, 5);
     var alvo = document.getElementById('an-tops');
     if (!lista.length) {
-      alvo.innerHTML = '<p class="rs-sem">Nada saiu no período.</p>';
+      alvo.innerHTML = vazioExplicado();
+      ligarVerTudo(alvo);
       return;
     }
     var max = Math.max.apply(null, lista.map(function (p) { return p.alc; })
@@ -478,7 +499,8 @@
     var lista = dado.posts || [];
     var alvo = document.getElementById('an-fmt');
     if (!lista.length) {
-      alvo.innerHTML = '<p class="rs-sem">Nada saiu no período.</p>';
+      alvo.innerHTML = vazioExplicado();
+      ligarVerTudo(alvo);
       return;
     }
     var reels = lista.filter(function (p) { return p.fmt === 'reel'; });
@@ -745,8 +767,9 @@
           + '<path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/>'
           + '</svg></button></td></tr>';
       }).join('')
-      : '<tr><td colspan="7"><div class="vazio">Nenhuma publicação com esses '
-        + 'filtros.</div></td></tr>';
+      : '<tr><td colspan="7"><div class="vazio">'
+        + ((busca || formato) ? 'Nenhuma publicação com esses filtros.'
+          : vazioExplicado()) + '</div></td></tr>';
 
     document.getElementById('an-conta-pag').textContent = total
       ? (ini + 1) + ' a ' + Math.min(ini + POR, total) + ' de ' + total + ' publicações'
@@ -773,6 +796,7 @@
     document.querySelectorAll('#an-linhas .an-mini').forEach(function (m) {
       ligarPrevia(m, achar(m.closest('tr').dataset.id));
     });
+    ligarVerTudo(document.getElementById('an-linhas'));
   }
 
   /* -------------------------------------------------------------- o carregamento */

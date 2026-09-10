@@ -91,23 +91,30 @@ def escopar(css: str, escopo: str) -> str:
         if fim < 0:
             saida.append(css[i:])
             break
-        seletor = css[i:fim]
         j = css.find('}', fim)
         j = n if j < 0 else j + 1
         corpo = css[fim:j]
-        limpo = seletor.strip()
-        if limpo:
+
+        # O COMENTARIO NAO E' SELETOR. Entre o fim de uma regra e o inicio da
+        # proxima quase sempre ha' um comentario, e prefixar aquilo inteiro produzia
+        # `#pag-analytics /* ... */` picotado por virgulas: seletor invalido, e o
+        # navegador joga fora O BLOCO SEGUINTE. Foi assim que o painel lateral e a
+        # tabela chegaram ao ar sem estilo nenhum, em 09/09. O comentario sai antes,
+        # e volta na frente do seletor ja' escopado.
+        bruto = css[i:fim]
+        comentarios = re.findall(r'/\*.*?\*/', bruto, re.S)
+        seletor = re.sub(r'/\*.*?\*/', '', bruto, flags=re.S).strip()
+        if seletor:
             partes = []
-            for parte in limpo.split(','):
+            for parte in seletor.split(','):
                 p = parte.strip()
                 if not p or p.startswith(LIVRES):
                     partes.append(p)
-                elif p.startswith(':root'):
-                    partes.append(p)
                 else:
                     partes.append(escopo + ' ' + p)
-            seletor = seletor.replace(limpo, ',\n'.join(partes))
-        saida.append(seletor + corpo)
+            seletor = ',\n'.join(partes)
+        saida.append((chr(10).join(comentarios) + chr(10) if comentarios else '')
+                     + seletor + corpo)
         i = j
     return ''.join(saida)
 

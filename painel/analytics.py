@@ -312,6 +312,17 @@ def estado(arroba: str, dias: int = 30, forcar: bool = False) -> dict:
         meio = len(v) // 2
         return v[meio] if len(v) % 2 else round((v[meio - 1] + v[meio]) / 2)
 
+    # A TELA PRECISA SABER O QUE EXISTE FORA DO PERIODO. Sem isso, uma conta que
+    # publicou ha' tres meses aparece como um paredao de zeros em "30 dias" e parece
+    # defeito, e nao falta de publicacao: aconteceu em 09/09.
+    datas = []
+    for p in posts:
+        try:
+            datas.append(datetime.strptime(p.get("quando", ""), "%Y-%m-%dT%H:%M:%S%z"))
+        except Exception:
+            pass
+    ultima = max(datas).isoformat() if datas else None
+
     alcance = soma(atual, "alc")
     reels = [p for p in atual if p.get("fmt") == "reel"]
     com_tempo = [p for p in reels if p.get("medio")]
@@ -323,6 +334,8 @@ def estado(arroba: str, dias: int = 30, forcar: bool = False) -> dict:
         "erro": d.get("erro"),
         "curva": d.get("curva", []),
         "dias": dias,
+        "ultima": ultima,
+        "total_posts": len(posts),
         "resumo": {
             "alcance": alcance,
             "visualizacoes": soma(atual, "vis"),
