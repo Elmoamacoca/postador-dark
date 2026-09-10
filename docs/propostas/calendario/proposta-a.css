@@ -1,77 +1,177 @@
-/* =============================================== PROPOSTA A: A AGENDA (CSS)
-   O mes da casa, mas com capa dentro do dia e o vazio dito por extenso. */
+/* ================================================ PROPOSTA A: A PAUTA (CSS)
+   Sem miniatura na grade. Cada saida e' uma linha: risco da conta, hora, nome. O
+   vazio do futuro e' um encaixe tracejado no lugar onde o post deveria estar, e nao
+   hachura vermelha na celula inteira: hachura vermelha em oito dias faz a tela
+   parecer defeito. */
 
-.ag-topo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-.ag-nums{display:flex;align-items:stretch;gap:10px;margin-left:auto;flex-wrap:wrap}
-.ag-n{min-width:112px;border:1px solid var(--rule-solid);border-radius:11px;
-  padding:10px 14px;background:var(--branco,var(--paper));display:flex;
-  flex-direction:column;gap:2px}
-.ag-n b{font-size:21px;font-weight:800;letter-spacing:-.5px;line-height:1;
+.pa-topo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.pa-nums{display:flex;align-items:center;margin-left:auto;flex-wrap:wrap}
+.pa-n{padding:0 18px;border-left:1px solid var(--rule-solid);line-height:1.15}
+.pa-n:first-child{border-left:0}
+.pa-n b{display:block;font-size:22px;font-weight:800;letter-spacing:-.6px;
   font-variant-numeric:tabular-nums}
-.ag-n span{font-size:10px;color:var(--soft);line-height:1.35}
-.ag-n.vem b{color:var(--accent)}
-.ag-n.mau b{color:var(--vermelho)}
+.pa-n span{display:block;font-size:10px;color:var(--soft);margin-top:3px}
+.pa-n.vem b{color:var(--accent)}
+.pa-n.mau b{color:var(--vermelho)}
 
-.ag-caixa{padding:0;overflow:hidden}
-.ag-barra{display:flex;align-items:center;gap:10px;padding:13px 16px;
+.pa-caixa{padding:0;overflow:hidden}
+.pa-barra{display:flex;align-items:center;gap:10px;padding:12px 16px;
   border-bottom:1px solid var(--rule-solid)}
-.ag-seta{width:30px;height:30px;border-radius:8px;border:1px solid var(--rule-solid);
+.pa-seta{width:30px;height:30px;border-radius:8px;border:1px solid var(--rule-solid);
   background:var(--paper);color:var(--soft);cursor:pointer;display:grid;
   place-items:center}
-.ag-seta:hover{color:var(--ink);border-color:var(--ink)}
-.ag-seta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;
+.pa-seta:hover{color:var(--ink);border-color:var(--ink)}
+.pa-seta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round}
-.ag-titulo{font-size:14px;font-weight:800;letter-spacing:-.2px}
-.ag-barra .cl-legenda{margin-left:auto}
+.pa-titulo{font-size:14px;font-weight:800;letter-spacing:-.2px}
+.pa-sub{font-size:11px;color:var(--soft)}
+.pa-barra .cl-legenda{margin-left:auto}
 
-.ag-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
-  border-bottom:1px solid var(--rule-solid)}
-.ag-dias span{padding:8px 12px;font-size:10px;font-weight:800;letter-spacing:.5px;
+/* --------------------------------------------------------------- a grade do mes */
+.pa-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  background:var(--paper-2);border-bottom:1px solid var(--rule-solid)}
+.pa-dias span{padding:7px 12px;font-size:9.5px;font-weight:800;letter-spacing:.6px;
   text-transform:uppercase;color:var(--soft)}
-.ag-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.pa-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
 
-.ag-cel{position:relative;min-height:114px;padding:8px 9px 9px;text-align:left;
+.pa-cel{position:relative;min-height:112px;padding:7px 8px 8px;text-align:left;
   background:none;border:0;border-right:1px solid var(--rule-solid);
   border-bottom:1px solid var(--rule-solid);cursor:pointer;color:inherit;
-  display:flex;flex-direction:column;gap:6px}
-.ag-cel:nth-child(7n){border-right:0}
-.ag-cel:nth-last-child(-n+7){border-bottom:0}
-.ag-cel:hover{background:var(--paper-2)}
-.ag-cel.fora{opacity:.4}
-.ag-cel.aberto{background:var(--paper-2);box-shadow:inset 0 0 0 2px var(--ink)}
-.ag-num{font-size:12px;font-weight:700;color:var(--soft);display:flex;
-  align-items:center;gap:6px;font-variant-numeric:tabular-nums}
-.ag-cel.hoje .ag-num{color:var(--ink)}
-.ag-num i{font-style:normal;font-size:9px;font-weight:800;letter-spacing:.4px;
-  text-transform:uppercase;background:var(--ink);color:var(--paper);
-  padding:2px 6px;border-radius:999px}
+  display:flex;flex-direction:column;gap:5px}
+.pa-cel:nth-child(7n){border-right:0}
+.pa-cel:nth-last-child(-n+7){border-bottom:0}
+.pa-cel:hover{background:var(--paper-2)}
+.pa-cel.fora{background:var(--paper-2);opacity:.55}
+.pa-cel.aberto{background:var(--paper-2);box-shadow:inset 0 0 0 2px var(--ink)}
+.pa-num{font-size:12px;font-weight:700;color:var(--soft);
+  font-variant-numeric:tabular-nums;line-height:1}
+/* HOJE E' UM DISCO, e nao mais uma pilula com a palavra escrita: a palavra roubava a
+   largura das linhas do dia justamente no dia mais cheio. */
+.pa-cel.hoje .pa-num{width:20px;height:20px;margin:-3px 0 -3px -3px;border-radius:999px;
+  background:var(--ink);color:var(--paper);display:grid;place-items:center;
+  font-weight:800}
 
-/* AS CAPAS DENTRO DO DIA. Sao pequenas de proposito: elas dizem "tem conteudo aqui"
-   e dao o horario; quem quer detalhe abre o dia. */
-.ag-capas{display:flex;align-items:center;gap:4px}
-.ag-capa{position:relative;width:26px;height:35px;border-radius:5px;overflow:hidden;
-  background:var(--paper-2);border:1px solid var(--rule-solid);flex:none}
-.ag-capa img{width:100%;height:100%;object-fit:cover;display:block}
-.ag-capa.vem{border-color:color-mix(in srgb,var(--accent) 55%,var(--rule-solid));
-  border-style:dashed}
-.ag-capa.vem img{opacity:.62}
-.ag-capa em{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:7.5px;
-  font-weight:700;text-align:center;background:rgba(14,14,14,.72);color:#fff;
-  padding:1px 0}
-.ag-mais{font-size:10px;font-weight:800;color:var(--soft);
+.pa-lista{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pa-li{display:flex;align-items:center;gap:5px;height:19px;padding:0 5px 0 4px;
+  border-radius:5px;min-width:0}
+.pa-li i{width:3px;height:11px;border-radius:2px;flex:none}
+.pa-li b{flex:none;font-size:10.5px;font-weight:800;color:var(--ink);
+  font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.pa-li > span{flex:1;min-width:0;font-size:10.5px;color:var(--soft);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pa-li .mid-ex{flex:none}
+/* O FUTURO LEVA A COR DA CASA porque e' o unico que ainda da' para mudar; o passado
+   fica neutro. Dois verdes quase iguais lado a lado ja' custaram uma rodada. */
+.pa-li.vem{background:color-mix(in srgb,var(--accent) 11%,transparent)}
+.pa-li.vem b{color:var(--accent)}
+.pa-li.vem > span{color:color-mix(in srgb,var(--accent) 62%,var(--ink))}
+.pa-mais{font-size:9.5px;font-weight:700;color:var(--soft);padding-left:14px}
+
+/* O ENCAIXE VAZIO. Dia passado sem post e' historia; dia futuro sem post e' conta que
+   vai parar, e a tela diz isso com um encaixe aberto, no lugar exato onde faltou. */
+.pa-slot{height:19px;border:1px dashed color-mix(in srgb,var(--vermelho) 45%,
+  var(--rule-solid));border-radius:5px;display:grid;place-items:center;font-size:9.5px;
+  font-weight:700;color:color-mix(in srgb,var(--vermelho) 72%,var(--soft))}
+
+/* -------------------------------------------- o gantt: uma raia por semana
+   Sete colunas cabem sem rolagem lateral, e a coluna da esquerda leva o intervalo, o
+   total e a barra de volume da semana. A comparacao que interessa fica vertical:
+   segunda contra segunda. */
+.pa-s-linha{display:grid;grid-template-columns:172px repeat(7,minmax(0,1fr));
+  border-bottom:1px solid var(--rule-solid)}
+.pa-s-linha:last-child{border-bottom:0}
+.pa-s-regua{background:var(--paper-2)}
+.pa-s-rot{padding:7px 12px;font-size:9.5px;font-weight:800;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--soft)}
+.pa-s-quem{display:flex;flex-direction:column;gap:4px;padding:11px 16px;
+  border-right:1px solid var(--rule-solid);justify-content:center}
+.pa-s-quem b{font-size:12px;font-weight:800;letter-spacing:-.2px}
+.pa-s-quem em{font-style:normal;font-size:9px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--paper);background:var(--ink);
+  border-radius:999px;padding:2px 8px;align-self:flex-start}
+.pa-s-vol{height:7px;border-radius:999px;background:var(--rule-solid);overflow:hidden;
+  margin-top:3px}
+.pa-s-vol i{display:block;height:100%;border-radius:999px;background:var(--soft);
+  opacity:.72}
+.pa-s-linha.agora .pa-s-vol i{background:var(--accent);opacity:1}
+.pa-s-t{font-size:10.5px;font-weight:700;color:var(--soft);
   font-variant-numeric:tabular-nums}
-.ag-pe{font-size:9.5px;color:var(--soft);margin-top:auto}
-.ag-pe.vem{color:var(--accent);font-weight:700}
+.pa-s-linha.agora .pa-s-quem{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 
-/* O DIA VAZIO DO FUTURO. Passado sem post e' historia; futuro sem post e' conta que
-   vai parar, e a tela tem que dizer isso sem que ninguem precise contar celula. */
-.ag-cel.vazio{background:repeating-linear-gradient(135deg,transparent,transparent 7px,
-  color-mix(in srgb,var(--vermelho) 6%,transparent) 7px,
-  color-mix(in srgb,var(--vermelho) 6%,transparent) 14px)}
-.ag-vazio{font-size:10px;font-weight:700;color:var(--vermelho);opacity:.8;
-  margin-top:auto}
+.pa-s-cel{min-height:104px;padding:7px 6px 8px;text-align:left;background:none;
+  border:0;border-right:1px solid var(--rule-solid);cursor:pointer;color:inherit;
+  display:flex;flex-direction:column;gap:5px}
+.pa-s-cel:last-child{border-right:0}
+.pa-s-cel:hover{background:var(--paper-2)}
+.pa-s-cel.fds{background:color-mix(in srgb,var(--paper-2) 55%,transparent)}
+.pa-s-cel.fds:hover{background:var(--paper-2)}
+.pa-s-cel.aberto{box-shadow:inset 0 0 0 2px var(--ink)}
+.pa-s-cel.hoje .pa-num{width:20px;height:20px;margin:-3px 0 -3px -3px;
+  border-radius:999px;background:var(--ink);color:var(--paper);display:grid;
+  place-items:center;font-weight:800}
+
+/* ------------------------------------------- o gantt: uma raia por conta */
+.pa-g-rolo{overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--rule-solid) transparent}
+.pa-g-rolo::-webkit-scrollbar{height:10px}
+.pa-g-rolo::-webkit-scrollbar-thumb{background:var(--rule-solid);border-radius:999px;
+  border:2px solid transparent;background-clip:padding-box}
+.pa-g-quadro{min-width:max-content}
+.pa-g-linha{display:flex;align-items:stretch;
+  border-bottom:1px solid var(--rule-solid)}
+.pa-g-linha:last-child{border-bottom:0}
+.pa-g-quem{position:sticky;left:0;z-index:3;flex:none;width:176px;display:flex;
+  align-items:center;gap:9px;padding:10px 14px;background:var(--branco,var(--paper));
+  border-right:1px solid var(--rule-solid)}
+.pa-g-quem > span{min-width:0;display:flex;flex-direction:column;gap:1px}
+.pa-g-quem b{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.pa-g-quem span span{font-size:10px;color:var(--soft)}
+.pa-g-quem .cl-av{width:28px;height:28px;font-size:10px}
+.pa-g-rot{font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--soft)}
+
+/* 132 PIXELS PORQUE "Corte 027" TEM DE CABER. Com 118 o rotulo virava "Corte 0…" em
+   toda celula, que e' o mesmo defeito de nome cortado da rodada passada. */
+.pa-g-dia,.pa-g-cel,.pa-g-cvol{flex:none;width:132px;
+  border-right:1px solid var(--rule-solid)}
+.pa-g-dia.fds,.pa-g-cel.fds,.pa-g-cvol.fds{
+  background:color-mix(in srgb,var(--paper-2) 55%,transparent)}
+.pa-g-dia.hoje,.pa-g-cel.hoje,.pa-g-cvol.hoje{
+  background:color-mix(in srgb,var(--ink) 4%,transparent)}
+
+.pa-g-regua{background:var(--paper-2)}
+.pa-g-regua .pa-g-quem{background:var(--paper-2)}
+.pa-g-dia{position:relative;display:flex;align-items:baseline;gap:6px;padding:9px 12px}
+.pa-g-dia b{font-size:14px;font-weight:800;line-height:1;
+  font-variant-numeric:tabular-nums}
+.pa-g-dia span{font-size:9.5px;color:var(--soft);text-transform:uppercase;
+  letter-spacing:.5px}
+.pa-g-dia em{position:absolute;right:10px;top:9px;font-style:normal;font-size:9px;
+  font-weight:800;text-transform:uppercase;color:var(--soft);letter-spacing:.4px}
+.pa-g-dia.hoje b{width:22px;height:22px;line-height:22px;text-align:center;
+  border-radius:999px;background:var(--ink);color:var(--paper);align-self:center}
+
+.pa-g-vol{background:var(--branco,var(--paper))}
+.pa-g-cvol{position:relative;height:46px;display:flex;align-items:flex-end;
+  justify-content:center;padding:8px 12px}
+.pa-bar{width:34px;border-radius:3px 3px 0 0;background:var(--soft);opacity:.45}
+.pa-bar.vem{background:var(--accent);opacity:.7}
+.pa-bar.zero{height:2px;opacity:.2;border-radius:2px}
+.pa-g-cvol em{position:absolute;top:6px;left:0;right:0;text-align:center;
+  font-style:normal;font-size:9.5px;font-weight:800;color:var(--soft);
+  font-variant-numeric:tabular-nums}
+
+.pa-g-cel{display:flex;flex-direction:column;gap:2px;align-items:stretch;
+  min-height:104px;padding:8px 7px;background:none;border-top:0;border-bottom:0;
+  border-left:0;cursor:pointer;color:inherit;text-align:left}
+.pa-g-cel:hover{background:var(--paper-2)}
+.pa-g-cel.aberto{box-shadow:inset 0 0 0 2px var(--ink)}
+.pa-g-cel .pa-mais{padding-left:11px}
 
 @media (max-width:1180px){
-  .ag-nums{margin-left:0;width:100%}
-  .ag-cel{min-height:96px}
+  .pa-nums{margin-left:0;width:100%}
+  .pa-n{padding-left:0}
+  .pa-n:first-child{padding-left:0}
+  .pa-cel{min-height:98px}
 }

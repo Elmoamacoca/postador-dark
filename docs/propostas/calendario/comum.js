@@ -37,6 +37,16 @@
     t = String(t || '');
     return t.length > quanto ? t.slice(0, quanto - 1).trim() + '…' : t;
   }
+  /* O ROTULO CURTO DE UMA SAIDA. O nome de arquivo e'
+     `001 - leisdamentemilionaria - Dal3n-KJp4e.mp4`: cortado em dezesseis letras, todo
+     dia da grade vira "001 - leisdam…" e a coluna para de dizer qualquer coisa. O que
+     distingue um corte do outro e' o numero; a leva fica no painel do dia. */
+  function rotulo(s) {
+    var m = String(s.nome || '').match(/^\s*(\d{1,4})\b/);
+    if (m) return 'Corte ' + m[1];
+    return pedaco(s.nome || s.titulo || 'Publicação', 18);
+  }
+
   /* DATA SEM HORA E' LIDA COMO UTC, e o fuso empurra para o dia anterior. */
   function data(iso) {
     if (!iso) return null;
@@ -106,6 +116,72 @@
       if (!doDia.length) { vazios++; if (!proximo) proximo = d; }
     }
     return { saiu: saiu, vem: vem, vazios: vazios, primeiroVazio: proximo };
+  }
+
+  /* ------------------------------------------------- as duas visoes da mesma aba
+     A DECISAO DE 10/09, segunda rodada: o calendario nao escolhe entre mes e gantt,
+     ele tem os dois, no mesmo lugar, sobre a mesma conta. Mes responde "que dia",
+     gantt responde "em que ritmo". Trocar de visao nao troca de conta nem de mes. */
+  var visao = 'mes';
+
+  function abas() {
+    return '<div class="cl-visao" role="tablist">' +
+      [['mes', 'Mês', icoMes()], ['gantt', 'Gantt', icoGantt()]].map(function (v) {
+        return '<button type="button" role="tab" data-visao="' + v[0] + '"' +
+          ' aria-selected="' + (visao === v[0] ? 'true' : 'false') + '"' +
+          (visao === v[0] ? ' class="on"' : '') + '>' + v[2] + v[1] + '</button>';
+      }).join('') + '</div>';
+  }
+  function icoMes() {
+    return '<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" ' +
+      'rx="2.4"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>';
+  }
+  function icoGantt() {
+    return '<svg viewBox="0 0 24 24"><path d="M4 6.5h9M4 12h15M4 17.5h6"/></svg>';
+  }
+
+  document.addEventListener('click', function (e) {
+    var v = e.target.closest('[data-visao]');
+    if (!v || v.dataset.visao === visao) return;
+    visao = v.dataset.visao;
+    if (window.CAL_PINTAR) window.CAL_PINTAR();
+  });
+
+  /* A FAIXA DO GANTT: dias corridos em volta de hoje, e nao o mes fechado. Gantt que
+     comeca no dia 1 esconde o ritmo justamente na virada do mes. */
+  function faixa(de, ate) {
+    var fora = [];
+    for (var i = de; i <= ate; i++) {
+      fora.push(new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() + i));
+    }
+    return fora;
+  }
+  function fds(d) { return d.getDay() === 0 || d.getDay() === 6; }
+  /* A MESMA FAIXA QUEBRADA EM SEMANAS. Gantt de uma conta so' e' uma tira de 70 pixels
+     perdida no branco: com uma conta, a raia que vale comparar e' a SEMANA, e ai' o
+     quadro enche e da' para bater segunda contra segunda. Com a rede, a raia volta a
+     ser a conta. */
+  function semanas(de, ate) {
+    var a = new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() + de);
+    a.setDate(a.getDate() - a.getDay());
+    var fim = new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() + ate);
+    var fora = [];
+    while (a <= fim) {
+      var linha = [];
+      for (var i = 0; i < 7; i++) {
+        linha.push(new Date(a.getFullYear(), a.getMonth(), a.getDate() + i));
+      }
+      fora.push(linha);
+      a = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 7);
+    }
+    return fora;
+  }
+  /* A HORA COMO FRACAO DO DIA UTIL (6h as 24h), para posicionar ponto e barra. */
+  function fracaoHora(iso) {
+    var d = data(iso);
+    if (!d) return 0;
+    var h = d.getHours() + d.getMinutes() / 60;
+    return Math.max(0, Math.min(1, (h - 6) / 18));
   }
 
   /* --------------------------------------------------------- o seletor de conta */
@@ -380,9 +456,12 @@
   window.CAL = {
     D: D, HOJE: HOJE, CONTAS: CONTAS, REDE: REDE, MES: MES, MES3: MES3, DIAS: DIAS,
     n: n, curto: curto, seguro: seguro, maiuscula: maiuscula, pedaco: pedaco,
+    rotulo: rotulo,
     data: data, dia: dia, hora: hora, chaveDia: chaveDia, mesmoDia: mesmoDia,
     capa: capa, corDe: corDe, contaDe: contaDe, face: face,
     saidasDe: saidasDe, porDia: porDia, resumo: resumo,
+    abas: abas, visao: function () { return visao; },
+    faixa: faixa, fds: fds, fracaoHora: fracaoHora, semanas: semanas,
     seletor: seletor, escolhida: function () { return escolhida; },
     abrirDia: abrirDia, linhaDoDia: linhaDoDia, torrada: torrada,
     ligarCasca: ligarCasca

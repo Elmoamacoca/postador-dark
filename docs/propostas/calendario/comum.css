@@ -47,6 +47,21 @@
   font-variant-numeric:tabular-nums}
 .cl-op-sem{padding:22px 10px;text-align:center;font-size:12px;color:var(--soft)}
 
+/* -------------------------------------------------------- o alternador de visao
+   Mes e gantt sao a MESMA aba. O alternador fica colado no seletor de conta porque
+   as duas escolhas respondem a mesma pergunta: de quem, e de que jeito. */
+.cl-visao{display:inline-flex;align-items:center;gap:2px;flex:none;padding:3px;
+  border:1px solid var(--rule-solid);border-radius:11px;
+  background:var(--branco,var(--paper))}
+.cl-visao button{display:inline-flex;align-items:center;gap:7px;height:38px;
+  padding:0 15px 0 12px;border:0;border-radius:8px;background:none;cursor:pointer;
+  color:var(--soft);font-family:inherit;font-size:12.5px;font-weight:700;
+  letter-spacing:-.1px}
+.cl-visao button:hover{color:var(--ink);background:var(--paper-2)}
+.cl-visao button.on{background:var(--ink);color:var(--paper)}
+.cl-visao svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
 /* ------------------------------------------------------------- a legenda */
 .cl-legenda{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .cl-lg{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--soft)}
