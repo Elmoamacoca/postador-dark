@@ -148,7 +148,8 @@
       (m.legenda ? '<p class="bc-leg">' + M.escapar(m.legenda) + '</p>'
                  : '<p class="bc-leg vazia">Sem legenda escrita.</p>') +
       '<div class="bc-pares">' +
-        par('Pasta', M.maiuscula(m.pasta)) +
+        par('Leva', M.maiuscula(m.leva)) +
+        par('Pasta Do Vídeo', m.pasta, true) +
         par('Peso', M.mb(m.mb)) +
         par('Duração', M.seg(m.dur)) +
         (m.quando ? par(m.estado === 'publicado' ? 'Saiu' : 'Sai',
@@ -164,9 +165,9 @@
       '<div class="bc-acoes">' + M.acoes(m) + '</div>';
   }
 
-  function par(rot, valor) {
-    return '<div class="bc-par"><span>' + rot + '</span><b>' + M.escapar(valor) +
-      '</b></div>';
+  function par(rot, valor, quebra) {
+    return '<div class="bc-par' + (quebra ? ' quebra' : '') + '"><span>' + rot +
+      '</span><b>' + M.escapar(valor) + '</b></div>';
   }
   function bcNum(rot, valor) {
     return '<div class="bc-num"><b>' + valor + '</b><span>' + rot + '</span></div>';

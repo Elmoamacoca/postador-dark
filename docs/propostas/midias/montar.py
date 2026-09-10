@@ -85,6 +85,12 @@ def capturar():
 
     pacote = {'estado': ler('contas/estado'), 'meta': ler('contas/meta'),
               'pastas': ler('midia/ligadas'), 'drive': ler('midia/navegar?pasta=&busca=')}
+    # AS SUBPASTAS DA LEVA. No Drive dele CADA VIDEO TEM A PROPRIA PASTA: a leva 31
+    # nao guarda arquivo, guarda 180 pastas numeradas com um video dentro de cada.
+    # Foi isso que ele apontou em 10/09: "me levou para a pasta geral, e nao para a
+    # pasta do video em si". Sem ler essas subpastas, o botao do Drive nao tem para
+    # onde apontar.
+    pacote['leva'] = ler('midia/navegar?pasta=' + PASTA_ID + '&busca=')
     # O RETRATO VIRA DATA URL. O endereco da Meta e' assinado e caduca; a maquete
     # publicada na Vercel nao tem como pedir a rota do painel, que exige sessao.
     for c in pacote['estado'].get('contas', []):
@@ -100,63 +106,84 @@ def capturar():
 
 
 # ============================================================ as midias
-def midias_da_conta(u, capas, publicados_reais):
+def midias_da_conta(u, capas, publicados_reais, subpastas, de, ate):
     """Tres estados, que sao os tres que ele pediu ver: ja' foram ao ar, estao
     marcados para sair, e estao guardados sem uso.
 
-    NADA AQUI E' REAL, e por isso tudo vai marcado. O livro-caixa do painel tem ZERO
-    videos: a pasta esta' ligada mas nunca foi lida com arquivo dentro. A excecao sao
-    as 7 publicacoes da @borusaof, que a Meta conhece e que entram com data, legenda,
-    visualizacao e miniatura de verdade."""
+    CADA VIDEO APONTA PARA A PROPRIA PASTA NO DRIVE. As subpastas sao REAIS, lidas da
+    leva 31: 180 pastas numeradas, uma por corte, com um video dentro de cada. Sem
+    isso o botao do Drive levava a leva inteira, que foi o que ele pegou em 10/09.
+
+    O que continua sendo exemplo: o estado de cada video (o livro-caixa do painel tem
+    ZERO videos gravados), o peso, a duracao e o casamento entre pasta e publicacao. As
+    7 publicacoes da @borusaof sao reais, com data, legenda, visualizacao e miniatura.
+    """
     rnd = random.Random('midias' + u)
-    pasta = PASTAS[u]
+    leva = PASTAS[u]
+    fatia = subpastas[de:ate]
+    n = [0]
+
+    def proxima():
+        """Cada midia consome uma subpasta real, em ordem. Repetir a mesma pasta em
+        dois videos daria dois botoes com o mesmo destino."""
+        p = fatia[n[0] % max(len(fatia), 1)] if fatia else {'nome': '', 'id': ''}
+        n[0] += 1
+        return p
+
     fora = []
 
     # 1. o que ja' foi ao ar
     for i, p in enumerate(publicados_reais):
         quando = (p.get('quando') or '')[:19]
         fora.append(item(
-            ident='real-' + str(p.get('sc') or i), nome=arquivo(rnd, i, u),
+            ident='real-' + str(p.get('sc') or i), sub=proxima(),
             estado='publicado', quando=quando, capa=i % max(len(capas), 1),
             legenda=p.get('legenda') or '', vis=p.get('views') or 0,
-            alc=None, rnd=rnd, exemplo=False, pasta=pasta, sc=p.get('sc')))
+            alc=None, rnd=rnd, exemplo=False, leva=leva, sc=p.get('sc')))
     faltam = (9 if u == 'borusaof' else 6) - len(fora)
     for i in range(max(faltam, 0)):
         d = HOJE - timedelta(days=3 + i * 2.3, hours=rnd.randint(0, 8))
         fora.append(item(
-            ident='ex-p-' + u + str(i), nome=arquivo(rnd, 40 + i, u), estado='publicado',
+            ident='ex-p-' + u + str(i), sub=proxima(), estado='publicado',
             quando=d.strftime('%Y-%m-%dT%H:%M:%S'), capa=(i + 2) % max(len(capas), 1),
             legenda=TEMAS[(i + 4) % len(TEMAS)], vis=int(rnd.lognormvariate(5.6, 1.0)) + 30,
-            alc=None, rnd=rnd, exemplo=True, pasta=pasta, sc=None))
+            alc=None, rnd=rnd, exemplo=True, leva=leva, sc=None))
 
     # 2. o que esta' marcado para sair
     for i in range(4 if u != 'perdeunovar' else 2):
         d = HOJE + timedelta(days=i * 0.9 + 0.3, hours=rnd.randint(0, 5))
         fora.append(item(
-            ident='ex-m-' + u + str(i), nome=arquivo(rnd, 60 + i, u), estado='programado',
+            ident='ex-m-' + u + str(i), sub=proxima(), estado='programado',
             quando=d.strftime('%Y-%m-%dT%H:%M:%S'), capa=(i + 5) % max(len(capas), 1),
             legenda=TEMAS[(i + 1) % len(TEMAS)], vis=None, alc=None, rnd=rnd,
-            exemplo=True, pasta=pasta, sc=None))
+            exemplo=True, leva=leva, sc=None))
 
     # 3. o que esta' guardado, sem uso
     quantos = {'borusaof': 23, 'macrofoco.br': 31, 'perdeunovar': 7}[u]
     for i in range(quantos):
         fora.append(item(
-            ident='ex-g-' + u + str(i), nome=arquivo(rnd, 80 + i, u), estado='guardado',
+            ident='ex-g-' + u + str(i), sub=proxima(), estado='guardado',
             quando=None, capa=(i + 1) % max(len(capas), 1),
-            legenda='', vis=None, alc=None, rnd=rnd, exemplo=True, pasta=pasta, sc=None))
+            legenda='', vis=None, alc=None, rnd=rnd, exemplo=True, leva=leva, sc=None))
     return fora
 
 
-def arquivo(rnd, i, u):
-    return '%s-%s.mp4' % (u.split('.')[0][:9], str(1000 + i * 7 + rnd.randint(0, 6)))
+def arquivo(sub):
+    """O nome do arquivo sai do nome REAL da pasta do corte, que ja' vem numerado e
+    com o codigo do post de origem: `001 - leisdamentemilionaria - Dal3n-KJp4e`."""
+    nome = (sub.get('nome') or 'video').strip()
+    return nome.replace(' - ', '-').replace(' ', '-').lower() + '.mp4'
 
 
-def item(ident, nome, estado, quando, capa, legenda, vis, alc, rnd, exemplo, pasta, sc):
+def item(ident, sub, estado, quando, capa, legenda, vis, alc, rnd, exemplo, leva, sc):
     dur = round(rnd.uniform(21, 68), 1)
-    fora = {'id': ident, 'nome': nome, 'estado': estado, 'quando': quando,
-            'capa': capa, 'legenda': legenda, 'pasta': pasta['nome'],
-            'pasta_id': pasta['id'], 'sc': sc,
+    fora = {'id': ident, 'nome': arquivo(sub), 'estado': estado, 'quando': quando,
+            'capa': capa, 'legenda': legenda,
+            # a leva e' a pasta geral; `pasta` e' a pasta DESTE video, que e' o
+            # destino do botao do Drive
+            'leva': leva['nome'], 'leva_id': leva['id'],
+            'pasta': sub.get('nome') or '', 'pasta_id': sub.get('id') or '',
+            'sc': sc,
             'dur': dur, 'mb': round(rnd.uniform(4.2, 38.6), 1), 'exemplo': exemplo}
     if vis is not None:
         fora['vis'] = vis
@@ -294,10 +321,19 @@ def main():
              if m.get('mini')]
     publicados = (an.get('fundo') or {}).get('borusaof', {}).get('posts', [])
 
+    # AS PASTAS DOS CORTES, uma por video, lidas da leva 31 no Drive dele. Cada conta
+    # leva uma fatia diferente: duas contas apontando para a mesma pasta dariam dois
+    # botoes do Drive com o mesmo destino, e o destino tem que ser o video daquela
+    # linha.
+    subpastas = (reais.get('leva') or {}).get('pastas') or []
     midias = {}
+    corte = 0
     for c in reais['estado'].get('contas', []):
         u = c['arroba']
-        midias[u] = midias_da_conta(u, capas, publicados if u == 'borusaof' else [])
+        quantas = {'borusaof': 36, 'macrofoco.br': 41, 'perdeunovar': 15}[u]
+        midias[u] = midias_da_conta(u, capas, publicados if u == 'borusaof' else [],
+                                    subpastas, corte, corte + quantas)
+        corte += quantas
 
     dados = {
         'hoje': HOJE.strftime('%Y-%m-%dT%H:%M:%S'),

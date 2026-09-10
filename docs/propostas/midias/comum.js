@@ -282,8 +282,12 @@
     '<path fill="#ffba00" d="M73.4 26.5 60.7 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25' +
       'l16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z"/></svg>';
 
-  /* O ENDERECO DA PASTA NO DRIVE. E' a pasta, e nao o arquivo: foi o que ele pediu,
-     e e' o que serve, porque de dentro dela ele ve' a leva inteira. */
+  /* O ENDERECO DA PASTA DO VIDEO NO DRIVE.
+
+     NO DRIVE DELE CADA CORTE TEM A PROPRIA PASTA: a leva 31 nao guarda arquivo,
+     guarda 180 pastas numeradas com um video dentro de cada. Na primeira versao o
+     botao apontava para a leva, e ele pegou na hora: "me levou para a pasta geral, e
+     nao para a pasta do video em si". Aqui `pasta_id` e' o da pasta DAQUELE corte. */
   function pastaNoDrive(m) {
     return m && m.pasta_id
       ? 'https://drive.google.com/drive/folders/' + m.pasta_id : '';
@@ -293,8 +297,8 @@
     var endereco = pastaNoDrive(m);
     if (!endereco) return '';
     return '<a class="mid-drive ' + (classe || '') + '" href="' + endereco +
-      '" target="_blank" rel="noopener" title="Abrir a pasta ' +
-      escapar(m.pasta) + ' no Drive" aria-label="Abrir a pasta no Google Drive">' +
+      '" target="_blank" rel="noopener" title="Abrir no Drive a pasta deste vídeo: ' +
+      escapar(m.pasta) + '" aria-label="Abrir no Drive a pasta deste vídeo">' +
       LOGO_DRIVE + '</a>';
   }
 
