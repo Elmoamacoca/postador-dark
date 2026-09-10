@@ -201,7 +201,39 @@
   box-shadow:0 24px 60px rgba(0,0,0,.4)}
 :root[data-theme="dark"] .mid-lupa{background:rgba(0,0,0,.74)}
 
-/* ====== 2. o desenho do pop-up C, aprovado ====== */
+/* ====== 2. o cartao dentro da ficha, aprovado ====== */
+/* =========================================== O CARTAO DA PROPOSTA B (aprovado)
+   Tres numeros, a barra de uso, a pasta e o botao. Igual nas tres propostas de
+   pop-up: o que muda daqui para frente e' so' a janela. */
+
+.gv-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.gv-n{border:1px solid var(--rule-solid);border-radius:10px;padding:11px 12px 10px;
+  background:var(--paper-2);display:flex;flex-direction:column;gap:2px}
+.gv-n b{font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.gv-n span{font-size:10px;font-weight:600;color:var(--soft);letter-spacing:.2px}
+.gv-n.foi b{color:var(--rs-bom,#1F7A4D)}
+.gv-n.marcado b{color:var(--accent)}
+
+.gv-barra{height:7px;border-radius:999px;background:var(--rule-solid);margin-top:13px;
+  overflow:hidden}
+.gv-barra i{display:block;height:100%;border-radius:999px;background:var(--ink);
+  transition:width .3s ease}
+.gv-legenda{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:7px;font-size:11px;color:var(--soft);font-variant-numeric:tabular-nums}
+.gv-legenda b{color:var(--ink);font-weight:800}
+
+.gv-pasta{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:12px;padding-top:11px;border-top:1px solid var(--rule-solid)}
+.gv-pasta-n{font-size:11.5px;font-weight:600;color:var(--soft);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.gv-ligar{font-size:11px;font-weight:700;color:var(--ink);background:none;border:0;
+  padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--rule-solid);flex:none}
+.gv-ligar:hover{text-decoration-color:var(--ink)}
+.gv-abrir{width:100%;margin-top:12px;justify-content:center}
+
+/* ====== 3. o desenho do pop-up C, aprovado ====== */
 /* ============================================== POP-UP C: O ARQUIVO (CSS)
    Tres faixas: barra lateral de filtro, grade agrupada por mes e o painel que entra
    pela direita. O painel reaproveita o desenho de detalhe da bancada (`.bc-*`), que
@@ -334,7 +366,7 @@
 .ar-peek-capa img{width:100%;height:100%;object-fit:cover;display:block}
 .ar-peek-quem{display:flex;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}
 
-/* ====== 3. os estados que so existem no painel de verdade ====== */
+/* ====== 4. os estados que so existem no painel de verdade ====== */
 /* ======================================= O QUE SO' EXISTE NO PAINEL DE VERDADE
    A maquete tinha dado pronto na mao; o painel precisa esperar, falhar e mostrar
    pasta vazia. Estes estados nao existem numa maquete, e por isso nao estao no

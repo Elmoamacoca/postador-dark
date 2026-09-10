@@ -54,7 +54,7 @@ CABECA = """/* =================================================================
 
 # As classes desta tela. Se qualquer uma aparecer noutra folha do painel, ha' colisao
 # e a folha e' recusada: mexer nesta aba nao pode quebrar a vizinha.
-PREFIXOS = ('.ar-', '.bc-', '.mid-')
+PREFIXOS = ('.ar-', '.bc-', '.mid-', '.gv-', '.md-', '.lp-')
 
 
 def conferir(css: str) -> None:
@@ -70,8 +70,15 @@ def conferir(css: str) -> None:
                          % (css.count('{'), css.count('}')))
     if re.search(r'@so-na-maquete', css):
         problemas.append('o trecho so-da-maquete nao foi cortado')
+    # UMA REGRA POR PEDACO DA TELA. Na primeira geracao faltou a folha do CARTAO
+    # inteira, e o conferir deixou passar porque nao havia nada de `.gv-` na lista:
+    # a sub-aba subiu com os tres numeros em texto corrido. Cada peca visivel da tela
+    # tem que ter aqui uma regra que prove que ela existe.
     for alvo in ('.ar{', '.ar.com-peek{', '.ar-peek{', '.mid-drive', '.bc-par',
-                 '.ct-jan.enorme', '.ct-jan.inteira'):
+                 '.ct-jan.enorme', '.ct-jan.inteira',
+                 '.gv-nums{', '.gv-barra{', '.gv-pasta{', '.gv-abrir{',
+                 '.ar-lado{', '.ar-grade{', '.ar-filtros button{',
+                 '.mid-capa{', '.mid-pin{', '.md-vazio{', '.lp-lista{'):
         if alvo not in css:
             problemas.append('sumiu do resultado: ' + alvo)
     if '.prev{' in css:
@@ -103,9 +110,11 @@ def main():
     folha = (CABECA
              + '/* ====== 1. o compartilhado das propostas ====== */\n'
              + corte.strip() + '\n\n'
-             + '/* ====== 2. o desenho do pop-up C, aprovado ====== */\n'
+             + '/* ====== 2. o cartao dentro da ficha, aprovado ====== */\n'
+             + (AQUI / 'cartao.css').read_text(encoding='utf-8').strip() + '\n\n'
+             + '/* ====== 3. o desenho do pop-up C, aprovado ====== */\n'
              + proprio.strip() + '\n\n'
-             + '/* ====== 3. os estados que so existem no painel de verdade ====== */\n'
+             + '/* ====== 4. os estados que so existem no painel de verdade ====== */\n'
              + (AQUI / 'so-painel.css').read_text(encoding='utf-8').strip() + '\n')
     conferir(folha)
     ALVO.write_text(folha, encoding='utf-8')
