@@ -256,6 +256,47 @@
     });
   }
 
+  /* -------------------------------------------------------- a janela grande */
+  var IC = {
+    drive: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12' +
+           'a2 2 0 0 0 2-2v-2"/>',
+    agenda: '<rect x="3" y="5" width="18" height="16" rx="2.5"/>' +
+            '<path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',
+    ig: '<rect x="3" y="3" width="18" height="18" rx="5"/>' +
+        '<circle cx="12" cy="12" r="3.6"/><path d="M17.4 6.7h.01"/>'
+  };
+
+  /* SO' AS ACOES QUE EXISTEM. Abrir no Drive (o arquivo tem id de la'), mandar para o
+     assistente de programar (o botao ja' existe na ficha) e ver no Instagram (so' se
+     o post saiu e tem codigo). Nada de botao que nao tem back atras. */
+  function acoes(m) {
+    function bt(simbolo, titulo, ligado, acao) {
+      return '<button class="mid-ac" type="button" title="' + titulo + '"' +
+        (ligado ? ' data-acao-mid="' + acao + '"' : ' disabled') +
+        '><svg viewBox="0 0 24 24">' + IC[simbolo] + '</svg></button>';
+    }
+    return '<span class="mid-acoes">' +
+      bt('drive', 'Abrir o arquivo no Drive', true, 'drive') +
+      bt('agenda', 'Programar este vídeo', m.estado !== 'publicado', 'programar') +
+      bt('ig', 'Ver a publicação no Instagram', !!m.sc, 'instagram') +
+      '</span>';
+  }
+
+  function abrirGrande(cab, corpo, rodape) {
+    window.CT_JANELA.abrir(cab, corpo, rodape, true);
+    document.getElementById('ct-jan').classList.add('enorme');
+  }
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-acao-mid]');
+    if (!a) return;
+    torrada({
+      drive: 'Maquete: aqui o arquivo abriria no Google Drive.',
+      programar: 'Maquete: aqui este vídeo entraria no assistente de programar.',
+      instagram: 'Maquete: aqui a publicação abriria no Instagram.'
+    }[a.dataset.acaoMid] || 'Maquete: ação desligada.');
+  });
+
   /* ------------------------------------------------------- a janela de pasta */
   /* LIGAR PASTA PERDEU A CASA quando a aba de Midia saiu do menu. Aqui ela volta
      para dentro da ficha da conta, que e' onde ele decidiu que a pasta mora: uma
@@ -366,6 +407,7 @@
     midiasDe: midiasDe, porEstado: porEstado, contas: contas, pastaDe: pastaDe,
     folego: folego, ordenar: ordenar,
     ligarPrevia: ligarPrevia, ligarTudo: ligarTudo, torrada: torrada,
-    abrirLigarPasta: abrirLigarPasta, ligarCasca: ligarCasca
+    abrirLigarPasta: abrirLigarPasta, ligarCasca: ligarCasca,
+    acoes: acoes, abrirGrande: abrirGrande, IC: IC
   };
 })();

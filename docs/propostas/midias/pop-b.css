@@ -1,0 +1,52 @@
+/* ============================================== POP-UP B: A BANCADA (CSS)
+   Duas colunas: a grade escolhe, a bancada mostra. Cada uma rola por conta propria,
+   entao andar na grade nunca empurra o detalhe para fora da tela. */
+
+.bc{display:grid;grid-template-columns:minmax(0,1fr) 340px;height:100%;min-height:0}
+.bc-esq{display:flex;flex-direction:column;min-width:0;min-height:0}
+.bc-dir{border-left:1px solid var(--rule-solid);padding:20px;overflow:auto;
+  background:var(--paper-2)}
+
+.bc-barra{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:none;
+  padding:16px 20px 13px;border-bottom:1px solid var(--rule-solid)}
+.bc-barra .ct-seg{flex:1;min-width:0}
+.bc-barra .ct-seg button{display:inline-flex;align-items:center;gap:6px}
+.bc-barra .ct-seg button .n{font-size:10px;font-weight:800;min-width:16px;height:16px;
+  padding:0 4px;border-radius:999px;display:inline-flex;align-items:center;
+  justify-content:center;background:var(--rule-solid);color:var(--soft);
+  font-variant-numeric:tabular-nums}
+.bc-barra .ct-seg button.on .n{background:var(--ink);color:var(--paper)}
+.bc-busca{flex:none;width:158px}
+
+/* ----------------------------------------------------------------- a grade */
+.bc-grade{flex:1;min-height:0;overflow:auto;padding:16px 20px 20px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));
+  gap:13px;align-content:start}
+.bc-q{position:relative;padding:0;background:none;border:0;cursor:pointer;
+  display:flex;flex-direction:column;gap:5px;color:inherit;text-align:left}
+.bc-capa{width:100%;height:auto;aspect-ratio:9/16;transition:transform .16s ease}
+.bc-q:hover .bc-capa{transform:translateY(-2px)}
+.bc-q.on .bc-capa{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.bc-q-n{font-size:9.5px;color:var(--soft);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+.bc-q.on .bc-q-n{color:var(--ink);font-weight:700}
+/* O PONTO DE ESTADO fica na capa, e nao numa pilula: com 94 pixels de largura, a
+   pilula comeria a legenda inteira. */
+.bc-q-e{position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:999px;
+  box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.bc-q-e.publicado{background:var(--soft)}
+.bc-q-e.programado{background:var(--accent)}
+.bc-q-e.guardado{background:transparent;box-shadow:0 0 0 2px rgba(255,255,255,.85),
+  inset 0 0 0 2px var(--soft)}
+.bc-vazio{grid-column:1/-1;padding:56px 10px;text-align:center;font-size:12.5px;
+  color:var(--soft)}
+
+/* --------------------------------------------------------------- a bancada
+   O MIOLO DO DETALHE (`.bc-quem`, `.bc-nome`, `.bc-pares`, `.bc-nums`, `.bc-acoes`)
+   mora no `comum.css`: a proposta C usa o mesmo desenho dentro do painel lateral, e
+   duas copias virariam dois detalhes diferentes na primeira correcao. */
+.bc-capa-g{position:relative;width:100%;aspect-ratio:9/16;max-height:290px;
+  border-radius:11px;overflow:hidden;border:1px solid var(--rule-solid);
+  background:var(--rs-trilho,var(--paper))}
+.bc-capa-g img{width:100%;height:100%;object-fit:cover;display:block}
+.bc-nada{padding:60px 10px;text-align:center;font-size:12.5px;color:var(--soft)}

@@ -232,6 +232,25 @@ def paginas(midias):
                 raise SystemExit('molde nao preenchido: ' + marca)
         (SAIDA / ('proposta-' + letra + '.html')).write_text(pagina, encoding='utf-8')
 
+    # AS TRES PROPOSTAS DE POP-UP. Ele escolheu o cartao da proposta B em 10/09 e
+    # reprovou a janela: "muito ruim para mexer e muito feio". O cartao fica igual nas
+    # tres (`cartao.js` + `cartao.css`); o que muda e' so' a janela.
+    for letra in ('a', 'b', 'c'):
+        estilo = ((SAIDA / 'cartao.css').read_text(encoding='utf-8') + '\n'
+                  + (SAIDA / ('pop-' + letra + '.css')).read_text(encoding='utf-8'))
+        script = ((SAIDA / 'cartao.js').read_text(encoding='utf-8') + '\n'
+                  + (SAIDA / ('pop-' + letra + '.js')).read_text(encoding='utf-8'))
+        pagina = (molde
+                  .replace('Proposta {{LETRA}}', 'Pop-up {{LETRA}}')
+                  .replace('{{LETRA}}', letra.upper())
+                  .replace('{{NOTA}}', nota)
+                  .replace('{{ESTILO}}', estilo)
+                  .replace('{{SCRIPT}}', script))
+        for marca in ('{{LETRA}}', '{{ESTILO}}', '{{SCRIPT}}', '{{NOTA}}'):
+            if marca in pagina:
+                raise SystemExit('molde nao preenchido: ' + marca)
+        (SAIDA / ('pop-' + letra + '.html')).write_text(pagina, encoding='utf-8')
+
 
 def sala():
     if not PORTAL.exists():

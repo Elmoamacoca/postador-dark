@@ -1,0 +1,118 @@
+/* ============================================== POP-UP C: O ARQUIVO (CSS)
+   Tres faixas: barra lateral de filtro, grade agrupada por mes e o painel que entra
+   pela direita. O painel reaproveita o desenho de detalhe da bancada (`.bc-*`), que
+   e' o mesmo do painel lateral aprovado na aba de Analytics. */
+
+.ct-jan.inteira .ct-jan-cx{width:96vw;max-width:1560px;height:92vh;
+  max-height:92vh}
+
+/* O PAINEL E' UMA COLUNA DE VERDADE, e nao um bloco solto por cima.
+
+   A primeira versao deixava o painel `position:absolute` e empurrava a grade com
+   `margin-right` em transicao. Deu defeito no ar: a transicao de margem ficou PRESA
+   em "running", e transicao em curso vence tudo no CSS, inclusive `!important`
+   escrito na mao. A margem lia 0 pixel com a classe aplicada e a regra certa casando.
+
+   Aqui quem anima e' a largura da terceira coluna. Fechada ela vale zero, e o painel,
+   que tem largura fixa e comeca na borda esquerda dessa coluna, fica inteiro fora da
+   tela, cortado pelo `overflow`. Aberta, ela cresce e o painel entra empurrando a
+   grade. Um mecanismo so', sem elemento fora do fluxo. */
+.ar{display:grid;grid-template-columns:212px minmax(0,1fr) 0px;height:100%;
+  min-height:0;position:relative;overflow:hidden}
+.ar.com-peek{grid-template-columns:212px minmax(0,1fr) 390px}
+
+/* SEM TRANSICAO NA COLUNA, de proposito. Navegador com a janela oculta PAUSA
+   transicao, e transicao pausada trava o valor computado no ponto de partida: a
+   coluna lia 0 pixel com a classe certa aplicada, e nem `!important` na mao mudava.
+   Quem anima aqui e' o conteudo do painel, com opacidade: se ela travar, o layout
+   continua correto e so' a entrada fica seca. */
+.ar-peek > *{animation:ar-peek-entra .22s ease both}
+@keyframes ar-peek-entra{from{opacity:0;transform:translateX(14px)}
+  to{opacity:1;transform:none}}
+
+/* ------------------------------------------------------------ a barra lateral */
+.ar-lado{border-right:1px solid var(--rule-solid);background:var(--paper-2);
+  padding:18px 14px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.ar-rot{display:block;font-size:9.5px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--soft);margin-bottom:5px}
+.ar-pasta b{display:block;font-size:12.5px;font-weight:700;line-height:1.4}
+.ar-trocar{margin-top:6px;font-size:10.5px;font-weight:700;color:var(--ink);
+  background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;
+  text-underline-offset:3px;text-decoration-color:var(--rule-solid)}
+.ar-trocar:hover{text-decoration-color:var(--ink)}
+
+.ar-filtros{display:flex;flex-direction:column;gap:2px;
+  border-top:1px solid var(--rule-solid);padding-top:14px}
+.ar-filtros button{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;height:33px;padding:0 10px;border-radius:8px;border:0;background:none;
+  cursor:pointer;color:var(--soft);font-size:12px;font-weight:600;text-align:left}
+.ar-filtros button:hover{background:var(--branco,var(--paper))}
+.ar-filtros button.on{background:var(--ink);color:var(--paper)}
+.ar-filtros button b{font-size:11px;font-weight:800;
+  font-variant-numeric:tabular-nums;opacity:.8}
+
+.ar-folego{margin-top:auto;border-top:1px solid var(--rule-solid);padding-top:14px}
+.ar-folego b{display:block;font-size:17px;font-weight:800;letter-spacing:-.4px;
+  font-variant-numeric:tabular-nums}
+.ar-folego span{display:block;font-size:10.5px;color:var(--soft);margin-top:3px;
+  line-height:1.45}
+
+/* ----------------------------------------------------------------- o meio */
+.ar-meio{display:flex;flex-direction:column;min-width:0;min-height:0}
+.ar-topo{display:flex;align-items:center;gap:12px;flex:none;padding:15px 22px 13px;
+  border-bottom:1px solid var(--rule-solid)}
+.ar-busca{flex:1;max-width:420px}
+.ar-conta{font-size:11.5px;color:var(--soft);font-variant-numeric:tabular-nums;
+  margin-left:auto}
+
+.ar-corpo{flex:1;min-height:0;overflow:auto;padding:6px 22px 22px}
+.ar-grupo{margin-top:16px}
+.ar-grupo:first-child{margin-top:8px}
+.ar-grupo h4{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;
+  background:var(--branco,var(--paper));padding:9px 0 8px;margin:0 0 11px;
+  font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--soft);border-bottom:1px solid var(--rule-solid)}
+.ar-grupo h4 span{font-size:10px;font-weight:800;min-width:18px;height:17px;padding:0 5px;
+  border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--paper-2);color:var(--soft);font-variant-numeric:tabular-nums}
+
+.ar-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
+  gap:15px}
+.ar-q{padding:0;background:none;border:0;cursor:pointer;display:flex;
+  flex-direction:column;gap:6px;color:inherit;text-align:left}
+.ar-capa{position:relative;width:100%;height:auto;aspect-ratio:9/16;
+  transition:transform .16s ease}
+.ar-q:hover .ar-capa{transform:translateY(-3px)}
+.ar-q.on .ar-capa{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.ar-e{position:absolute;top:7px;left:7px;width:8px;height:8px;border-radius:999px;
+  box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.ar-e.publicado{background:var(--soft)}
+.ar-e.programado{background:var(--accent)}
+.ar-e.guardado{background:transparent;box-shadow:0 0 0 2px rgba(255,255,255,.85),
+  inset 0 0 0 2px var(--soft)}
+.ar-q-pe{display:flex;flex-direction:column;gap:0;font-variant-numeric:tabular-nums}
+.ar-q-pe b{font-size:12px;font-weight:800;line-height:1.25}
+.ar-q-pe span{font-size:9.5px;color:var(--soft)}
+.ar-vazio{padding:70px 10px;text-align:center;font-size:12.5px;color:var(--soft)}
+
+/* --------------------------------------------------------- o painel lateral */
+.ar-peek{width:390px;justify-self:start;min-height:0;
+  background:var(--branco,var(--paper));border-left:1px solid var(--rule-solid);
+  box-shadow:-18px 0 44px rgba(14,14,14,.13);display:flex;flex-direction:column}
+:root[data-theme="dark"] .ar-peek{box-shadow:-18px 0 44px rgba(0,0,0,.4)}
+
+.ar-peek-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex:none;padding:13px 16px;border-bottom:1px solid var(--rule-solid)}
+.ar-peek-x,.ar-peek-setas button{width:29px;height:29px;border-radius:8px;
+  border:1px solid var(--rule-solid);background:var(--paper);color:var(--soft);
+  cursor:pointer;display:grid;place-items:center}
+.ar-peek-x:hover,.ar-peek-setas button:hover{color:var(--ink);border-color:var(--ink)}
+.ar-peek-x svg,.ar-peek-setas button svg{width:14px;height:14px;fill:none;
+  stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ar-peek-setas{display:flex;gap:6px}
+.ar-peek-corpo{flex:1;min-height:0;overflow:auto;padding:18px}
+.ar-peek-capa{position:relative;width:100%;aspect-ratio:9/16;max-height:330px;
+  border-radius:11px;overflow:hidden;border:1px solid var(--rule-solid);
+  background:var(--rs-trilho,var(--paper-2))}
+.ar-peek-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.ar-peek-quem{display:flex;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}

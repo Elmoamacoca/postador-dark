@@ -17,11 +17,19 @@ AQUI = pathlib.Path(__file__).resolve().parent
 COFRE = pathlib.Path.home() / '.claude' / 'secrets' / 'vercel_token.txt'
 JUNTOS = ['painel.css', 'sala.css', 'comum.css', 'comum.js', 'dados.js', 'contas.js',
           'marca-clara.png', 'marca-escura.png']
+JUNTOS = JUNTOS + ['cartao.js', 'cartao.css']
+# A rodada 1 escolheu o CARTAO (proposta B). A rodada 2 escolhe a JANELA.
+# Rodar `python publicar.py pop` sobe so' a rodada 2.
 PROPOSTAS = {
     'borusa-midias-a': 'proposta-a.html',
     'borusa-midias-b': 'proposta-b.html',
     'borusa-midias-c': 'proposta-c.html',
+    'borusa-midias-pop-a': 'pop-a.html',
+    'borusa-midias-pop-b': 'pop-b.html',
+    'borusa-midias-pop-c': 'pop-c.html',
 }
+if len(sys.argv) > 1 and sys.argv[1] == 'pop':
+    PROPOSTAS = {k: v for k, v in PROPOSTAS.items() if k.startswith('borusa-midias-pop')}
 
 
 def token():

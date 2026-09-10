@@ -1,0 +1,55 @@
+/* ======================================= POP-UP A: A LISTA DE TRABALHO (CSS)
+   Uma linha por video. A barra de filtro fica fixa no topo da janela e so' a tabela
+   rola: com a barra rolando junto, buscar exigia voltar ao topo toda vez. */
+
+.lt-barra{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:none;
+  padding:16px 22px 14px;border-bottom:1px solid var(--rule-solid)}
+.lt-barra .ct-seg{flex:1;min-width:0}
+.lt-barra .ct-seg button{display:inline-flex;align-items:center;gap:6px}
+.lt-barra .ct-seg button .n{font-size:10px;font-weight:800;min-width:16px;height:16px;
+  padding:0 4px;border-radius:999px;display:inline-flex;align-items:center;
+  justify-content:center;background:var(--rule-solid);color:var(--soft);
+  font-variant-numeric:tabular-nums}
+.lt-barra .ct-seg button.on .n{background:var(--ink);color:var(--paper)}
+.lt-busca{flex:none;width:270px}
+
+.lt-quadro{flex:1;min-height:0;overflow:auto;padding:0 22px 18px}
+
+/* ---------------------------------------------------------------- a tabela */
+.lt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.lt thead th{position:sticky;top:0;z-index:2;background:var(--branco,var(--paper));
+  text-align:left;font-size:10px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--soft);padding:13px 10px 9px;
+  border-bottom:1px solid var(--rule-solid);cursor:pointer;white-space:nowrap;
+  user-select:none}
+.lt thead th:first-child,.lt thead th:last-child{cursor:default}
+.lt thead th.on{color:var(--ink)}
+.lt-seta{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round;margin-left:4px;vertical-align:-2px;
+  opacity:0;transition:transform .16s ease}
+.lt thead th.on .lt-seta{opacity:1}
+.lt-seta.sobe{transform:rotate(180deg)}
+
+.lt tbody tr{border-bottom:1px solid var(--rule-solid)}
+.lt tbody tr:hover{background:var(--paper-2)}
+.lt td{padding:8px 10px;vertical-align:middle}
+.lt-mini{width:36px;padding-right:0}
+.lt-nome{min-width:0}
+.lt-nome b{display:block;font-size:12.5px;font-weight:600;line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:330px}
+.lt-nome span{display:block;font-size:10.5px;color:var(--soft);margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:330px}
+.lt-estado{width:126px;white-space:nowrap}
+.lt-estado .mid-ex{margin-left:6px;vertical-align:1px}
+.lt-quando{width:88px}
+.lt-mb{width:82px}
+.lt-vis{width:104px}
+.lt-quando b,.lt-mb b,.lt-vis b{display:block;font-size:12px;font-weight:700;
+  line-height:1.25}
+.lt-quando span,.lt-mb span,.lt-vis span{display:block;font-size:9.5px;
+  color:var(--soft)}
+.lt-tr{color:var(--rule-solid);font-weight:700}
+.lt-ac{width:104px;text-align:right}
+.lt-ac .mid-acoes{justify-content:flex-end}
+
+.lt-vazio{padding:56px 10px;text-align:center;font-size:12.5px;color:var(--soft)}
