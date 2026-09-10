@@ -532,6 +532,21 @@ class SemCache(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(corpo)
             return
 
+        # A MINIATURA DE UM VIDEO DA PRATELEIRA. Fica fora do `midia.responder` porque
+        # aquele devolve JSON, e isto e' imagem.
+        if rota == "midia/capa":
+            corpo = midia.capa(urllib.parse.parse_qs(p.query).get("v", [""])[0])
+            if not corpo:
+                self.send_error(404)
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "image/jpeg")
+            self.send_header("Content-Length", str(len(corpo)))
+            self.send_header("Cache-Control", "private, max-age=604800")
+            self.end_headers()
+            self.wfile.write(corpo)
+            return
+
         if rota in ("perfis", "conta", "posts"):
             quem = (urllib.parse.parse_qs(p.query).get("u", [""])[0] or "").lower()
             try:

@@ -452,8 +452,12 @@
     var falhasNaTira = (c.tira || []).filter(function(t){
       return t.estado === 'caiu'; }).length;
     var face = rosto(c, i);
-    var corpo = qual === 'diario' ? corpoDiario(c)
-      : (qual === 'identidade' ? corpoIdentidade(c) : corpoEstado(c));
+    /* A SUB-ABA MIDIAS mora no `08-midias.js`, e nao aqui: ela e' a tela inteira de
+       material de uma conta, com janela propria, e engordaria esta ficha em mil
+       linhas. Se o arquivo nao carregar, a aba some em vez de quebrar a ficha. */
+    var corpo = qual === 'midias' && window.CORPO_MIDIAS ? window.CORPO_MIDIAS(c)
+      : (qual === 'diario' ? corpoDiario(c)
+      : (qual === 'identidade' ? corpoIdentidade(c) : corpoEstado(c)));
 
     return '<article class="ct-cd ct-f ' + c.estado + '" data-conta="' +
       seguro(c.arroba) + '">' +
@@ -472,6 +476,8 @@
           '</button>' +
         '<button data-aba="identidade"' + (qual === 'identidade' ? ' class="on"' : '') +
           '>Identidade</button>' +
+        '<button data-aba="midias"' + (qual === 'midias' ? ' class="on"' : '') +
+          '>Mídias</button>' +
       '</div>' +
       '<div class="ct-corpo">' + corpo + '</div>' +
       '<div class="ct-f-pe">' +
@@ -559,6 +565,22 @@
   var focoAntes = null, relogioDaSaida = null;
 
   function janelaAberta(){ return !!JAN && !JAN.hidden; }
+
+  /* A JANELA DA CASA, emprestada. A sub-aba Midias precisa dela para abrir a lista de
+     material e a escolha de pasta, e desenhar uma segunda janela seria ter duas
+     janelas que divergem na primeira correcao. */
+  window.CT_JANELA = {
+    abrir: function(cab, corpo, pe, larga){ return abrirJanela(cab, corpo, pe, larga); },
+    fechar: function(){ return fecharJanela(); },
+    trocar: function(corpo, pe, cab){ return trocarCorpo(corpo, pe, cab); },
+    cabConta: function(c, titulo){ return cabConta(c, titulo); },
+    cabSimples: function(s, t, u){ return cabSimples(s, t, u); },
+    rosto: function(c){ return rosto(c, indiceDe(c.arroba)); },
+    contaDe: function(u){
+      return (DADOS.contas || []).filter(function(x){ return x.arroba === u; })[0];
+    },
+    redesenhar: function(){ desenhar(); }
+  };
 
   function abrirJanela(cab, corpo, pe, larga){
     if (!JAN) return;

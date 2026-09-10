@@ -47,7 +47,6 @@
       p.classList.toggle('ativa', p.id === 'pag-' + nome);
     });
     if (nome === 'analytics' && window.abrirAnalytics) window.abrirAnalytics();
-    if (nome === 'midia' && window.abrirMidia) window.abrirMidia();
     if (nome === 'calendario' && window.abrirCalendario) window.abrirCalendario();
     if (nome === 'contas' && window.abrirContas) window.abrirContas();
     scrollTo({ top:0, behavior:'instant' });
@@ -62,169 +61,11 @@
 
 
 
-  /* ------------------------------------------------------------------ Mídia
-     A tela só conversa com o servidor por quatro perguntas: onde estou, o que já está
-     ligado, ligue esta pasta, desligue esta pasta. Quem sabe ler o Drive é o `midia.py`,
-     e é de propósito: trocar o Drive por outra origem não muda uma linha daqui. */
-  (function(){
-    var trilha = document.getElementById('mid-trilha'),
-        lista  = document.getElementById('mid-lista'),
-        prat   = document.getElementById('mid-ligadas'),
-        busca  = document.getElementById('mid-busca'),
-        selo   = document.getElementById('mid-fonte'),
-        aviso  = document.getElementById('mid-aviso');
-    if (!lista) return;
-
-    var aqui = '', carregou = false, esperando = null, robo = '';
-
-    function seguro(t){
-      return String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/</g,'&lt;')
-               .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    function pedir(rota, corpo){
-      var op = corpo ? {method:'POST', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify(corpo)} : {cache:'no-store'};
-      return fetch(rota, op).then(function(r){ return r.json(); });
-    }
-    var PASTA = '<svg viewBox="0 0 24 24"><path d="M3 7.5v9A2.5 2.5 0 0 0 5.5 19h13a2.5 2.5 0 0 0 2.5-2.5v-7A2.5 2.5 0 0 0 18.5 7h-6l-1.6-2.1A2 2 0 0 0 9.3 4H5.5A2.5 2.5 0 0 0 3 6.5Z"/></svg>';
-
-    /* ------------------------------------------------------- a origem dos arquivos */
-    function verEstado(){
-      return pedir('/midia/estado').then(function(e){
-        robo = e.robo || '';
-        selo.className = 'mid-fonte' + (e.pronta ? '' : ' parada');
-        selo.innerHTML = '<i></i>' + (e.fonte === 'drive' ? 'Google Drive'
-                                     : 'pasta ' + seguro(e.raiz));
-        aviso.innerHTML = e.pronta ? '' :
-          '<div class="mid-aviso"><b>A origem não está de pé.</b>&nbsp;' +
-          seguro(e.motivo) + '</div>';
-        return e;
-      });
-    }
-
-    /* ------------------------------------------------------------- a prateleira */
-    function verPrateleira(){
-      return pedir('/midia/ligadas').then(function(d){
-        var ps = d.pastas || [];
-        if (!ps.length){
-          prat.innerHTML = '<div class="mid-vazio">nenhuma pasta ligada ainda. ' +
-            'Escolha uma abaixo.</div>';
-          return;
-        }
-        prat.innerHTML = ps.map(function(p){
-          return '<div class="mid-linha ligada">' +
-            '<span class="mid-ic">' + PASTA + '</span>' +
-            '<span class="mid-nome"><b>' + seguro(p.nome) + '</b>' +
-            '<span>' + seguro(p.caminho) + '</span></span>' +
-            '<span class="dir">' +
-              '<span class="mid-conta"><b>' + p.total + '</b> ' +
-                 (p.total === 1 ? 'vídeo' : 'vídeos') + '</span>' +
-              '<span class="mid-conta">' + p.prateleira + ' na prateleira</span>' +
-              '<span class="mid-conta">' + p.programados + ' programados</span>' +
-              (p.erro ? '<span class="pino ruim">' + p.erro + ' com erro</span>' : '') +
-              '<button class="bt mini" data-reler="' + seguro(p.id) + '">Reler</button>' +
-              '<button class="bt mini" data-desligar="' + seguro(p.id) + '">Desligar</button>' +
-            '</span></div>';
-        }).join('');
-      });
-    }
-
-    /* -------------------------------------------------------------- o navegador */
-    function navegar(pasta){
-      aqui = pasta || '';
-      var q = '/midia/navegar?pasta=' + encodeURIComponent(aqui) +
-              '&busca=' + encodeURIComponent(busca.value.trim());
-      return pedir(q).then(function(d){
-        if (d.erro){
-          lista.innerHTML = '<div class="mid-vazio">' + seguro(d.erro) + '</div>';
-          trilha.innerHTML = '';
-          return;
-        }
-        trilha.innerHTML = '<span class="trilha-ic">' + PASTA + '</span>' +
-          (d.trilha || []).map(function(t, i){
-            return (i ? '<i>›</i>' : '') + '<button data-ir="' + seguro(t.id) + '">' +
-                   seguro(t.nome) + '</button>';
-          }).join('');
-        var ps = d.pastas || [];
-        if (!ps.length){
-          var recado;
-          if (busca.value.trim()){
-            recado = 'nenhuma pasta com esse nome aqui.';
-          } else if (!aqui && robo){
-            /* Vazio na raiz do Drive quase nunca é "não tem nada": é que ninguém
-               compartilhou pasta com o robô ainda. Dizer só "vazio" deixaria você sem
-               saber o que fazer, então aqui vai o endereço dele. */
-            recado = 'nenhuma pasta foi compartilhada com o postador ainda.<br>' +
-                     'No Drive, abra a pasta mãe dos vídeos, clique em compartilhar e ' +
-                     'coloque <b>' + seguro(robo) + '</b> como Leitor.';
-          } else {
-            recado = 'esta pasta não tem subpastas.';
-          }
-          lista.innerHTML = '<div class="mid-vazio">' + recado + '</div>';
-          return;
-        }
-        lista.innerHTML = ps.map(function(p){
-          return '<div class="mid-linha' + (p.ligada ? ' ligada' : '') + '">' +
-            '<span class="mid-ic">' + PASTA + '</span>' +
-            '<button class="mid-nome" data-ir="' + seguro(p.id) + '" ' +
-              'style="text-align:left;background:none;border:0;font:inherit;cursor:pointer">' +
-              '<b>' + seguro(p.nome) + '</b>' +
-              '<span>' + (p.videos ? p.videos + (p.videos === 1 ? ' vídeo' : ' vídeos')
-                                   : 'nenhum vídeo nesta pasta') + '</span></button>' +
-            '<span class="dir">' +
-              (p.ligada
-                ? '<span class="pino"><i></i>ligada</span>'
-                : '<button class="bt mini forte" data-ligar="' + seguro(p.id) + '" ' +
-                  'data-nome="' + seguro(p.nome) + '" ' +
-                  'data-caminho="' + seguro(p.caminho || '') + '">Ligar</button>') +
-            '</span></div>';
-        }).join('');
-      });
-    }
-
-    /* ------------------------------------------------------------------ cliques */
-    document.getElementById('pag-midia').addEventListener('click', function(e){
-      var ir = e.target.closest('[data-ir]');
-      if (ir) return navegar(ir.dataset.ir);
-
-      var lig = e.target.closest('[data-ligar]');
-      if (lig){
-        lig.disabled = true; lig.textContent = 'lendo';
-        return pedir('/midia/ligar', {pasta: lig.dataset.ligar, nome: lig.dataset.nome,
-                                      caminho: lig.dataset.caminho})
-          .then(function(){ return Promise.all([navegar(aqui), verPrateleira()]); });
-      }
-      var rel = e.target.closest('[data-reler]');
-      if (rel){
-        rel.disabled = true; rel.textContent = 'lendo';
-        return pedir('/midia/ligar', {pasta: rel.dataset.reler})
-          .then(verPrateleira);
-      }
-      var des = e.target.closest('[data-desligar]');
-      if (des){
-        des.disabled = true;
-        return pedir('/midia/desligar', {pasta: des.dataset.desligar})
-          .then(function(){ return Promise.all([navegar(aqui), verPrateleira()]); });
-      }
-    });
-
-    /* A busca espera você parar de digitar. Cada tecla é uma leitura de pasta, e no
-       Drive isso é uma chamada de rede: disparar a cada letra seria pagar dez vezes
-       pela mesma resposta. */
-    busca.addEventListener('input', function(){
-      clearTimeout(esperando);
-      esperando = setTimeout(function(){ navegar(aqui); }, 260);
-    });
-
-    /* A aba só acorda no primeiro clique nela. Ler o Drive na abertura do painel seria
-       pagar por uma tela que talvez ninguém abra. */
-    window.abrirMidia = function(){
-      if (carregou) return;
-      carregou = true;
-      verEstado().then(function(){ return Promise.all([verPrateleira(), navegar('')]); });
-    };
-  })();
-
+  /* A ABA DE MIDIA SAIU DAQUI EM 10/09/2026, por ordem dele.
+     Ela nao mostrava video nenhum: era so' escolher pasta do Drive,
+     configuracao feita uma vez, e isso nao sustenta um lugar no menu. O que
+     interessa por conta virou a SUB-ABA MIDIAS da ficha, em `08-midias.js`,
+     e ligar pasta mora la' dentro, porque pasta pertence a um perfil so'. */
 
   /* -------------------------------------------------------------- Calendário
      Traduzido do ReUI Event Calendar. Mês, semana e lista compartilham a mesma lista de

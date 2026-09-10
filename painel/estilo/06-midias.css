@@ -1,0 +1,385 @@
+/* =====================================================================
+   A SUB-ABA MIDIAS, dentro da ficha da conta
+
+   ESTA FOLHA E' GERADA. Nao edite aqui: mexa em `docs/propostas/midias/comum.css`
+   ou `pop-c.css` e rode `python docs/propostas/midias/portar.py`.
+
+   O DESENHO E' O POP-UP C, aprovado por ele em 10/09/2026: janela quase do tamanho
+   do monitor, barra lateral de filtro a esquerda, grade agrupada por mes no meio, e
+   o detalhe do video entrando pela direita num painel que empurra a grade.
+
+   TRES ARMADILHAS JA' MEDIDAS FICAM REGISTRADAS AQUI:
+
+   - TRANSICAO PAUSADA TRAVA O VALOR. Navegador com a janela oculta pausa transicao,
+     e transicao em curso vence tudo no CSS, ate' `!important` escrito na mao. A grade
+     nao recuava com a classe certa aplicada. Por isso a coluna do painel NAO tem
+     transicao: quem anima e' a opacidade do conteudo, que travada nao quebra layout.
+   - A PREVIA E A TORRADA nao moram aqui: sao as do `04-analytics.css`, que ja'
+     estavam no painel. Uma peca, uma folha.
+   - ENDERECO DENTRO DE BOTAO e' HTML invalido e o navegador desmonta a marcacao. Por
+     isso o quadro da grade e' uma caixa com um botao cobrindo a face e o endereco do
+     Drive por cima dele.
+   ===================================================================== */
+
+/* ====== 1. o compartilhado das propostas ====== */
+/* ======================================================= O COMPARTILHADO (CSS)
+   As pecas que as tres propostas usam por igual: a previa ao passar o mouse, a
+   torrada, a janela de ligar pasta e a barra de rolagem da casa.
+
+   NADA AQUI INVENTA COR NEM SOMBRA. Tudo sai das variaveis do painel
+   (`--paper`, `--ink`, `--rule-solid`, `--accent`) e da sala de controle
+   (`--rs-*`), que e' a regua estetica que ele aprovou em 29/08.
+   ========================================================================== */
+
+/* ------------------------------------------------------ a barra de rolagem
+   PADRAO DA CASA, e nao a do sistema. A do Windows chega branca e larga, e no tema
+   escuro vira uma faixa acesa no meio da tela. Cobranca dele em 09/09. */
+.mid-rolo, .lp-lista, .ct-jan-rolo{
+  scrollbar-width:thin;
+  scrollbar-color:var(--rule-solid) transparent}
+.mid-rolo::-webkit-scrollbar,
+.lp-lista::-webkit-scrollbar,
+.ct-jan-rolo::-webkit-scrollbar{width:10px;height:10px}
+.mid-rolo::-webkit-scrollbar-track,
+.lp-lista::-webkit-scrollbar-track,
+.ct-jan-rolo::-webkit-scrollbar-track{background:transparent}
+.mid-rolo::-webkit-scrollbar-thumb,
+.lp-lista::-webkit-scrollbar-thumb,
+.ct-jan-rolo::-webkit-scrollbar-thumb{
+  background:var(--rule-solid);border-radius:999px;
+  border:2px solid transparent;background-clip:padding-box}
+
+/* ------------------------------------------------------------- a miniatura
+   9 por 16, que e' a forma do que este painel publica. */
+.mid-capa{position:relative;flex:none;border-radius:7px;overflow:hidden;
+  background:var(--rs-trilho,var(--paper-2));border:1px solid var(--rule-solid);
+  display:block;padding:0;cursor:zoom-in}
+.mid-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.mid-capa .dur{position:absolute;right:3px;bottom:3px;height:15px;padding:0 4px;
+  border-radius:4px;background:rgba(14,14,14,.74);color:#fff;font-size:9.5px;
+  font-weight:700;display:flex;align-items:center;font-variant-numeric:tabular-nums}
+.mid-capa.g{width:44px;height:59px}
+.mid-capa.m{width:34px;height:46px}
+.mid-capa.p{width:27px;height:36px}
+
+/* ------------------------------------------------------- a pilula de estado */
+.mid-pin{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;
+  border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.1px;
+  background:var(--paper-2);color:var(--soft);border:1px solid var(--rule-solid);
+  white-space:nowrap}
+.mid-pin i{width:5px;height:5px;border-radius:999px;background:currentColor}
+/* A HIERARQUIA E' POR TEMPO, E NAO POR DUAS CORES PARECIDAS. O `--accent` do painel
+   ja' e' verde (#3F7D53), entao pintar "foi ao ar" de verde-bom e "marcado" de accent
+   dava dois verdes quase iguais lado a lado. O que passou fica neutro; o que ainda vai
+   acontecer leva a cor da casa; o que nunca saiu fica so' de contorno. */
+.mid-pin.foi{color:var(--soft);background:var(--paper-2)}
+.mid-pin.foi i{opacity:.55}
+.mid-pin.marcado{color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 11%,transparent);
+  border-color:color-mix(in srgb,var(--accent) 30%,transparent);font-weight:800}
+.mid-pin.guardado{background:transparent;border-style:dashed}
+.mid-pin.guardado i{background:transparent;box-shadow:inset 0 0 0 1.5px currentColor}
+
+/* O SELO DE EXEMPLO. O livro-caixa esta com ZERO videos: tudo que e' arquivo aqui
+   e' invencao para a tela poder ser julgada, e a tela diz isso na cara. */
+.mid-ex{display:inline-block;width:6px;height:6px;border-radius:999px;
+  background:var(--soft);opacity:.5;flex:none}
+.mid-nota-ex{display:flex;align-items:center;gap:7px;margin-top:10px;
+  font-size:11px;color:var(--soft);line-height:1.45}
+
+
+
+/* O que a previa do painel ainda nao tinha: a legenda no pe. */
+.prev-leg{margin-top:9px;padding-top:9px;border-top:1px solid var(--rule-solid);
+  font-size:11px;line-height:1.5;color:var(--soft)}
+
+/* ================================================= A JANELA GRANDE (o pop-up)
+   A JANELA DE 680 NAO SERVE PARA MATERIAL. Ela foi feita para o veredito de um
+   teste de conexao: um paragrafo e dois botoes. Com 36 videos dentro, virou uma
+   caixinha de 649 por 725 num monitor de 1400, com quatro colunas de 148 pixels e
+   rolagem longa. Reclamacao dele em 10/09: "o pop-up esta muito ruim para mexer".
+
+   Aqui ela cresce para o tamanho do trabalho e ganha cabeca fixa, corpo que rola e
+   rodape fixo, para a busca e os filtros nunca sairem da tela. */
+.ct-jan.enorme .ct-jan-cx{width:min(1180px,94vw);max-height:min(880px,92vh);
+  height:min(880px,92vh)}
+.ct-jan.enorme .ct-jan-rolo{flex:1;min-height:0;display:flex;flex-direction:column;
+  padding:0}
+.ct-jan.enorme .ct-jan-cab{flex:none}
+.ct-jan.enorme .ct-jan-pe{flex:none}
+/* A ANIMACAO DE ENTRADA E' POR FILHO, e com a janela grande ela escalonava o corpo
+   inteiro, dando a impressao de tela montando aos pedacos. Aqui entra de uma vez. */
+.ct-jan.enorme .ct-jan-rolo > *{animation:none}
+
+/* As acoes de uma midia. Sao SO' AS QUE EXISTEM DE VERDADE: abrir o arquivo no
+   Drive, mandar para o assistente de programar e ver o post no Instagram. */
+.mid-acoes{display:flex;align-items:center;gap:5px}
+.mid-ac{width:29px;height:29px;flex:none;border-radius:8px;display:grid;
+  place-items:center;border:1px solid var(--rule-solid);background:var(--paper);
+  color:var(--soft);cursor:pointer;transition:color .15s ease,border-color .15s ease}
+.mid-ac:hover{color:var(--ink);border-color:var(--ink)}
+.mid-ac svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.mid-ac[disabled]{opacity:.32;cursor:default}
+.mid-ac[disabled]:hover{color:var(--soft);border-color:var(--rule-solid)}
+
+/* A LOGO DO DRIVE dentro da fila de acoes: mesma caixa dos outros botoes, mas com as
+   cores dela. Nao vira icone de linha, porque logo em linha deixa de ser reconhecivel,
+   que era o ponto do pedido. */
+.mid-drive.como-bt{width:29px;height:29px;flex:none;border-radius:8px;display:grid;
+  place-items:center;border:1px solid var(--rule-solid);background:var(--paper);
+  transition:border-color .15s ease}
+.mid-drive.como-bt:hover{border-color:var(--ink)}
+.mid-drive.como-bt .mid-drive-logo{width:14px;height:14px}
+.bc-acoes .mid-drive.como-bt{width:34px;height:34px}
+.bc-acoes .mid-drive.como-bt .mid-drive-logo{width:16px;height:16px}
+
+/* ------------------------------------------- o detalhe de uma midia
+   Usado pela bancada da proposta B e pelo painel lateral da proposta C. Um desenho
+   so' para os dois: duas copias viram dois detalhes diferentes na primeira correcao. */
+.bc-dur{position:absolute;right:9px;bottom:9px;height:21px;padding:0 8px;
+  border-radius:6px;background:rgba(14,14,14,.76);color:#fff;font-size:10.5px;
+  font-weight:700;display:flex;align-items:center;font-variant-numeric:tabular-nums}
+.bc-quem{display:flex;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}
+.bc-selo{display:inline-flex;align-items:center;gap:5px;font-size:10px;
+  color:var(--soft)}
+.bc-nome{font-size:13.5px;font-weight:800;margin:9px 0 0;line-height:1.35;
+  word-break:break-all}
+.bc-leg{font-size:12px;line-height:1.6;color:var(--soft);margin:7px 0 0}
+.bc-leg.vazia{opacity:.6;font-style:italic}
+
+.bc-pares{margin-top:15px;border-top:1px solid var(--rule-solid)}
+.bc-par{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--rule-solid);font-size:11.5px}
+.bc-par span{color:var(--soft)}
+.bc-par b{font-weight:700;text-align:right;font-variant-numeric:tabular-nums;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+/* O NOME DA PASTA DO CORTE E' LONGO de nascenca (`010 - leisdamentemilionaria -
+   DU4MiNdj7PH`) e e' justamente o que confere se o botao aponta para o lugar certo:
+   cortado com reticencia, esconde o codigo que identifica o video. */
+.bc-par.quebra b{white-space:normal;overflow:visible;max-width:215px;line-height:1.45;
+  word-break:break-word}
+
+.bc-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  margin-top:14px}
+.bc-num{border:1px solid var(--rule-solid);border-radius:9px;padding:9px 10px;
+  background:var(--branco,var(--paper));display:flex;flex-direction:column;gap:1px}
+.bc-num b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;
+  line-height:1.15}
+.bc-num span{font-size:9px;color:var(--soft);letter-spacing:.2px}
+
+.bc-acoes{margin-top:16px;display:flex;justify-content:flex-start}
+.bc-acoes .mid-ac{width:34px;height:34px}
+
+/* ------------------------------------------------- a janela de ligar pasta */
+.lp-p{font-size:12.5px;line-height:1.6;color:var(--soft);margin:0 0 14px}
+.lp-p b{color:var(--ink);font-weight:700}
+.lp-trilha{font-size:11px;font-weight:700;color:var(--soft);letter-spacing:.3px;
+  text-transform:uppercase;margin-bottom:8px}
+.lp-lista{max-height:330px;overflow:auto;border:1px solid var(--rule-solid);
+  border-radius:10px}
+.lp-li{display:flex;align-items:center;gap:11px;padding:11px 13px;
+  border-bottom:1px solid var(--rule-solid)}
+.lp-li:last-child{border-bottom:0}
+.lp-ic{width:30px;height:30px;flex:none;border-radius:8px;display:grid;
+  place-items:center;background:var(--paper-2);color:var(--soft)}
+.lp-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linejoin:round}
+.lp-nome{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.lp-nome b{font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.lp-nome span{font-size:11px;color:var(--soft)}
+.lp-vazio{padding:22px;text-align:center;font-size:12px;color:var(--soft)}
+.ct-jan-nota{font-size:11.5px;color:var(--soft);margin-right:auto}
+
+/* ------------------------------------------------------------- a lupa da capa */
+.mid-lupa{position:fixed;inset:0;z-index:130;display:grid;place-items:center;
+  background:rgba(14,14,14,.62);opacity:0;transition:opacity .18s ease}
+.mid-lupa.on{opacity:1}
+.mid-lupa[hidden]{display:none}
+.mid-lupa img{width:min(320px,80vw);border-radius:14px;display:block;
+  box-shadow:0 24px 60px rgba(0,0,0,.4)}
+:root[data-theme="dark"] .mid-lupa{background:rgba(0,0,0,.74)}
+
+/* ====== 2. o desenho do pop-up C, aprovado ====== */
+/* ============================================== POP-UP C: O ARQUIVO (CSS)
+   Tres faixas: barra lateral de filtro, grade agrupada por mes e o painel que entra
+   pela direita. O painel reaproveita o desenho de detalhe da bancada (`.bc-*`), que
+   e' o mesmo do painel lateral aprovado na aba de Analytics. */
+
+.ct-jan.inteira .ct-jan-cx{width:96vw;max-width:1560px;height:92vh;
+  max-height:92vh}
+
+/* O PAINEL E' UMA COLUNA DE VERDADE, e nao um bloco solto por cima.
+
+   A primeira versao deixava o painel `position:absolute` e empurrava a grade com
+   `margin-right` em transicao. Deu defeito no ar: a transicao de margem ficou PRESA
+   em "running", e transicao em curso vence tudo no CSS, inclusive `!important`
+   escrito na mao. A margem lia 0 pixel com a classe aplicada e a regra certa casando.
+
+   Aqui quem anima e' a largura da terceira coluna. Fechada ela vale zero, e o painel,
+   que tem largura fixa e comeca na borda esquerda dessa coluna, fica inteiro fora da
+   tela, cortado pelo `overflow`. Aberta, ela cresce e o painel entra empurrando a
+   grade. Um mecanismo so', sem elemento fora do fluxo. */
+.ar{display:grid;grid-template-columns:212px minmax(0,1fr) 0px;height:100%;
+  min-height:0;position:relative;overflow:hidden}
+.ar.com-peek{grid-template-columns:212px minmax(0,1fr) 390px}
+
+/* SEM TRANSICAO NA COLUNA, de proposito. Navegador com a janela oculta PAUSA
+   transicao, e transicao pausada trava o valor computado no ponto de partida: a
+   coluna lia 0 pixel com a classe certa aplicada, e nem `!important` na mao mudava.
+   Quem anima aqui e' o conteudo do painel, com opacidade: se ela travar, o layout
+   continua correto e so' a entrada fica seca. */
+.ar-peek > *{animation:ar-peek-entra .22s ease both}
+@keyframes ar-peek-entra{from{opacity:0;transform:translateX(14px)}
+  to{opacity:1;transform:none}}
+
+/* ------------------------------------------------------------ a barra lateral */
+.ar-lado{border-right:1px solid var(--rule-solid);background:var(--paper-2);
+  padding:18px 14px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.ar-rot{display:block;font-size:9.5px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--soft);margin-bottom:5px}
+.ar-pasta b{display:block;font-size:12.5px;font-weight:700;line-height:1.4}
+.ar-trocar{margin-top:6px;font-size:10.5px;font-weight:700;color:var(--ink);
+  background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;
+  text-underline-offset:3px;text-decoration-color:var(--rule-solid)}
+.ar-trocar:hover{text-decoration-color:var(--ink)}
+
+.ar-filtros{display:flex;flex-direction:column;gap:2px;
+  border-top:1px solid var(--rule-solid);padding-top:14px}
+.ar-filtros button{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;height:33px;padding:0 10px;border-radius:8px;border:0;background:none;
+  cursor:pointer;color:var(--soft);font-size:12px;font-weight:600;text-align:left}
+.ar-filtros button:hover{background:var(--branco,var(--paper))}
+.ar-filtros button.on{background:var(--ink);color:var(--paper)}
+.ar-filtros button b{font-size:11px;font-weight:800;
+  font-variant-numeric:tabular-nums;opacity:.8}
+
+.ar-folego{margin-top:auto;border-top:1px solid var(--rule-solid);padding-top:14px}
+.ar-folego b{display:block;font-size:17px;font-weight:800;letter-spacing:-.4px;
+  font-variant-numeric:tabular-nums}
+.ar-folego span{display:block;font-size:10.5px;color:var(--soft);margin-top:3px;
+  line-height:1.45}
+
+/* ----------------------------------------------------------------- o meio */
+.ar-meio{display:flex;flex-direction:column;min-width:0;min-height:0}
+.ar-topo{display:flex;align-items:center;gap:12px;flex:none;padding:15px 22px 13px;
+  border-bottom:1px solid var(--rule-solid)}
+.ar-busca{flex:1;max-width:420px}
+.ar-conta{font-size:11.5px;color:var(--soft);font-variant-numeric:tabular-nums;
+  margin-left:auto}
+
+.ar-corpo{flex:1;min-height:0;overflow:auto;padding:6px 22px 22px}
+.ar-grupo{margin-top:16px}
+.ar-grupo:first-child{margin-top:8px}
+.ar-grupo h4{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;
+  background:var(--branco,var(--paper));padding:9px 0 8px;margin:0 0 11px;
+  font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--soft);border-bottom:1px solid var(--rule-solid)}
+.ar-grupo h4 span{font-size:10px;font-weight:800;min-width:18px;height:17px;padding:0 5px;
+  border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--paper-2);color:var(--soft);font-variant-numeric:tabular-nums}
+
+.ar-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
+  gap:15px}
+.ar-q{position:relative}
+.ar-q-face{width:100%;padding:0;background:none;border:0;cursor:pointer;display:flex;
+  flex-direction:column;gap:6px;color:inherit;text-align:left}
+.ar-capa{position:relative;width:100%;height:auto;aspect-ratio:9/16;
+  transition:transform .16s ease}
+.ar-q:hover .ar-capa{transform:translateY(-3px)}
+.ar-q.on .ar-capa{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.ar-e{position:absolute;top:7px;left:7px;width:8px;height:8px;border-radius:999px;
+  box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.ar-e.publicado{background:var(--soft)}
+.ar-e.programado{background:var(--accent)}
+.ar-e.guardado{background:transparent;box-shadow:0 0 0 2px rgba(255,255,255,.85),
+  inset 0 0 0 2px var(--soft)}
+/* A LOGO DO DRIVE fica no alto da capa, do lado oposto ao ponto de estado. Ela
+   aparece sozinha quando o mouse chega no quadro, e fica sempre visivel no quadro
+   aberto: com 36 capas na tela, 36 logos acesas virariam ruido. */
+.ar-drive{position:absolute;top:6px;right:6px;z-index:3;width:26px;height:26px;
+  border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.94);
+  box-shadow:0 2px 8px rgba(14,14,14,.22);opacity:0;transform:scale(.86);
+  transition:opacity .15s ease,transform .15s ease}
+.ar-q:hover .ar-drive,.ar-q.on .ar-drive,.ar-drive:focus-visible{opacity:1;
+  transform:none}
+.ar-drive:hover{background:#fff;box-shadow:0 3px 12px rgba(14,14,14,.3)}
+.mid-drive-logo{width:14px;height:14px;display:block}
+
+.ar-q-pe{display:flex;flex-direction:column;gap:0;font-variant-numeric:tabular-nums}
+.ar-q-pe b{font-size:12px;font-weight:800;line-height:1.25}
+.ar-q-pe span{font-size:9.5px;color:var(--soft)}
+.ar-vazio{padding:70px 10px;text-align:center;font-size:12.5px;color:var(--soft)}
+
+/* --------------------------------------------------------- o painel lateral */
+.ar-peek{width:390px;justify-self:start;min-height:0;
+  background:var(--branco,var(--paper));border-left:1px solid var(--rule-solid);
+  box-shadow:-18px 0 44px rgba(14,14,14,.13);display:flex;flex-direction:column}
+:root[data-theme="dark"] .ar-peek{box-shadow:-18px 0 44px rgba(0,0,0,.4)}
+
+.ar-peek-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex:none;padding:13px 16px;border-bottom:1px solid var(--rule-solid)}
+.ar-peek-x,.ar-peek-setas button{width:29px;height:29px;border-radius:8px;
+  border:1px solid var(--rule-solid);background:var(--paper);color:var(--soft);
+  cursor:pointer;display:grid;place-items:center}
+.ar-peek-x:hover,.ar-peek-setas button:hover{color:var(--ink);border-color:var(--ink)}
+.ar-peek-x svg,.ar-peek-setas button svg{width:14px;height:14px;fill:none;
+  stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ar-peek-setas{display:flex;gap:6px}
+.ar-peek-corpo{flex:1;min-height:0;overflow:auto;padding:18px}
+.ar-peek-capa{position:relative;width:100%;aspect-ratio:9/16;max-height:330px;
+  border-radius:11px;overflow:hidden;border:1px solid var(--rule-solid);
+  background:var(--rs-trilho,var(--paper-2))}
+.ar-peek-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.ar-peek-quem{display:flex;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}
+
+/* ====== 3. os estados que so existem no painel de verdade ====== */
+/* ======================================= O QUE SO' EXISTE NO PAINEL DE VERDADE
+   A maquete tinha dado pronto na mao; o painel precisa esperar, falhar e mostrar
+   pasta vazia. Estes estados nao existem numa maquete, e por isso nao estao no
+   `comum.css`. Cor, sombra e raio saem das variaveis do painel, como o resto. */
+
+/* ------------------------------------------------ esperando e sem material */
+.md-carregando{padding:34px 10px;text-align:center;font-size:12.5px;
+  color:var(--soft)}
+.md-vazio{padding:16px 4px}
+.md-vazio p{font-size:12.5px;line-height:1.6;color:var(--soft);margin:0 0 8px}
+.md-vazio p b{color:var(--ink);font-weight:700}
+.md-vazio .ct-bt{margin-top:6px}
+
+/* ------------------------------------------------------- video sem miniatura
+   Video da prateleira nem sempre tem capa: quadrado vazio parece defeito, entao ele
+   mostra a marca de arquivo de video. */
+.mid-capa.sem{display:grid;place-items:center;background:var(--paper-2);
+  color:var(--rule-solid)}
+.mid-capa.sem svg{width:34%;height:34%;fill:none;stroke:currentColor;stroke-width:1.6;
+  stroke-linejoin:round}
+.mid-capa.sem img{display:none}
+.ar-peek-sem{width:100%;height:100%;display:grid;place-items:center;
+  background:var(--paper-2);color:var(--rule-solid)}
+.ar-peek-sem svg{width:74px;height:74px;fill:none;stroke:currentColor;
+  stroke-width:1.4;stroke-linejoin:round}
+
+/* O PONTO DE ESTADO fica preso ao quadro, e nao a' capa: com a capa ausente, o
+   quadro continua sendo a referencia de posicao. */
+.ar-q-face{position:relative}
+
+/* --------------------------------------------------------------- a falha */
+.mid-pin.erro{color:var(--vermelho);
+  background:color-mix(in srgb,var(--vermelho) 10%,transparent);
+  border-color:color-mix(in srgb,var(--vermelho) 26%,transparent)}
+.bc-leg.erro{color:var(--vermelho)}
+
+/* ------------------------------------------------- a navegacao do Drive real */
+.lp-carregando{padding:40px 10px;text-align:center;font-size:12.5px;color:var(--soft)}
+.lp-trilha{display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  text-transform:none;letter-spacing:0}
+.lp-trilha button{font-size:11px;font-weight:700;color:var(--soft);background:none;
+  border:0;padding:2px 0;cursor:pointer}
+.lp-trilha button:hover{color:var(--ink)}
+.lp-trilha button.on{color:var(--ink)}
+.lp-trilha i{font-style:normal;color:var(--rule-solid)}
+.lp-abrir{flex:1;min-width:0;display:flex;align-items:center;gap:11px;background:none;
+  border:0;padding:0;cursor:pointer;color:inherit;text-align:left}
+.lp-abrir:hover .lp-nome b{text-decoration:underline;text-underline-offset:3px}

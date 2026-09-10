@@ -45,7 +45,17 @@
   function ir(n){
     passo = Math.max(0, Math.min(n, PASSOS.length - 1));
     pintarBolas();
-    ({0:passoConta, 1:passoPasta, 2:passoProxima})[passo]();
+    /* AS PASTAS SAO DA CONTA, entao so' da' para lista-las depois do passo 1. Ler no
+       comeco, como era antes, traria a rede inteira e a conta escolhida nao filtraria
+       nada. Enquanto a leitura nao volta, o passo mostra o palco vazio, e nao uma
+       lista errada. */
+    if (passo === 1){
+      palco.innerHTML = '<div class="fc-caixa"><p class="fc-sub">Lendo as pastas de @' +
+        seguro(escolha.conta || '') + '…</p></div>';
+      carregarPastas().then(function(){ if (passo === 1) passoPasta(); });
+    } else {
+      ({0:passoConta, 2:passoProxima})[passo]();
+    }
     gravar();
     scrollTo({top:0, behavior:'instant'});
   }
@@ -131,12 +141,25 @@
   }
 
   /* -------------------------------------------------------------- 2. a pasta */
+  /* PASTA PERTENCE A UM PERFIL, decisao dele em 10/09/2026. Antes esta lista era a da
+     rede inteira e a conta escolhida no passo 1 nao filtrava nada; agora a leitura e'
+     por conta, e quem nao tem pasta ligada e' mandado para a ficha dela, onde se
+     liga. */
+  function carregarPastas(){
+    if (!escolha.conta) { PASTAS = []; return Promise.resolve(); }
+    return fetch('/midia/ligadas?u=' + encodeURIComponent(escolha.conta),
+                 {cache:'no-store'})
+      .then(function(x){ return x.json(); })
+      .then(function(d){ PASTAS = d.pastas || []; })
+      .catch(function(){ PASTAS = []; });
+  }
+
   function passoPasta(){
     var corpo;
     if (!PASTAS.length){
       corpo = '<div class="fc-aviso"><p>Nenhuma pasta de vídeo ligada. Sem pasta não há ' +
         'arquivo para programar.</p><button class="bt mini forte" id="pr-midia">' +
-        'Ligar uma pasta</button></div>';
+        'Ligar uma pasta em @' + seguro(escolha.conta || '') + '</button></div>';
     } else {
       corpo = '<div class="fc-lista">' + PASTAS.map(function(p){
         return '<button type="button" class="fc-op' +
@@ -159,9 +182,19 @@
         passoPasta(); gravar();
       });
     });
+    /* A ABA DE MIDIA NAO EXISTE MAIS. Ligar pasta agora mora na ficha da conta, e e'
+       para la' que este botao leva: aba de Contas, ficha da conta, sub-aba Midias. */
     var m = document.getElementById('pr-midia');
     if (m) m.addEventListener('click', function(){
-      sair(); var a = document.querySelector('.menu [data-pag="midia"]'); if (a) a.click();
+      var quem = escolha.conta;
+      sair();
+      var a = document.querySelector('.menu [data-pag="contas"]');
+      if (a) a.click();
+      setTimeout(function(){
+        var ficha = document.querySelector('.ct-f[data-conta="' + quem + '"]');
+        var aba = ficha && ficha.querySelector('[data-aba="midias"]');
+        if (aba) { aba.click(); ficha.scrollIntoView({block:'center'}); }
+      }, 500);
     });
     ligarPe();
   }
@@ -338,14 +371,11 @@
     Promise.all([
       fetch('/painel/rede', {cache:'no-store'}).then(function(x){ return x.json(); })
         .catch(function(){ return {contas:[]}; }),
-      fetch('/midia/ligadas', {cache:'no-store'}).then(function(x){ return x.json(); })
-        .catch(function(){ return {pastas:[]}; }),
       fetch('/painel/rascunho', {cache:'no-store'}).then(function(x){ return x.json(); })
         .catch(function(){ return {rascunhos:[]}; })
     ]).then(function(r){
       CONTAS = r[0].contas || [];
-      PASTAS = r[1].pastas || [];
-      var lista = (r[2].rascunhos || []).filter(function(x){
+      var lista = (r[1].rascunhos || []).filter(function(x){
         return x.dados && x.dados.escolha && x.dados.escolha.conta; });
       if (lista.length) entrada(lista);
       else ir(0);

@@ -88,20 +88,29 @@ def abrir() -> sqlite3.Connection:
     con = sqlite3.connect(BANCO)
     con.row_factory = sqlite3.Row
     con.executescript("""
+        -- A PASTA PERTENCE A UM PERFIL. Decisao dele em 10/09/2026: cada pasta e' de
+        -- uma conta so', e o vinculo nasce na hora de ligar, dentro da ficha dela.
         CREATE TABLE IF NOT EXISTS pasta (
             id TEXT PRIMARY KEY,      -- codigo da pasta na fonte
             nome TEXT NOT NULL,
             caminho TEXT NOT NULL,    -- so' para voce se localizar na tela
             fonte TEXT NOT NULL,
+            conta TEXT,               -- o perfil dono desta pasta
             ligada_em TEXT NOT NULL
         );
+        -- UM VIDEO SERVE UM PERFIL SO', tambem por decisao dele: por isso `conta` e'
+        -- uma coluna, e nao uma tabela de usos. Ele e' preenchido ao LIGAR a pasta,
+        -- herdando o dono dela, e nao so' quando alguem programa.
         CREATE TABLE IF NOT EXISTS video (
             id TEXT PRIMARY KEY,      -- codigo do arquivo. E' esta linha que impede repetir
-            pasta_id TEXT NOT NULL,
+            pasta_id TEXT NOT NULL,   -- a pasta LIGADA (a leva)
+            sub_id TEXT,              -- a pasta do proprio corte, um nivel abaixo
+            sub_nome TEXT,
             nome TEXT NOT NULL,
             tamanho INTEGER,
+            capa TEXT,                -- endereco da miniatura na fonte (Drive)
             estado TEXT NOT NULL,     -- prateleira, baixado, programado, publicado, erro
-            conta TEXT,               -- para qual conta ele foi programado
+            conta TEXT,               -- de qual conta este video e'
             quando TEXT,              -- a hora marcada da saida
             post_id TEXT,             -- o numero do post dentro do motor
             erro TEXT,
@@ -155,6 +164,17 @@ def abrir() -> sqlite3.Connection:
         con.commit()
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS rascunho_por_conta "
                 "ON rascunho (conta)")
+    # AS COLUNAS QUE NASCERAM DEPOIS. Entrar por `ALTER` preserva o que ja' esta'
+    # gravado; recriar a tabela apagaria historico de publicacao.
+    for tabela, coluna, tipo in (("pasta", "conta", "TEXT"),
+                                 ("video", "sub_id", "TEXT"),
+                                 ("video", "sub_nome", "TEXT"),
+                                 ("video", "capa", "TEXT")):
+        if coluna not in {c[1] for c in con.execute("PRAGMA table_info(" + tabela + ")")}:
+            con.execute("ALTER TABLE " + tabela + " ADD COLUMN " + coluna + " " + tipo)
+            con.commit()
+    con.execute("CREATE INDEX IF NOT EXISTS video_por_conta ON video (conta, estado)")
+    con.execute("CREATE INDEX IF NOT EXISTS pasta_por_conta ON pasta (conta)")
     return con
 
 
@@ -254,7 +274,7 @@ class FontePasta:
     def caminho_de(self, pasta_id: str) -> Path:
         return self._de_codigo(pasta_id)
 
-    def listar_pastas(self, pasta_id: str) -> list:
+    def listar_pastas(self, pasta_id: str, contar: bool = True) -> list:
         aqui = self.caminho_de(pasta_id)
         saida = []
         try:
@@ -265,7 +285,8 @@ class FontePasta:
             if not x.is_dir() or x.name.startswith("."):
                 continue
             saida.append({"id": self.id_de(x), "nome": x.name,
-                          "videos": self.contar(x), "caminho": str(x)})
+                          "videos": self.contar(x) if contar else None,
+                          "caminho": str(x)})
         return saida
 
     def contar(self, caminho: Path) -> int:
@@ -363,7 +384,7 @@ class FonteDrive:
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.load(r)
 
-    def listar_pastas(self, pasta_id: str) -> list:
+    def listar_pastas(self, pasta_id: str, contar: bool = True) -> list:
         """A raiz do robo NAO e' o Drive do Gabriel.
 
         Um robo tem Drive proprio, e ele nasce vazio. Pedir `root` devolveria nada, para
@@ -382,7 +403,10 @@ class FonteDrive:
             "q": q, "fields": "files(id,name)", "pageSize": 200,
             "orderBy": "name", "supportsAllDrives": "true",
             "includeItemsFromAllDrives": "true"})
-        return [{"id": x["id"], "nome": x["name"], "videos": self.contar(x["id"]),
+        # CONTAR CUSTA UMA CHAMADA POR PASTA. Numa leva de 180 subpastas isso e' meio
+        # minuto de espera so' para exibir um numero que a varredura ja' vai apurar.
+        return [{"id": x["id"], "nome": x["name"],
+                 "videos": self.contar(x["id"]) if contar else None,
                  "caminho": x["name"]} for x in d.get("files", [])]
 
     def _um(self, arquivo_id: str) -> dict:
@@ -404,17 +428,53 @@ class FonteDrive:
         d = self._consultar({
             "q": f"'{pasta_id}' in parents and trashed=false and "
                  "(mimeType contains 'video/')",
-            "fields": "files(id,name,size,mimeType)", "pageSize": 1000,
+            "fields": "files(id,name,size,mimeType,thumbnailLink)", "pageSize": 1000,
             "orderBy": "name", "supportsAllDrives": "true",
             "includeItemsFromAllDrives": "true"})
         aceitos, fora = [], 0
         for x in d.get("files", []):
             if x.get("mimeType") == "video/mp4":
                 aceitos.append({"id": x["id"], "nome": x["name"],
-                                "tamanho": int(x.get("size") or 0)})
+                                "tamanho": int(x.get("size") or 0),
+                                "capa": x.get("thumbnailLink") or ""})
             else:
                 fora += 1
         return aceitos, fora
+
+    def videos_de_varias(self, pastas: list) -> dict:
+        """Os videos de VARIAS pastas de uma vez, em lotes.
+
+        POR QUE EM LOTE. A leva do Gabriel tem 180 subpastas, uma por corte. Perguntar
+        pasta por pasta seria 180 idas ao Google so' para ligar uma leva, e a tela
+        ficaria parada minutos. A API aceita varios pais numa consulta so', entao vao
+        30 por vez: 6 chamadas no lugar de 180.
+
+        O lote e' de 30 porque a consulta viaja na URL, e uma lista longa demais volta
+        recusada por tamanho.
+        """
+        saida = {}
+        for i in range(0, len(pastas), 30):
+            lote = pastas[i:i + 30]
+            alvo = " or ".join("'%s' in parents" % p for p in lote)
+            try:
+                d = self._consultar({
+                    "q": "(" + alvo + ") and trashed=false and "
+                         "(mimeType contains 'video/')",
+                    "fields": "files(id,name,size,mimeType,parents,thumbnailLink)",
+                    "pageSize": 1000, "orderBy": "name",
+                    "supportsAllDrives": "true", "includeItemsFromAllDrives": "true"})
+            except Exception:
+                continue
+            for x in d.get("files", []):
+                if x.get("mimeType") != "video/mp4":
+                    continue
+                for pai in (x.get("parents") or []):
+                    if pai in lote:
+                        saida.setdefault(pai, []).append(
+                            {"id": x["id"], "nome": x["name"],
+                             "tamanho": int(x.get("size") or 0),
+                             "capa": x.get("thumbnailLink") or ""})
+        return saida
 
     def nome_de(self, pasta_id: str) -> str:
         if pasta_id not in self._nome:
@@ -446,6 +506,44 @@ class FonteDrive:
             atual = pais[0] if pais else ""
             voltas += 1
         return [raiz] + list(reversed(pedacos))
+
+
+def varrer(f, pasta_id: str) -> tuple:
+    """Todos os videos de uma pasta LIGADA: os que estao nela e os que estao nas
+    subpastas dela.
+
+    POR QUE DESCER UM NIVEL. No Drive do Gabriel a leva nao guarda arquivo, guarda
+    pasta: `leva 31 de leisdamentemilionaria` tem 180 pastas numeradas, uma por corte,
+    com um video dentro de cada. Lendo so' o andar de cima, ligar a leva encontrava
+    ZERO video, e a prateleira nascia vazia.
+
+    Devolve (lista, fora_do_formato). Cada video traz `sub_id` e `sub_nome`: e' a
+    pasta DELE, e e' para la' que o botao do Drive aponta na tela.
+    """
+    aceitos, fora = f.listar_videos(pasta_id)
+    saida = [dict(v, sub_id="", sub_nome="") for v in aceitos]
+
+    subs = f.listar_pastas(pasta_id, contar=False)
+    if not subs:
+        return saida, fora
+
+    if hasattr(f, "videos_de_varias"):
+        por_pasta = f.videos_de_varias([s["id"] for s in subs])
+        nomes = {s["id"]: s["nome"] for s in subs}
+        for pai, videos in por_pasta.items():
+            for v in videos:
+                saida.append(dict(v, sub_id=pai, sub_nome=nomes.get(pai, "")))
+        return saida, fora
+
+    for s in subs:                                   # pasta de disco: leitura local
+        try:
+            vs, f2 = f.listar_videos(s["id"])
+        except Exception:
+            continue
+        fora += f2
+        for v in vs:
+            saida.append(dict(v, sub_id=s["id"], sub_nome=s["nome"]))
+    return saida, fora
 
 
 def fonte():
@@ -486,21 +584,27 @@ def navegar(pasta_id: str, busca: str = "") -> dict:
     return {"trilha": f.trilha(pasta_id), "pastas": pastas, "aqui": pasta_id or ""}
 
 
-def ligadas() -> list:
+def ligadas(conta: str = "") -> list:
     """As pastas da prateleira, com a conta de cada estado.
 
     A contagem sai do livro, e nao de uma nova leitura da fonte: e' ela que sabe o que ja'
     foi programado. Reler a pasta e' um pedido separado, com botao proprio.
+
+    COM `conta`, devolve so' as pastas daquele perfil. Pasta pertence a um perfil so'.
     """
     con = abrir()
     saida = []
-    for p in con.execute("SELECT * FROM pasta ORDER BY ligada_em DESC"):
+    onde = "WHERE conta = ? " if conta else ""
+    args = (conta.lower(),) if conta else ()
+    for p in con.execute("SELECT * FROM pasta " + onde + "ORDER BY ligada_em DESC",
+                         args):
         contas = {r["estado"]: r["n"] for r in con.execute(
             "SELECT estado, count(*) n FROM video WHERE pasta_id=? GROUP BY estado",
             (p["id"],))}
         saida.append({
             "id": p["id"], "nome": p["nome"], "caminho": p["caminho"],
             "fonte": p["fonte"], "ligada_em": p["ligada_em"],
+            "conta": p["conta"],
             "total": sum(contas.values()),
             "prateleira": contas.get("prateleira", 0),
             "programados": contas.get("programado", 0) + contas.get("baixado", 0),
@@ -512,18 +616,26 @@ def ligadas() -> list:
     return saida
 
 
-def ligar(pasta_id: str, nome: str = "", caminho: str = "") -> dict:
-    """Anota os videos daquela pasta no livro. **Nao baixa nada.**
+def ligar(pasta_id: str, nome: str = "", caminho: str = "", conta: str = "") -> dict:
+    """Anota os videos daquela pasta no livro, e os das subpastas dela. **Nao baixa
+    nada.**
 
     Rodar de novo na mesma pasta e' seguro e e' esperado: o `INSERT OR IGNORE` faz o
     trabalho da trava. O que ja' esta' no livro fica como esta', inclusive o que ja' foi
     programado; o que e' novo entra na prateleira.
+
+    A PASTA NASCE COM DONO. Um video serve um perfil so', entao ele ja' entra com a
+    conta da pasta: sem isso, a prateleira seria da rede e a ficha da conta nao teria o
+    que mostrar ate' alguem programar.
     """
     f = fonte()
     ok, motivo = f.pronta()
     if not ok:
         return {"erro": motivo}
-    aceitos, fora = f.listar_videos(pasta_id)
+    conta = (conta or "").replace("@", "").strip().lower()
+    if not conta:
+        return {"erro": "diga de qual conta e' esta pasta"}
+    aceitos, fora = varrer(f, pasta_id)
     con = abrir()
     ja = {r["id"] for r in con.execute("SELECT id FROM video WHERE pasta_id=?", (pasta_id,))}
     novos = 0
@@ -531,19 +643,21 @@ def ligar(pasta_id: str, nome: str = "", caminho: str = "") -> dict:
         if v["id"] in ja:
             continue
         con.execute("INSERT OR IGNORE INTO video "
-                    "(id, pasta_id, nome, tamanho, estado, visto_em) "
-                    "VALUES (?,?,?,?, 'prateleira', ?)",
-                    (v["id"], pasta_id, v["nome"], v.get("tamanho"), agora()))
+                    "(id, pasta_id, sub_id, sub_nome, nome, tamanho, capa, estado, "
+                    " conta, visto_em) VALUES (?,?,?,?,?,?,?, 'prateleira', ?,?)",
+                    (v["id"], pasta_id, v.get("sub_id") or "", v.get("sub_nome") or "",
+                     v["nome"], v.get("tamanho"), v.get("capa") or "", conta, agora()))
         novos += 1
     if not nome:
         nome = Path(caminho).name if caminho else pasta_id
-    con.execute("INSERT INTO pasta (id, nome, caminho, fonte, ligada_em) "
-                "VALUES (?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET nome=excluded.nome",
-                (pasta_id, nome, caminho or nome, f.nome, agora()))
+    con.execute("INSERT INTO pasta (id, nome, caminho, fonte, conta, ligada_em) "
+                "VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET "
+                "nome=excluded.nome, conta=excluded.conta",
+                (pasta_id, nome, caminho or nome, f.nome, conta, agora()))
     con.commit()
     con.close()
     return {"novos": novos, "ja_tinha": len(ja), "fora": fora,
-            "total": len(aceitos)}
+            "total": len(aceitos), "conta": conta}
 
 
 def desligar(pasta_id: str) -> dict:
@@ -563,6 +677,106 @@ def desligar(pasta_id: str) -> dict:
     con.commit()
     con.close()
     return {"ok": True, "historico_mantido": sobrou}
+
+
+# ============================================================== a miniatura
+CAPAS = DADOS / "capas-midia"
+
+
+def capa(video_id: str) -> bytes | None:
+    """Os bytes da miniatura de um video, servidos pela casa.
+
+    POR QUE NAO MANDAR O ENDERECO DO DRIVE DIRETO PARA A TELA. Porque o endereco de
+    miniatura do Drive exige o token do robo e caduca: a grade nasceria cheia de
+    quadrado quebrado. E' o mesmo caminho que o retrato da conta e a capa do post ja'
+    fazem neste painel.
+
+    Baixa uma vez e guarda. Miniatura de video nao muda.
+    """
+    if not video_id:
+        return None
+    CAPAS.mkdir(parents=True, exist_ok=True)
+    guardada = CAPAS / (hashlib.sha1(video_id.encode()).hexdigest() + ".jpg")
+    if guardada.exists():
+        return guardada.read_bytes()
+
+    con = abrir()
+    linha = con.execute("SELECT capa FROM video WHERE id = ?", (video_id,)).fetchone()
+    con.close()
+    endereco = (linha["capa"] if linha else "") or ""
+    if not endereco:
+        return None
+
+    import urllib.request
+    f = fonte()
+    cabecalho = {}
+    try:
+        cabecalho = f._cabecalho()          # so' o Drive tem token
+    except Exception:
+        pass
+    try:
+        with urllib.request.urlopen(
+                urllib.request.Request(endereco, headers=cabecalho), timeout=30) as r:
+            dados = r.read()
+    except Exception:
+        return None
+    guardada.write_bytes(dados)
+    return dados
+
+
+# ====================================================== as midias de uma conta
+def midias(conta: str) -> dict:
+    """O que a sub-aba Midias da ficha mostra: tudo o que e' desta conta, em tres
+    estados, mais a pasta de cada video para o botao do Drive.
+
+    OS TRES ESTADOS SAO OS QUE ELE PEDIU: o que ja' foi ao ar, o que esta' marcado
+    para sair e o que esta' guardado sem uso. Os cinco estados do livro se dobram em
+    tres porque `baixado` e `erro` sao passos internos da esteira, e nao respostas a
+    uma pergunta que alguem faz olhando um perfil.
+    """
+    conta = (conta or "").replace("@", "").strip().lower()
+    con = abrir()
+    linhas = con.execute(
+        "SELECT id, pasta_id, sub_id, sub_nome, nome, tamanho, capa, estado, quando, "
+        "       post_id, erro FROM video WHERE conta = ? ORDER BY quando DESC, nome",
+        (conta,)).fetchall()
+    pastas = {p["id"]: p["nome"] for p in
+              con.execute("SELECT id, nome FROM pasta WHERE conta = ?", (conta,))}
+    con.close()
+
+    # O CODIGO CURTO DO POST, para o botao do Instagram. O livro guarda o numero do
+    # post, e o endereco publico do Instagram usa o codigo curto: quem tem os dois
+    # lado a lado e' o `analytics.json`, que a coleta ja' grava.
+    curto = {}
+    try:
+        an = json.loads((PASTA / "analytics.json").read_text(encoding="utf-8"))
+        for _, fundo in (an.get("fundo") or {}).items():
+            for post in fundo.get("posts", []):
+                if post.get("id") and post.get("sc"):
+                    curto[str(post["id"])] = post["sc"]
+    except Exception:
+        pass
+
+    dobra = {"publicado": "publicado", "programado": "programado",
+             "baixado": "programado", "erro": "programado",
+             "prateleira": "guardado"}
+    fora = []
+    for l in linhas:
+        fora.append({
+            "id": l["id"], "nome": l["nome"], "estado": dobra.get(l["estado"], "guardado"),
+            "bruto": l["estado"], "quando": l["quando"], "erro": l["erro"],
+            "mb": round((l["tamanho"] or 0) / 1048576.0, 1),
+            # a capa vem pela casa, e nao pelo endereco do Drive: aquele endereco
+            # expira e o navegador nao carrega imagem que exige token
+            "capa": ("midia/capa?v=" + l["id"]) if l["capa"] else "",
+            "leva": pastas.get(l["pasta_id"], ""), "leva_id": l["pasta_id"],
+            # a pasta DO VIDEO: quando ele mora solto na leva, e' a propria leva
+            "pasta": l["sub_nome"] or pastas.get(l["pasta_id"], ""),
+            "pasta_id": l["sub_id"] or l["pasta_id"],
+            "sc": curto.get(str(l["post_id"] or "")) or "",
+        })
+    return {"conta": conta, "midias": fora,
+            "pastas": [{"id": k, "nome": v} for k, v in pastas.items()]}
 
 
 # ============================================================== o pulso da rede
@@ -647,10 +861,13 @@ def responder(rota: str, consulta: dict, corpo: dict | None):
         d = navegar(um("pasta"), um("busca"))
         return d, (400 if "erro" in d else 200)
     if rota == "midia/ligadas":
-        return {"pastas": ligadas()}, 200
+        return {"pastas": ligadas(um("u"))}, 200
     if rota == "midia/ligar" and corpo is not None:
-        d = ligar(corpo.get("pasta", ""), corpo.get("nome", ""), corpo.get("caminho", ""))
+        d = ligar(corpo.get("pasta", ""), corpo.get("nome", ""), corpo.get("caminho", ""),
+                  corpo.get("conta", ""))
         return d, (400 if "erro" in d else 200)
+    if rota == "contas/midias":
+        return midias(um("u")), 200
     if rota == "midia/desligar" and corpo is not None:
         return desligar(corpo.get("pasta", "")), 200
     if rota == "contas/meta":
