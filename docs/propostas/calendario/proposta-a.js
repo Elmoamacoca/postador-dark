@@ -18,6 +18,7 @@
   var mes = new Date(C.HOJE.getFullYear(), C.HOJE.getMonth(), 1);
   var escala = 'semana';                       /* hoje | semana | quinzena | mes */
   var piscar = null;                           /* dia a piscar depois de pintar */
+  var abertas = {};                            /* levas com as publicacoes a vista */
 
   window.CAL_PINTAR = pintar;
 
@@ -301,7 +302,7 @@
       '<div class="pa-gt-lista">' +
         '<div class="pa-gt-cab"><span>Conta e leva</span>' +
           '<span class="pa-gt-c">Saídas</span></div>' +
-        grupos.map(linhasDaLista).join('') +
+        grupos.map(function (g) { return linhasDaLista(g, p); }).join('') +
       '</div>' +
       '<div class="pa-gt-quadro">' +
         regua(p) +
@@ -314,8 +315,19 @@
     '</div>';
   }
 
-  /* ----------------------------------------------------- o painel da esquerda */
-  function linhasDaLista(g) {
+  /* ----------------------------------------------------- o painel da esquerda
+     TRES NIVEIS, como a hierarquia do ClickUp: conta, leva e PUBLICACAO. Ele pediu em
+     11/09 para ver as publicacoes dentro do gantt, nem que virasse muita linha; entao
+     a leva abre e cada saida do periodo ganha a linha dela. Abre e fecha pela seta,
+     porque um mes de tres contas passa de noventa linhas. */
+  function doPeriodo(l, p) {
+    return l.itens.filter(function (s) {
+      var d = C.data(s.quando);
+      return d >= p.de && d <= p.ate;
+    });
+  }
+
+  function linhasDaLista(g, p) {
     return '<div class="pa-gt-grupo" data-grupo="' + C.seguro(g.conta.u) + '">' +
       '<div class="pa-gt-li conta">' +
         '<svg class="pa-gt-seta" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>' +
@@ -326,14 +338,35 @@
         '<span class="pa-gt-c"><b>' + g.feitos + '</b>/' + g.total + '</span>' +
       '</div>' +
       g.levas.map(function (l) {
-        return '<div class="pa-gt-li leva" data-leva="' + C.seguro(l.chave) + '">' +
+        var itens = doPeriodo(l, p);
+        var abre = !!abertas[l.chave];
+        return '<button type="button" class="pa-gt-li leva' + (abre ? ' abre' : '') +
+          '" data-leva="' + C.seguro(l.chave) + '" aria-expanded="' +
+          (abre ? 'true' : 'false') + '">' +
+          '<svg class="pa-gt-seta" viewBox="0 0 24 24">' +
+            '<path d="m9 18 6-6-6-6"/></svg>' +
           '<span class="pa-gt-losango" style="--cor:' + C.corDe(l.conta) + '"></span>' +
           '<span class="pa-gt-nome"><b>' + C.seguro(C.maiuscula(l.nome)) +
             (l.exemplo ? ' <em class="mid-ex"></em>' : '') + '</b><span>' +
-            C.dia(C.chaveDia(l.inicio)) + ' a ' + C.dia(C.chaveDia(l.fim)) +
+            itens.length + (itens.length === 1 ? ' saída nesta janela'
+                                               : ' saídas nesta janela') +
           '</span></span>' +
           '<span class="pa-gt-c"><b>' + l.feitos + '</b>/' + l.total + '</span>' +
-        '</div>';
+        '</button>' +
+        (abre ? itens.map(function (s) {
+          return '<div class="pa-gt-li post" data-dia="' + C.chaveDia(C.data(s.quando)) +
+            '">' +
+            '<span class="pa-gt-ponto' +
+              (s.estado === 'programado' ? ' vem' : '') +
+              '" style="--cor:' + C.corDe(s.conta) + '"></span>' +
+            '<span class="pa-gt-nome"><b>' + C.seguro(C.rotulo(s)) + '</b><span>' +
+              C.dia(s.quando) + ' · ' + C.hora(s.quando) + '</span></span>' +
+            '<span class="pa-gt-c">' + (s.estado === 'programado'
+              ? '<span class="mid-pin marcado"><i></i>Agendado</span>'
+              : '<span class="mid-pin foi"><i></i>Publicado</span>') + '</span>' +
+          '</div>';
+        }).join('') : '') +
+        '';
       }).join('') +
     '</div>';
   }
@@ -421,8 +454,29 @@
             Math.round(g.feitos / g.total * 100) + '%</span>') +
       '</div>' +
       g.levas.map(function (l) {
-        return '<div class="pa-gt-faixa">' +
+        var fora = '<div class="pa-gt-faixa">' +
           fita(l.inicio, l.fim, p, corpoDaLeva(l, p)) + '</div>';
+        if (!abertas[l.chave]) return fora;
+        /* A LINHA DE UMA PUBLICACAO: um marco no instante dela, clicavel, que abre o
+           painel daquele dia. Sem isso a saida existia na lista e nao na linha do
+           tempo, que e' justamente onde ele quer ve-la. */
+        return fora + doPeriodo(l, p).map(function (s) {
+          var d = C.data(s.quando);
+          /* O MARCO CAI NA HORA, e nao no meio do dia: dentro da coluna ele desliza
+             pela fracao do relogio, entao duas saidas do mesmo dia nao se cobrem e a
+             hora escrita ao lado bate com o lugar. */
+          var x = p.hora ? pos(p, d)
+            : pos(p, d) + passo(p) * (0.14 + 0.72 * C.fracaoHora(s.quando));
+          return '<div class="pa-gt-faixa post">' +
+            '<button type="button" class="pa-gt-marco' +
+              (s.estado === 'programado' ? ' vem' : '') +
+              (p.dias > 16 ? ' so-marca' : '') +
+              '" style="left:' + pct(x) + ';--cor:' + C.corDe(s.conta) + '" ' +
+              'data-dia="' + C.chaveDia(d) + '" title="' + C.hora(s.quando) + ' · ' +
+              C.seguro(C.rotulo(s)) + '">' +
+              '<i></i><em>' + C.hora(s.quando).replace('h', ':') + '</em></button>' +
+          '</div>';
+        }).join('');
       }).join('') +
     '</div>';
   }
@@ -508,7 +562,13 @@
       return;
     }
     var s = e.target.closest('[data-escala]');
-    if (s && s.dataset.escala !== escala) { escala = s.dataset.escala; pintar(); }
+    if (s && s.dataset.escala !== escala) { escala = s.dataset.escala; pintar(); return; }
+    var lv = e.target.closest('[data-leva]');
+    if (lv) {
+      var k = lv.dataset.leva;
+      if (abertas[k]) delete abertas[k]; else abertas[k] = true;
+      pintar();
+    }
   });
 
   document.addEventListener('DOMContentLoaded', function () {

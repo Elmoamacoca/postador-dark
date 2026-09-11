@@ -47,10 +47,9 @@ ORDEM = ['01-base.css', '02-menu.css', '03-componentes.css', '04-analytics.css',
 # para a mesma folha valer na pagina do Calendario sem copiar uma linha de estilo.
 ESCOPO = ('#pag-analytics', '.rs-casa')
 
-# HOJE E' O DIA DE VERDADE, e nao uma data escrita a mao. Ficou travado em 10/09 e no
-# dia seguinte a maquete marcava o dia errado, que e' o tipo de erro que faz duvidar
-# de todo o resto da tela.
-HOJE = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)
+# HOJE E' O INSTANTE DE VERDADE, com a HORA junto. Estava travado ao meio-dia, e por
+# isso o risco "Agora" do gantt caia sempre em 12h qualquer que fosse o relogio.
+HOJE = datetime.now().replace(second=0, microsecond=0)
 
 # O RITMO DE CADA CONTA no exemplo. Sai da curva de aquecimento do agendador: conta
 # nova nao entra em ritmo pleno, e por isso a mais nova leva menos por dia.
@@ -156,6 +155,15 @@ def agenda(reais):
                 hora = de + round((ate - de) * (i + 0.5) / max(quantas, 1))
                 minuto = rnd.randint(0, 59)
                 quando = dia.replace(hour=min(hora, 23), minute=minuto, second=0)
+                # O DIA DE HOJE SE PARTE NA HORA ATUAL: o que ja' passou do relogio
+                # conta como publicado, o resto continua na fila. Sem isso o gantt na
+                # escala de horas mostrava a manha inteira como se ainda fosse sair.
+                if passo < 0:
+                    estado = 'publicado'
+                elif passo == 0:
+                    estado = 'publicado' if quando <= HOJE else 'programado'
+                else:
+                    estado = 'programado'
                 lista = LEVAS[conta]
                 leva = lista[1] if (len(lista) > 1 and passo >= VIRADA) else lista[0]
                 saidas.append({
@@ -163,10 +171,11 @@ def agenda(reais):
                     'nome': m.get('nome') or '',
                     'conta': conta,
                     'quando': quando.strftime('%Y-%m-%dT%H:%M:%S'),
-                    'estado': 'publicado' if passo < 0 else 'programado',
+                    'estado': estado,
                     'sc': None,
                     'capa': (n[0] - 1) % max(len(capas), 1) if capas else None,
-                    'vis': int(rnd.lognormvariate(5.4, 1.0)) + 25 if passo < 0 else None,
+                    'vis': (int(rnd.lognormvariate(5.4, 1.0)) + 25
+                            if estado == 'publicado' else None),
                     'leva': leva[0], 'leva_id': leva[1], 'leva_exemplo': leva[2],
                     # O ENDERECO DA PASTA DO VIDEO, e nao o da leva: ele pegou esse erro
                     # na sub-aba Midias em 10/09, e cada corte tem a propria subpasta.

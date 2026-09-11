@@ -9,7 +9,19 @@
    ========================================================================== */
 (function () {
   var D = window.DADOS_CAL || {};
-  var HOJE = new Date(D.hoje || '2026-09-10T12:00:00');
+  /* A HORA VEM DO RELOGIO DE QUEM ABRE, e nao do instante em que a maquete foi gerada:
+     senao o risco "Agora" do gantt fica parado na hora da geracao e desencontra do
+     relogio dele em minutos. O DIA continua o dos dados, porque e' em volta dele que a
+     agenda foi montada. */
+  var HOJE = (function () {
+    var base = new Date(D.hoje || '2026-09-11T12:00:00');
+    var real = new Date();
+    if (real.getFullYear() === base.getFullYear() &&
+        real.getMonth() === base.getMonth() && real.getDate() === base.getDate()) {
+      return real;
+    }
+    return base;
+  })();
   var CONTAS = D.contas || [];
   var CAPAS = D.capas || [];
   var SAIDAS = D.saidas || [];

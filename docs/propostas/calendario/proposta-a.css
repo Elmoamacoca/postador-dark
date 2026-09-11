@@ -227,3 +227,49 @@
   .pa-cel{min-height:98px}
   .pa-gt-lista{width:238px}
 }
+
+/* --------------------------------- as publicacoes dentro do gantt (3o nivel)
+   Ele pediu em 11/09 para ver as publicacoes no gantt, nem que virasse muita linha.
+   A leva abre pela seta e cada saida do periodo ganha a linha dela, dos dois lados.
+   O quadro inteiro rola na vertical, com o cabecalho e a regua presos no topo. */
+.pa-gt{max-height:min(560px,calc(100vh - 300px));overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--rule-solid) transparent}
+.pa-gt::-webkit-scrollbar{width:10px}
+.pa-gt::-webkit-scrollbar-thumb{background:var(--rule-solid);border-radius:999px;
+  border:2px solid transparent;background-clip:padding-box}
+.pa-gt-cab,.pa-gt-regua{position:sticky;top:0;z-index:5}
+.pa-gt-lista{position:relative}
+
+.pa-gt-li.leva{width:100%;border-left:0;border-right:0;border-top:0;
+  background:none;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.pa-gt-li.leva:hover{background:var(--paper-2)}
+.pa-gt-li.leva .pa-gt-seta{transform:rotate(0deg);transition:transform .16s ease}
+.pa-gt-li.leva.abre .pa-gt-seta{transform:rotate(90deg)}
+.pa-gt-li.leva .pa-gt-losango{margin-left:0}
+
+.pa-gt-li.post,.pa-gt-faixa.post{height:44px}
+.pa-gt-li.post{padding-left:56px;background:
+  color-mix(in srgb,var(--paper-2) 45%,transparent)}
+.pa-gt-li.post .pa-gt-nome b{font-size:12px;font-weight:700}
+.pa-gt-li.post .pa-gt-nome > span{font-size:10.5px}
+.pa-gt-ponto{width:7px;height:7px;flex:none;border-radius:999px;background:var(--cor)}
+.pa-gt-ponto.vem{background:var(--branco,var(--paper));
+  box-shadow:inset 0 0 0 2px var(--cor)}
+.pa-gt-faixa.post{background:color-mix(in srgb,var(--paper-2) 45%,transparent)}
+
+/* O MARCO DA PUBLICACAO: losango no instante dela, com a hora ao lado. E' o marco do
+   ClickUp, que la' marca entrega de duracao zero, e aqui marca a saida. */
+.pa-gt-marco{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;
+  align-items:center;gap:7px;border:0;background:none;padding:4px 6px;cursor:pointer;
+  border-radius:8px;color:inherit}
+.pa-gt-marco:hover{background:var(--paper-2)}
+.pa-gt-marco i{width:11px;height:11px;flex:none;background:var(--cor);
+  transform:rotate(45deg);border-radius:2px}
+.pa-gt-marco.vem i{background:var(--branco,var(--paper));
+  box-shadow:inset 0 0 0 2px var(--cor)}
+.pa-gt-marco em{font-style:normal;font-size:10.5px;font-weight:700;color:var(--soft);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Na escala de mes a coluna tem poucos pixels: fica so' o losango, e a hora vai para
+   a lista da esquerda e para a dica do ponteiro. */
+.pa-gt-marco.so-marca em{display:none}
+.pa-gt-marco.so-marca{padding:4px}
