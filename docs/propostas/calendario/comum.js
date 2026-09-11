@@ -139,8 +139,17 @@
         return s.estado === 'programado';
       }).length;
     }
+    /* AS DUAS SEMANAS ANTERIORES, so' para a pilula de variacao ter contra o que
+       comparar. Indicador sem base de comparacao e' numero solto. */
+    var publicadosAntes = 0;
+    for (i = JANELA_TRAS + 1; i <= JANELA_TRAS * 2; i++) {
+      d = new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() - i);
+      publicadosAntes += (mapa[chaveDia(d)] || []).length;
+    }
     var cadencia = publicados / JANELA_TRAS;
     return {
+      publicadosAntes: publicadosAntes,
+      cadenciaAntes: publicadosAntes / JANELA_TRAS,
       saiu: saiu, vem: vem, vazios: vazios, primeiroVazio: proximo,
       publicados: publicados, agendados: agendados,
       cadencia: cadencia, cobertos: cobertos, janela: JANELA_FRENTE,
@@ -472,12 +481,30 @@
     '<path fill="#ffba00" d="M73.4 26.5 60.7 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25' +
       'l16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z"/></svg>';
 
-  function botaoDrive(s) {
-    if (!s.pasta_id) return '';
-    return '<a class="mid-drive cl-li-drive" target="_blank" rel="noopener" ' +
-      'href="https://drive.google.com/drive/folders/' + seguro(s.pasta_id) + '" ' +
-      'title="Abrir no Drive a pasta deste vídeo" ' +
-      'aria-label="Abrir no Drive a pasta deste vídeo">' + LOGO_DRIVE + '</a>';
+  /* AS ACOES SAO A FILA `.bc-acoes` DA SUB-ABA MIDIAS, com os mesmos botoes de 34: a
+     logo do Drive na caixa `.como-bt` e o atalho para o Instagram quando a publicacao
+     existe la'. Botao sem back atras nao entra. */
+  function acoes(s) {
+    var fora = '';
+    if (s.pasta_id) {
+      fora += '<a class="mid-drive como-bt" target="_blank" rel="noopener" ' +
+        'href="https://drive.google.com/drive/folders/' + seguro(s.pasta_id) + '" ' +
+        'title="Abrir no Drive a pasta deste vídeo" ' +
+        'aria-label="Abrir no Drive a pasta deste vídeo">' + LOGO_DRIVE + '</a>';
+    }
+    if (s.sc) {
+      fora += '<a class="mid-ac" target="_blank" rel="noopener" ' +
+        'href="https://www.instagram.com/reel/' + seguro(s.sc) + '/" ' +
+        'title="Ver a publicação no Instagram">' +
+        '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/>' +
+        '<circle cx="12" cy="12" r="3.6"/><path d="M17.4 6.7h.01"/></svg></a>';
+    }
+    return fora ? '<div class="bc-acoes">' + fora + '</div>' : '';
+  }
+
+  function par(rot, valor, quebra) {
+    return '<div class="bc-par' + (quebra ? ' quebra' : '') + '"><span>' + rot +
+      '</span><b>' + seguro(valor) + '</b></div>';
   }
 
   /* A LINHA DO PAINEL DO DIA. A primeira versao punha a hora numa coluna de 44 pixels
@@ -485,30 +512,40 @@
      ponta: tres pesos iguais disputando a mesma linha, sem nada mandando. Agora a HORA
      e' a ancora, com o fio de agenda ligando uma saida na outra; o nome curto manda no
      meio; e a direita ficam so' duas coisas, o estado e o caminho para o arquivo. */
+  /* A SAIDA DENTRO DO PAINEL DO DIA.
+
+     A versao anterior era uma linha magra com hora, capinha e um rotulo: ele chamou de
+     seca, e era. O desenho agora e' o do painel lateral da sub-aba Midias, que ele
+     aprovou em 10/09: capa com tamanho, `.bc-nome` para o titulo, `.bc-pares` para os
+     dados e `.bc-acoes` para o caminho ate' o arquivo. A hora fica de fora, na coluna
+     da agenda, porque aqui ela e' a ordem e nao um dado a mais. */
   function linhaDoDia(s) {
     var vem = s.estado === 'programado';
     return '<div class="cl-li' + (vem ? ' vem' : '') + '">' +
       '<span class="cl-li-quando"><b>' + hora(s.quando).replace('h', ':') + '</b>' +
         '<i class="cl-li-fio"></i></span>' +
-      '<span class="cl-li-corpo">' +
-        (s.capa != null
-          ? '<span class="cl-li-capa"><img src="' + capa(s.capa) + '" alt=""></span>'
-          : '<span class="cl-li-capa sem">' + icoFilme() + '</span>') +
-        '<span class="cl-li-txt"><b>' + seguro(rotulo(s)) + '</b>' +
-          '<span class="cl-li-quem"><i style="background:' + corDe(s.conta) +
-          '"></i>@' + seguro(s.conta) + '</span>' +
-          '<span class="cl-li-leva">' +
-          seguro(pedaco(maiuscula(s.leva || '—'), 26)) +
-          (s.exemplo ? ' <em class="mid-ex" title="Exemplo"></em>' : '') + '</span>' +
-        '</span>' +
-        '<span class="cl-li-dir">' +
-          (vem ? '<span class="mid-pin marcado"><i></i>Agendado</span>'
-               : '<span class="mid-pin foi"><i></i>Publicado</span>') +
-          (s.vis != null ? '<span class="cl-li-vis"><b>' + curto(s.vis) +
-            '</b> visualizações</span>' : '') +
-        '</span>' +
-        botaoDrive(s) +
-      '</span>' +
+      '<div class="cl-li-corpo">' +
+        '<div class="cl-li-topo">' +
+          (s.capa != null
+            ? '<span class="cl-li-capa"><img src="' + capa(s.capa) + '" alt=""></span>'
+            : '<span class="cl-li-capa sem">' + icoFilme() + '</span>') +
+          '<div class="cl-li-txt">' +
+            (vem ? '<span class="mid-pin marcado"><i></i>Agendado</span>'
+                 : '<span class="mid-pin foi"><i></i>Publicado</span>') +
+            '<h4 class="bc-nome">' + seguro(rotulo(s)) + '</h4>' +
+            '<span class="cl-li-quem"><i style="background:' + corDe(s.conta) +
+              '"></i>@' + seguro(s.conta) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="bc-pares">' +
+          par('Leva', maiuscula(s.leva || '—')) +
+          (s.nome ? par('Arquivo', pedaco(s.nome, 34)) : '') +
+          (s.vis != null ? par('Visualizações', n(s.vis)) : '') +
+        '</div>' +
+        acoes(s) +
+        (s.exemplo
+          ? '<span class="cl-li-ex"><em class="mid-ex"></em>Exemplo</span>' : '') +
+      '</div>' +
     '</div>';
   }
 

@@ -81,28 +81,29 @@
   box-shadow:0 0 0 3px var(--branco,var(--paper))}
 .cl-li.vem .cl-li-quando::after{background:var(--accent)}
 
-.cl-li-corpo{flex:1;min-width:0;display:flex;align-items:center;gap:11px;
-  margin:6px 0;padding:9px 11px;border-radius:11px;
-  border:1px solid var(--rule-solid);background:var(--branco,var(--paper))}
-.cl-li.vem .cl-li-corpo{border-color:color-mix(in srgb,var(--accent) 35%,
+.cl-li-corpo{flex:1;min-width:0;margin:6px 0;padding:12px 13px 13px;
+  border-radius:13px;border:1px solid var(--rule-solid);
+  background:var(--branco,var(--paper))}
+.cl-li.vem .cl-li-corpo{border-color:color-mix(in srgb,var(--accent) 32%,
   var(--rule-solid));background:color-mix(in srgb,var(--accent) 4%,transparent)}
-.cl-li-capa{flex:none;width:44px;height:58px;border-radius:8px;overflow:hidden;
+.cl-li-topo{display:flex;align-items:flex-start;gap:12px}
+.cl-li-capa{flex:none;width:58px;height:78px;border-radius:9px;overflow:hidden;
   background:var(--paper-2);display:grid;place-items:center;color:var(--soft)}
 .cl-li-capa img{width:100%;height:100%;object-fit:cover;display:block}
-.cl-li-capa svg{width:17px;height:17px}
-.cl-li-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.cl-li-txt b{font-size:12.5px;font-weight:800;letter-spacing:-.2px;line-height:1.2;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cl-li-quem{display:flex;align-items:center;gap:5px;font-size:10.5px;
+.cl-li-capa svg{width:20px;height:20px}
+.cl-li-txt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;
+  gap:5px}
+.cl-li-txt .bc-nome{margin:0;font-size:14px;word-break:normal}
+.cl-li-quem{display:flex;align-items:center;gap:6px;font-size:11.5px;
   font-weight:700;color:var(--soft)}
-.cl-li-quem i{width:6px;height:6px;border-radius:999px;flex:none}
-.cl-li-leva{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--soft);
-  opacity:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cl-li-dir{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.cl-li-vis{font-size:9.5px;color:var(--soft)}
-.cl-li-vis b{font-size:11px;font-weight:800;color:var(--ink);
-  font-variant-numeric:tabular-nums}
-.cl-li-drive{flex:none}
+.cl-li-quem i{width:7px;height:7px;border-radius:999px;flex:none}
+/* Os pares e as acoes vem do `06-midias.css`; aqui so' o respiro muda, porque no
+   painel do dia eles se repetem por saida e nao uma vez so'. */
+.cl-li-corpo .bc-pares{margin-top:11px}
+.cl-li-corpo .bc-par{padding:6px 0;font-size:12px}
+.cl-li-corpo .bc-acoes{margin-top:11px;gap:8px}
+.cl-li-ex{display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  font-size:10.5px;color:var(--soft)}
 
 .cl-peek-pins{display:flex;gap:6px;margin-top:7px}
 

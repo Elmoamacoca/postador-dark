@@ -47,7 +47,10 @@ ORDEM = ['01-base.css', '02-menu.css', '03-componentes.css', '04-analytics.css',
 # para a mesma folha valer na pagina do Calendario sem copiar uma linha de estilo.
 ESCOPO = ('#pag-analytics', '.rs-casa')
 
-HOJE = datetime(2026, 9, 10, 12, 0)
+# HOJE E' O DIA DE VERDADE, e nao uma data escrita a mao. Ficou travado em 10/09 e no
+# dia seguinte a maquete marcava o dia errado, que e' o tipo de erro que faz duvidar
+# de todo o resto da tela.
+HOJE = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)
 
 # O RITMO DE CADA CONTA no exemplo. Sai da curva de aquecimento do agendador: conta
 # nova nao entra em ritmo pleno, e por isso a mais nova leva menos por dia.
