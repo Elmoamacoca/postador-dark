@@ -1,85 +1,138 @@
-/* ===================================================== PROPOSTA A: A PAUTA
+/* ============================================== PROPOSTA A: A PAUTA (v3)
 
-   A DECISAO DESTA PROPOSTA: tirar a miniatura de dentro da grade. Corte de podcast
-   e' escuro; miniatura de 26 pixels vira um retangulo preto, e tres lado a lado com
-   a hora em tarja por cima viram uma faixa de sujeira. Foi isso que ficou horroroso
-   na primeira rodada. Aqui cada saida e' uma LINHA: risco na cor da conta, hora e
-   nome curto. A capa continua existindo, mas no painel do dia, onde ela tem tamanho.
+   ELE ESCOLHEU ESTA em 11/09 e apontou seis defeitos. O que mudou:
 
-   OS DOIS MODOS: `Mês` responde "que dia", `Gantt` responde "em que ritmo". Trocar de
-   modo nao troca de conta.
-
-   O QUE ELA CUSTA: e' a menos visual das tres. Quem quer reconhecer o video pela
-   imagem tem de abrir o dia.
+   1. OS INDICADORES. "Já Saíram" e "Marcados" nao sao nome de indicador. Agora sao
+      Publicados, Agendados, Cadência e Cobertura, os quatro na MESMA janela de catorze
+      dias, cada um com valor, unidade e periodo.
+   2. O BOTAO HOJE devolve resposta: volta ao mes de hoje e o dia pisca tres vezes.
+   3. O PAINEL DO DIA leva ao Drive, na pasta daquele corte.
+   4. O PAINEL DO DIA foi redesenhado: a hora virou ancora com fio de agenda.
+   5. O GANTT virou gantt. O de antes era o mes deitado; este segue o molde do
+      ClickUp: lista hierarquica a esquerda, regua de dois niveis, barra por LEVA com
+      progresso, barra de resumo por conta e o risco de hoje atravessando tudo.
+   6. O SELETOR DE CONTA virou controle de barra, e nao cartao solto.
    ========================================================================== */
 (function () {
   var C = window.CAL;
   var mes = new Date(C.HOJE.getFullYear(), C.HOJE.getMonth(), 1);
-  var DE = -13, ATE = 14;                      /* a faixa do gantt, em volta de hoje */
+  var escala = 'semana';                       /* semana | mes */
+  var piscar = null;                           /* dia a piscar depois de pintar */
 
   window.CAL_PINTAR = pintar;
 
   function pintar() {
     var u = C.escolhida();
-    var r = C.resumo(u);
     var palco = document.getElementById('cal-palco');
     var noMes = C.visao() === 'mes';
 
     palco.innerHTML =
-      '<div class="pa-topo">' + C.seletor() + C.abas() +
-        '<div class="pa-nums">' +
-          num(r.saiu, 'Já Saíram') + num(r.vem, 'Marcados', 'vem') +
-          num(r.vazios, 'Dias Vazios Nos Próximos 14', r.vazios ? 'mau' : '') +
-        '</div>' +
-      '</div>' +
+      indicadores(u) +
       '<div class="caixa solta pa-caixa">' +
-        (noMes ? barraMes() + grade(u) : barraGantt(u) + gantt(u)) +
+        barra(noMes) +
+        (noMes ? grade(u) : gantt(u)) +
       '</div>';
 
-    if (!noMes && u === C.REDE) nascerNoHoje(palco);
-  }
-
-  function num(valor, rot, tom) {
-    return '<div class="pa-n' + (tom ? ' ' + tom : '') + '"><b>' + valor + '</b>' +
-      '<span>' + rot + '</span></div>';
-  }
-
-  function legenda() {
-    return '<div class="cl-legenda">' +
-      '<span class="cl-lg"><i style="background:var(--soft)"></i>Já Saiu</span>' +
-      '<span class="cl-lg"><i style="background:var(--accent)"></i>Marcado</span>' +
-      '<span class="cl-lg tracado"><i></i>Dia Vazio</span></div>';
-  }
-
-  function barraMes() {
-    return '<div class="pa-barra">' +
-      '<button class="bt mini" type="button" data-ir="hoje">Hoje</button>' +
-      '<button class="pa-seta" type="button" data-ir="-1" aria-label="Mês anterior">' +
-        '<svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>' +
-      '<button class="pa-seta" type="button" data-ir="1" aria-label="Próximo mês">' +
-        '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>' +
-      '<b class="pa-titulo">' + C.MES[mes.getMonth()] + ' De ' + mes.getFullYear() +
-      '</b>' + legenda() + '</div>';
-  }
-
-  function barraGantt(u) {
-    /* O TITULO TEM DE DIZER O QUE ESTA' NA TELA. Por semanas o quadro comeca no
-       domingo anterior e termina no sabado seguinte, e nao nos dias soltos da faixa. */
-    var a, b;
-    if (u === C.REDE) {
-      a = C.faixa(DE, DE)[0];
-      b = C.faixa(ATE, ATE)[0];
-    } else {
-      var sems = C.semanas(DE, ATE);
-      a = sems[0][0];
-      b = sems[sems.length - 1][6];
+    /* O GANTT NASCE EM HOJE, e nao trinta dias atras: quem abre quer saber o que vem. */
+    if (!noMes) {
+      var rolo = palco.querySelector('.pa-gt-rolo');
+      var col = palco.querySelector('.pa-gt-d.hoje');
+      if (rolo && col) {
+        rolo.scrollLeft = Math.max(col.offsetLeft - rolo.clientWidth * 0.34, 0);
+      }
     }
-    return '<div class="pa-barra">' +
-      '<b class="pa-titulo">' + a.getDate() + ' De ' + C.MES[a.getMonth()] + ' A ' +
-        b.getDate() + ' De ' + C.MES[b.getMonth()] + '</b>' +
-      '<span class="pa-sub">' + (u === C.REDE ? 'Uma raia por conta, dia a dia'
-        : 'Uma raia por semana, para bater segunda contra segunda') + '</span>' +
-      legenda() + '</div>';
+
+    if (piscar) {
+      var alvo = palco.querySelector('[data-dia="' + piscar + '"]');
+      if (alvo) {
+        alvo.classList.add('pisca');
+        alvo.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+      piscar = null;
+    }
+  }
+
+  /* ------------------------------------------------------------ os indicadores
+     CADA DESENHO AQUI TEM DENOMINADOR. Barra sempre cheia e' enfeite: os dois
+     primeiros mostram a DISTRIBUICAO dos catorze dias, dia a dia, e os dois ultimos
+     mostram uma PROPORCAO que existe de verdade. */
+  function indicadores(u) {
+    var r = C.resumo(u);
+    var antes = serie(u, -14, -1), frente = serie(u, 0, 13);
+    var pico = Math.max.apply(null, antes.concat(frente).concat([1]));
+
+    return '<div class="pa-kpis">' +
+      cartao('Publicados', String(r.publicados), '',
+        'Últimos 14 dias · pico de ' + pico + ' num dia',
+        faisca(antes, pico, 'neutro')) +
+      cartao('Agendados', String(r.agendados), '',
+        r.folego != null && r.folego > 0
+          ? 'Próximos 14 dias · fôlego de ' + r.folego + ' dias no ritmo atual'
+          : 'Próximos 14 dias',
+        faisca(frente, pico, 'vem')) +
+      cartao('Cadência', r.cadencia.toFixed(1).replace('.', ','), 'por dia',
+        'Média dos últimos 14 dias, contra o pico de ' + pico,
+        barrinha(r.cadencia / pico, 'neutro')) +
+      cartao('Cobertura',
+        r.cobertos + '<span class="pa-k-de">/' + r.janela + '</span>', 'dias',
+        r.vazios
+          ? r.vazios + (r.vazios === 1 ? ' dia sem publicação, em '
+                                       : ' dias sem publicação, o primeiro em ') +
+            C.dia(C.chaveDia(r.primeiroVazio))
+          : 'Nenhum dia sem publicação',
+        barrinha(r.cobertos / r.janela, r.vazios ? 'mau' : 'bom'),
+        r.vazios ? 'mau' : '') +
+    '</div>';
+  }
+
+  function cartao(rot, valor, uni, pe, desenho, tom) {
+    return '<div class="pa-k' + (tom ? ' ' + tom : '') + '">' +
+      '<span class="pa-k-rot">' + rot + '</span>' +
+      '<span class="pa-k-val"><b>' + valor + '</b>' +
+        (uni ? '<em>' + uni + '</em>' : '') + '</span>' +
+      desenho + '<span class="pa-k-pe">' + pe + '</span></div>';
+  }
+
+  function serie(u, de, ate) {
+    var mapa = C.porDia(u), fora = [];
+    C.faixa(de, ate).forEach(function (d) {
+      fora.push((mapa[C.chaveDia(d)] || []).length);
+    });
+    return fora;
+  }
+  /* O DIA VAZIO E' UM TRACO NO CHAO, e nao um buraco: buraco na serie some e a conta
+     de catorze dias deixa de fechar a olho. */
+  function faisca(vals, pico, tom) {
+    return '<span class="pa-k-faisca ' + tom + '">' + vals.map(function (v) {
+      return '<i class="' + (v ? '' : 'zero') + '" style="height:' +
+        (v ? Math.max(Math.round(v / pico * 100), 16) : 0) + '%"></i>';
+    }).join('') + '</span>';
+  }
+  function barrinha(fracao, tom) {
+    return '<span class="pa-k-barra ' + tom + '"><i style="width:' +
+      Math.max(Math.round(fracao * 100), 2) + '%"></i></span>';
+  }
+
+  /* ------------------------------------------------------------------ a barra */
+  function barra(noMes) {
+    return '<div class="pa-barra">' + C.seletor() + '<i class="pa-div"></i>' +
+      C.abas() + '<div class="pa-barra-dir">' +
+      (noMes
+        ? '<button class="pa-hoje" type="button" data-ir="hoje">Hoje</button>' +
+          '<span class="pa-nav">' +
+            '<button type="button" data-ir="-1" aria-label="Mês anterior">' +
+              '<svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>' +
+            '<button type="button" data-ir="1" aria-label="Próximo mês">' +
+              '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>' +
+          '</span>' +
+          '<b class="pa-titulo">' + C.MES[mes.getMonth()] + ' De ' +
+            mes.getFullYear() + '</b>'
+        : '<span class="pa-escala">' +
+            [['semana', 'Semana'], ['mes', 'Mês']].map(function (e) {
+              return '<button type="button" data-escala="' + e[0] + '"' +
+                (escala === e[0] ? ' class="on"' : '') + '>' + e[1] + '</button>';
+            }).join('') + '</span>') +
+      '</div></div>';
   }
 
   /* ------------------------------------------------------------------- o mes */
@@ -97,8 +150,7 @@
         if (d.getMonth() === mes.getMonth()) vivos++;
         linha.push(celula(d, mapa[C.chaveDia(d)] || []));
       }
-      /* SEMANA INTEIRA DE OUTRO MES NAO ENTRA. A ultima fileira do mes passado era
-         uma faixa de 112 pixels de nada, e faixa de nada e' o que deixa a tela feia. */
+      /* Semana inteira de outro mes nao entra: era uma faixa de 112 pixels de nada. */
       if (vivos) semanas.push(linha.join(''));
     }
     return '<div class="pa-dias">' +
@@ -109,8 +161,7 @@
   function celula(d, lista) {
     var deFora = d.getMonth() !== mes.getMonth();
     var hoje = C.mesmoDia(d, C.HOJE);
-    var futuro = d > C.HOJE;
-    var vazio = futuro && !lista.length && !deFora;
+    var vazio = d > C.HOJE && !lista.length && !deFora;
     lista = lista.slice().sort(function (a, b) {
       return new Date(a.quando) - new Date(b.quando);
     });
@@ -127,9 +178,6 @@
     '</button>';
   }
 
-  /* A LINHA E' A PECA DESTA PROPOSTA: risco da conta, hora e nome. O passado fica
-     neutro e o futuro leva a cor da casa, porque o que importa e' o que ainda da'
-     para mudar. */
   function item(s) {
     return '<span class="pa-li' + (s.estado === 'programado' ? ' vem' : '') + '">' +
       '<i style="background:' + C.corDe(s.conta) + '"></i>' +
@@ -138,150 +186,229 @@
       (s.exemplo ? '<em class="mid-ex"></em>' : '') + '</span>';
   }
 
-  /* ----------------------------------------------------------------- o gantt
-     COM A REDE, a raia e' a conta e os dias correm para a direita. COM UMA CONTA, a
-     raia e' a semana: uma tira sozinha no meio do branco foi o defeito da rodada
-     passada, e semana contra semana e' o que responde "o ritmo caiu?". */
+  /* ================================================================= O GANTT
+
+     O DE ANTES NAO ERA UM GANTT: era o mes deitado, com o dia virando coluna e o
+     conteudo do dia dentro dela. Gantt precisa de coisa COM DURACAO, e a unica coisa
+     com duracao aqui e' a LEVA: ela comeca, termina e tem progresso.
+
+     O MOLDE E' O DO CLICKUP, conferido na documentacao deles em 11/09:
+     dois paineis (lista a esquerda, linha do tempo a direita); regua de dois niveis,
+     mes em cima e dia embaixo; escala trocavel; barra por item, do inicio ao fim;
+     barra de resumo no grupo, indo do menor inicio ao maior fim, com o percentual de
+     concluido; fim de semana sombreado; e o risco vertical de hoje.
+
+     O QUE NAO COPIEI: dependencia entre barras. Uma publicacao nao espera a outra, e
+     seta entre elas seria enfeite mentindo sobre o sistema.
+     ====================================================================== */
+  /* A JANELA E' FIXA: trinta dias para tras, vinte e um para frente. Sem ela, as oito
+     publicacoes reais de JUNHO esticavam o quadro ate' junho e abriam dois meses de
+     branco no meio. Gantt trabalha em janela, e quem comeca antes dela aparece com a
+     ponta cortada. */
+  var G_DE = -30, G_ATE = 21;
+
   function gantt(u) {
-    return u === C.REDE ? porContas(u) : porSemanas(u);
-  }
+    var dias = C.faixa(G_DE, G_ATE);
+    var limite = { de: dias[0], ate: dias[dias.length - 1] };
+    var grupos = C.gruposDeLeva(u).map(function (g) {
+      var dentro = g.levas.filter(function (l) {
+        return l.fim >= limite.de && l.inicio <= limite.ate;
+      });
+      if (!dentro.length) return null;
+      var total = 0, feitos = 0;
+      dentro.forEach(function (l) { total += l.total; feitos += l.feitos; });
+      return {
+        conta: g.conta, levas: dentro, total: total, feitos: feitos,
+        inicio: dentro.reduce(function (a, l) { return l.inicio < a ? l.inicio : a; },
+                              dentro[0].inicio),
+        fim: dentro.reduce(function (a, l) { return l.fim > a ? l.fim : a; },
+                           dentro[0].fim)
+      };
+    }).filter(Boolean);
 
-  function porSemanas(u) {
-    var mapa = C.porDia(u);
-    var sems = C.semanas(DE, ATE);
-    var pico = 1;
-    var totais = sems.map(function (dias) {
-      var t = 0;
-      dias.forEach(function (d) { t += (mapa[C.chaveDia(d)] || []).length; });
-      pico = Math.max(pico, t);
-      return t;
-    });
-
-    return '<div class="pa-s">' +
-      '<div class="pa-s-linha pa-s-regua"><div class="pa-s-quem"></div>' +
-        C.DIAS.map(function (x) {
-          return '<div class="pa-s-rot">' + x + '</div>';
-        }).join('') + '</div>' +
-      sems.map(function (dias, i) {
-        var agora = dias.some(function (d) { return C.mesmoDia(d, C.HOJE); });
-        return '<div class="pa-s-linha' + (agora ? ' agora' : '') + '">' +
-          '<div class="pa-s-quem">' +
-            '<b>' + dias[0].getDate() + ' ' + C.MES3[dias[0].getMonth()] + ' a ' +
-              dias[6].getDate() + ' ' + C.MES3[dias[6].getMonth()] + '</b>' +
-            (agora ? '<em>Esta Semana</em>' : '') +
-            '<span class="pa-s-vol"><i style="width:' +
-              Math.round(totais[i] / pico * 100) + '%"></i></span>' +
-            '<span class="pa-s-t">' + totais[i] +
-              (totais[i] === 1 ? ' saída' : ' saídas') + '</span>' +
-          '</div>' +
-          dias.map(function (d) {
-            return celulaSemana(d, mapa[C.chaveDia(d)] || []);
-          }).join('') + '</div>';
-      }).join('') + '</div>';
-  }
-
-  function celulaSemana(d, lista) {
-    var vazio = d > C.HOJE && !lista.length;
-    lista = lista.slice().sort(function (a, b) {
-      return new Date(a.quando) - new Date(b.quando);
-    });
-    return '<button type="button" class="pa-s-cel' + (C.fds(d) ? ' fds' : '') +
-      (C.mesmoDia(d, C.HOJE) ? ' hoje' : '') + '" data-dia="' + C.chaveDia(d) + '">' +
-      '<span class="pa-num">' + d.getDate() + '</span>' +
-      (lista.length
-        ? '<span class="pa-lista">' + lista.slice(0, 3).map(item).join('') +
-          (lista.length > 3
-            ? '<span class="pa-mais">Mais ' + (lista.length - 3) + '</span>' : '') +
-          '</span>'
-        : (vazio ? '<span class="pa-slot">Sem Nada</span>' : '')) +
-    '</button>';
-  }
-
-  function porContas(u) {
-    var contas = C.CONTAS;
-    var dias = C.faixa(DE, ATE);
-    var mapa = C.porDia(u);
-    var pico = 1;
-    dias.forEach(function (d) {
-      pico = Math.max(pico, (mapa[C.chaveDia(d)] || []).length);
-    });
-
-    return '<div class="pa-g"><div class="pa-g-rolo"><div class="pa-g-quadro">' +
-      regua(dias) + volume(dias, mapa, pico) +
-      contas.map(function (c) { return raia(c, dias); }).join('') +
-    '</div></div></div>';
-  }
-
-  function regua(dias) {
-    return '<div class="pa-g-linha pa-g-regua"><div class="pa-g-quem"></div>' +
-      dias.map(function (d) {
-        var virada = d.getDate() === 1;
-        return '<div class="pa-g-dia' + (C.mesmoDia(d, C.HOJE) ? ' hoje' : '') +
-          (C.fds(d) ? ' fds' : '') + '">' +
-          '<b>' + d.getDate() + '</b><span>' + C.DIAS[d.getDay()] + '</span>' +
-          (virada ? '<em>' + C.MES3[d.getMonth()] + '</em>' : '') + '</div>';
-      }).join('') + '</div>';
-  }
-
-  /* A FAIXA DE VOLUME e' o que faz o gantt de UMA conta valer a pena: com uma raia
-     so', a tira ficava perdida no branco. Aqui a altura da barra ja' conta o ritmo
-     antes de ler qualquer nome. */
-  function volume(dias, mapa, pico) {
-    return '<div class="pa-g-linha pa-g-vol">' +
-      '<div class="pa-g-quem"><span class="pa-g-rot">Por Dia</span></div>' +
-      dias.map(function (d) {
-        var lista = mapa[C.chaveDia(d)] || [];
-        var vem = lista.some(function (s) { return s.estado === 'programado'; });
-        var alt = lista.length ? Math.max(Math.round(lista.length / pico * 100), 14) : 0;
-        return '<div class="pa-g-cvol' + (C.fds(d) ? ' fds' : '') +
-          (C.mesmoDia(d, C.HOJE) ? ' hoje' : '') + '">' +
-          (lista.length
-            ? '<i class="pa-bar' + (vem ? ' vem' : '') + '" style="height:' + alt +
-              '%"></i><em>' + lista.length + '</em>'
-            : '<i class="pa-bar zero"></i>') + '</div>';
-      }).join('') + '</div>';
-  }
-
-  function raia(c, dias) {
-    var mapa = C.porDia(c.u);
-    return '<div class="pa-g-linha pa-g-raia">' +
-      '<div class="pa-g-quem">' + C.face(c, 'cl-av') +
-        '<span><b>@' + C.seguro(c.u) + '</b><span>' +
-        (c.mercado ? C.seguro(C.maiuscula(c.mercado)) : 'Sem Mercado') +
-        '</span></span></div>' +
-      dias.map(function (d) {
-        var lista = (mapa[C.chaveDia(d)] || []).slice().sort(function (a, b) {
-          return new Date(a.quando) - new Date(b.quando);
-        });
-        var vazio = d > C.HOJE && !lista.length;
-        return '<button type="button" class="pa-g-cel' + (C.fds(d) ? ' fds' : '') +
-          (C.mesmoDia(d, C.HOJE) ? ' hoje' : '') +
-          '" data-dia="' + C.chaveDia(d) + '">' +
-          (lista.length ? lista.slice(0, 4).map(item).join('') +
-            (lista.length > 4
-              ? '<span class="pa-mais">Mais ' + (lista.length - 4) + '</span>' : '')
-            : (vazio ? '<span class="pa-slot">Sem Nada</span>' : '')) +
-        '</button>';
-      }).join('') + '</div>';
-  }
-
-  function nascerNoHoje(palco) {
-    /* O ALVO E' A COLUNA DA REGUA, e nao o risco: risco mora dentro da coluna, que e'
-       `position:relative`, e o `offsetLeft` dele volta relativo a ela. */
-    var rolo = palco.querySelector('.pa-g-rolo');
-    var col = palco.querySelector('.pa-g-dia.hoje');
-    if (rolo && col) {
-      rolo.scrollLeft = Math.max(col.offsetLeft - rolo.clientWidth * 0.34, 0);
+    if (!grupos.length) {
+      return '<div class="pa-gt-sem">Nenhuma leva neste período.</div>';
     }
+    var largura = escala === 'semana' ? 40 : 15;   /* pixels por dia */
+    var total = dias.length * largura;
+
+    return '<div class="pa-gt">' +
+      '<div class="pa-gt-lista">' +
+        '<div class="pa-gt-cab"><span>Conta e leva</span>' +
+          '<span class="pa-gt-c">Saídas</span></div>' +
+        grupos.map(linhasDaLista).join('') +
+      '</div>' +
+      '<div class="pa-gt-rolo"><div class="pa-gt-quadro" style="width:' + total +
+        'px">' +
+        regua(dias, largura) +
+        '<div class="pa-gt-campo">' +
+          fundo(dias, largura) +
+          grupos.map(function (g) { return barras(g, dias, largura); }).join('') +
+          risco(dias, largura) +
+        '</div>' +
+      '</div></div>' +
+    '</div>';
   }
 
+  function indice(dias, d) {
+    var um = 86400000;
+    var base = new Date(dias[0].getFullYear(), dias[0].getMonth(), dias[0].getDate());
+    var alvo = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return Math.round((alvo - base) / um);
+  }
+  function preso(dias, d) {
+    return Math.max(0, Math.min(dias.length - 1, indice(dias, d)));
+  }
+
+  /* ----------------------------------------------------- o painel da esquerda */
+  function linhasDaLista(g) {
+    return '<div class="pa-gt-grupo" data-grupo="' + C.seguro(g.conta.u) + '">' +
+      '<div class="pa-gt-li conta">' +
+        '<svg class="pa-gt-seta" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>' +
+        C.face(g.conta, 'cl-av') +
+        '<span class="pa-gt-nome"><b>@' + C.seguro(g.conta.u) + '</b><span>' +
+          g.levas.length + (g.levas.length === 1 ? ' leva' : ' levas') + '</span>' +
+        '</span>' +
+        '<span class="pa-gt-c"><b>' + g.feitos + '</b>/' + g.total + '</span>' +
+      '</div>' +
+      g.levas.map(function (l) {
+        return '<div class="pa-gt-li leva" data-leva="' + C.seguro(l.chave) + '">' +
+          '<span class="pa-gt-losango" style="--cor:' + C.corDe(l.conta) + '"></span>' +
+          '<span class="pa-gt-nome"><b>' + C.seguro(C.maiuscula(l.nome)) +
+            (l.exemplo ? ' <em class="mid-ex"></em>' : '') + '</b><span>' +
+            C.dia(C.chaveDia(l.inicio)) + ' a ' + C.dia(C.chaveDia(l.fim)) +
+          '</span></span>' +
+          '<span class="pa-gt-c"><b>' + l.feitos + '</b>/' + l.total + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  /* ------------------------------------------------------------- a linha do tempo */
+  function regua(dias, largura) {
+    var meses = [], atual = null;
+    dias.forEach(function (d) {
+      var chave = d.getFullYear() + '-' + d.getMonth();
+      if (chave !== atual) {
+        atual = chave;
+        meses.push({ rot: C.MES[d.getMonth()] + ' ' + d.getFullYear(), n: 0 });
+      }
+      meses[meses.length - 1].n++;
+    });
+
+    return '<div class="pa-gt-regua">' +
+      '<div class="pa-gt-meses">' + meses.map(function (m) {
+        return '<div class="pa-gt-mes" style="width:' + (m.n * largura) + 'px">' +
+          '<span>' + m.rot + '</span></div>';
+      }).join('') + '</div>' +
+      '<div class="pa-gt-dias">' + dias.map(function (d) {
+        var hoje = C.mesmoDia(d, C.HOJE);
+        if (escala === 'mes') {
+          /* NA ESCALA DE MES so' a segunda-feira leva rotulo: vinte e oito numeros em
+             treze pixels vira borrao. */
+          return '<div class="pa-gt-d' + (C.fds(d) ? ' fds' : '') +
+            (hoje ? ' hoje' : '') + '" style="width:' + largura + 'px">' +
+            (d.getDay() === 1 ? '<b>' + d.getDate() + '</b>' : '') + '</div>';
+        }
+        return '<div class="pa-gt-d' + (C.fds(d) ? ' fds' : '') +
+          (hoje ? ' hoje' : '') + '" style="width:' + largura + 'px">' +
+          '<b>' + d.getDate() + '</b><span>' + C.DIAS[d.getDay()][0] + '</span></div>';
+      }).join('') + '</div>' +
+    '</div>';
+  }
+
+  function fundo(dias, largura) {
+    return '<div class="pa-gt-fundo">' + dias.map(function (d) {
+      return '<div class="pa-gt-col' + (C.fds(d) ? ' fds' : '') +
+        (C.mesmoDia(d, C.HOJE) ? ' hoje' : '') + '" style="width:' + largura +
+        'px" data-dia="' + C.chaveDia(d) + '"></div>';
+    }).join('') + '</div>';
+  }
+
+  function risco(dias, largura) {
+    var x = (indice(dias, C.HOJE) + 0.5) * largura;
+    return '<div class="pa-gt-risco" style="left:' + x + 'px">' +
+      '<span>Hoje</span></div>';
+  }
+
+  function barras(g, dias, largura) {
+    return '<div class="pa-gt-faixas">' +
+      /* A BARRA DE RESUMO DA CONTA: do menor inicio ao maior fim de tudo que esta'
+         dentro, com o percentual concluido. E' o rollup do ClickUp. */
+      '<div class="pa-gt-faixa conta">' +
+        fita(g.inicio, g.fim, dias, largura,
+          '<div class="pa-gt-resumo" style="--cor:' + C.corDe(g.conta.u) + '">' +
+            '<i style="width:' + Math.round(g.feitos / g.total * 100) + '%"></i>' +
+          '</div>' +
+          '<span class="pa-gt-rot">' +
+            Math.round(g.feitos / g.total * 100) + '%</span>') +
+      '</div>' +
+      g.levas.map(function (l) {
+        return '<div class="pa-gt-faixa">' +
+          fita(l.inicio, l.fim, dias, largura, corpoDaLeva(l, dias, largura)) +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  /* A PONTA CORTADA. Leva que comeca antes da janela ou termina depois dela nao pode
+     fingir que cabe: a fita encosta na borda e ganha a marca de que continua. */
+  function fita(de, ate, dias, largura, dentro) {
+    var i = preso(dias, de), f = preso(dias, ate);
+    var antes = indice(dias, de) < 0;
+    var depois = indice(dias, ate) > dias.length - 1;
+    return '<div class="pa-gt-fita' + (antes ? ' corta-esq' : '') +
+      (depois ? ' corta-dir' : '') + '" style="left:' + (i * largura) +
+      'px;width:' + ((f - i + 1) * largura) + 'px">' + dentro + '</div>';
+  }
+
+  /* A BARRA DA LEVA TEM BURACO. Dia sem saida dentro do periodo da leva vira corte na
+     barra: e' assim que uma agenda furada aparece num gantt, e e' a pergunta que esta
+     tela existe para responder. */
+  function corpoDaLeva(l, dias, largura) {
+    var i0 = preso(dias, l.inicio), i1 = preso(dias, l.fim);
+    /* O BLOCO QUEBRA EM DOIS LUGARES: no dia sem saida, que e' o buraco de agenda, e
+       na fronteira de hoje, para o que ainda nao foi ao ar nao aparecer como feito. */
+    var blocos = [], aberto = null;
+    for (var i = i0; i <= i1; i++) {
+      var d = dias[i];
+      var tem = !!l.dias[C.chaveDia(d)];
+      var vem = d > C.HOJE;
+      if (tem && aberto && aberto.vem === vem) {
+        aberto.ate = i;
+      } else {
+        if (aberto) { blocos.push(aberto); aberto = null; }
+        if (tem) aberto = { de: i, ate: i, vem: vem };
+      }
+    }
+    if (aberto) blocos.push(aberto);
+    var pedacos = blocos.map(function (b) {
+      return '<span class="pa-gt-bloco' + (b.vem ? ' vem' : '') +
+        '" style="left:' + ((b.de - i0) * largura) + 'px;width:' +
+        ((b.ate - b.de + 1) * largura) + 'px"></span>';
+    }).join('');
+    return '<div class="pa-gt-barra" style="--cor:' + C.corDe(l.conta) + '">' +
+      pedacos + '</div>' +
+      '<span class="pa-gt-rot">' + l.feitos + ' de ' + l.total + '</span>';
+  }
+
+  /* ------------------------------------------------------------------ eventos */
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-ir]');
-    if (!b) return;
-    mes = b.dataset.ir === 'hoje'
-      ? new Date(C.HOJE.getFullYear(), C.HOJE.getMonth(), 1)
-      : new Date(mes.getFullYear(), mes.getMonth() + Number(b.dataset.ir), 1);
-    pintar();
+    if (b) {
+      if (b.dataset.ir === 'hoje') {
+        /* O BOTAO HOJE TEM DE DEVOLVER RESPOSTA. Antes, quem ja' estava em setembro
+           clicava e nada mudava na tela. Agora o dia pisca tres vezes. */
+        mes = new Date(C.HOJE.getFullYear(), C.HOJE.getMonth(), 1);
+        piscar = C.chaveDia(C.HOJE);
+      } else {
+        mes = new Date(mes.getFullYear(), mes.getMonth() + Number(b.dataset.ir), 1);
+      }
+      pintar();
+      return;
+    }
+    var s = e.target.closest('[data-escala]');
+    if (s && s.dataset.escala !== escala) { escala = s.dataset.escala; pintar(); }
   });
 
   document.addEventListener('DOMContentLoaded', function () {

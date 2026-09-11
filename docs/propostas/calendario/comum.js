@@ -101,21 +101,104 @@
     });
     return mapa;
   }
-  /* O RESUMO QUE O CALENDARIO RESPONDE: quanto ja' saiu, quanto vem, e quantos dias
-     dos proximos catorze estao vazios. O buraco e' o que a tela existe para achar. */
+  /* ---------------------------------------------------------- os indicadores
+     "Já Saíram" e "Marcados" nao sao nome de indicador, sao legenda de botao, e ele
+     reprovou os dois em 11/09. O vocabulario abaixo e' o que as ferramentas de
+     agendamento usam de verdade: PUBLICADOS e AGENDADOS sao o par de estado do
+     Etus e da mLabs; CADENCIA e' o termo de mercado para ritmo de publicacao;
+     COBERTURA e' quantos dos proximos catorze dias tem publicacao, que e' a pergunta
+     que "dias vazios" tentava fazer e fazia mal, porque numero solto nao diz do que.
+     Todo indicador aqui carrega valor, unidade e periodo. */
+  var JANELA_FRENTE = 14, JANELA_TRAS = 14;
+
   function resumo(u) {
     var lista = saidasDe(u);
     var saiu = lista.filter(function (s) { return s.estado === 'publicado'; }).length;
     var vem = lista.filter(function (s) { return s.estado === 'programado'; }).length;
-    var mapa = porDia(u), vazios = 0, proximo = null;
-    for (var i = 0; i < 14; i++) {
-      var d = new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() + i);
+    var mapa = porDia(u), vazios = 0, proximo = null, cobertos = 0;
+    var i, d;
+    for (i = 0; i < JANELA_FRENTE; i++) {
+      d = new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() + i);
       var doDia = (mapa[chaveDia(d)] || []).filter(function (s) {
         return s.estado === 'programado';
       });
-      if (!doDia.length) { vazios++; if (!proximo) proximo = d; }
+      if (doDia.length) cobertos++;
+      else { vazios++; if (!proximo) proximo = d; }
     }
-    return { saiu: saiu, vem: vem, vazios: vazios, primeiroVazio: proximo };
+    /* AS QUATRO MEDIDAS OLHAM A MESMA JANELA de catorze dias, para tras e para frente.
+       Misturar "total de sempre" com "proximos catorze" poe numeros que nao se
+       comparam lado a lado, e foi metade do que tornava a faixa antiga sem sentido. */
+    var publicados = 0, agendados = 0;
+    for (i = 1; i <= JANELA_TRAS; i++) {
+      d = new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() - i);
+      publicados += (mapa[chaveDia(d)] || []).length;
+    }
+    for (i = 0; i < JANELA_FRENTE; i++) {
+      d = new Date(HOJE.getFullYear(), HOJE.getMonth(), HOJE.getDate() + i);
+      agendados += (mapa[chaveDia(d)] || []).filter(function (s) {
+        return s.estado === 'programado';
+      }).length;
+    }
+    var cadencia = publicados / JANELA_TRAS;
+    return {
+      saiu: saiu, vem: vem, vazios: vazios, primeiroVazio: proximo,
+      publicados: publicados, agendados: agendados,
+      cadencia: cadencia, cobertos: cobertos, janela: JANELA_FRENTE,
+      /* FOLEGO: quantos dias a fila ainda cobre no ritmo atual. E' o mesmo nome que o
+         Painel ja' usa, e por isso nao se traduz duas vezes na mesma casa. */
+      folego: cadencia > 0 ? Math.round(vem / cadencia) : null,
+      totalPublicados: saiu, totalAgendados: vem
+    };
+  }
+
+  /* ------------------------------------------------------------------ as levas
+     A LEVA E' A UNICA COISA COM DURACAO nesta tela: comeca, termina e tem progresso.
+     Publicacao e' ponto no tempo, e ponto no tempo nao vira barra de gantt. */
+  function levas(u) {
+    var mapa = {}, ordem = [];
+    saidasDe(u).forEach(function (s) {
+      var chave = s.conta + '|' + (s.leva || 'Sem leva');
+      if (!mapa[chave]) {
+        mapa[chave] = {
+          chave: chave, conta: s.conta, nome: s.leva || 'Sem leva',
+          leva_id: s.leva_id || '', exemplo: !!s.leva_exemplo,
+          itens: [], dias: {}
+        };
+        ordem.push(chave);
+      }
+      mapa[chave].itens.push(s);
+      mapa[chave].dias[chaveDia(data(s.quando))] = true;
+    });
+    return ordem.map(function (k) {
+      var l = mapa[k];
+      l.itens.sort(function (a, b) { return new Date(a.quando) - new Date(b.quando); });
+      l.inicio = data(l.itens[0].quando);
+      l.fim = data(l.itens[l.itens.length - 1].quando);
+      l.total = l.itens.length;
+      l.feitos = l.itens.filter(function (s) {
+        return s.estado === 'publicado';
+      }).length;
+      return l;
+    }).sort(function (a, b) { return a.inicio - b.inicio; });
+  }
+
+  /* Os grupos do gantt: uma conta, as levas dela, e a barra de resumo que vai do
+     primeiro ao ultimo dia de tudo que esta' dentro. E' o rollup do ClickUp. */
+  function gruposDeLeva(u) {
+    var todas = levas(u);
+    var contas = u === REDE ? CONTAS.map(function (c) { return c.u; }) : [u];
+    return contas.map(function (uu) {
+      var minhas = todas.filter(function (l) { return l.conta === uu; });
+      if (!minhas.length) return null;
+      var total = 0, feitos = 0;
+      minhas.forEach(function (l) { total += l.total; feitos += l.feitos; });
+      return {
+        conta: contaDe(uu), levas: minhas, total: total, feitos: feitos,
+        inicio: minhas[0].inicio,
+        fim: minhas.reduce(function (a, l) { return l.fim > a ? l.fim : a; },
+                           minhas[0].fim)
+      };
+    }).filter(Boolean);
   }
 
   /* ------------------------------------------------- as duas visoes da mesma aba
@@ -325,12 +408,20 @@
     var d = data(chave);
     diaAberto = chave;
 
+    var jaFoi = lista.filter(function (s) { return s.estado === 'publicado'; }).length;
+    var naFila = lista.length - jaFoi;
+
     peek.innerHTML =
       '<div class="cl-peek-cab">' +
         '<div class="cl-peek-quem"><b>' + d.getDate() + ' De ' + MES[d.getMonth()] +
-        '</b><span>' + DIAS[d.getDay()] + ' · ' +
-        (lista.length ? lista.length + (lista.length === 1 ? ' saída' : ' saídas')
-                      : 'Nada marcado') + '</span></div>' +
+        '</b><span>' + DIAS[d.getDay()] +
+        (mesmoDia(d, HOJE) ? ' · Hoje' : '') + '</span>' +
+        (lista.length ? '<span class="cl-peek-pins">' +
+          (jaFoi ? '<span class="mid-pin foi"><i></i>' + jaFoi +
+            ' Publicados</span>' : '') +
+          (naFila ? '<span class="mid-pin marcado"><i></i>' + naFila +
+            ' Agendados</span>' : '') + '</span>' : '') +
+        '</div>' +
         '<div class="cl-peek-setas">' +
           '<button type="button" data-dia-andar="-1" aria-label="Dia anterior">' +
             '<svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>' +
@@ -357,23 +448,69 @@
     });
   }
 
+  /* A LOGO DO DRIVE, a mesma peca da sub-aba Midias implantada em 10/09. Ele pediu em
+     11/09 que o painel do dia tambem levasse ao arquivo, e o destino e' A PASTA
+     DAQUELE CORTE: no Drive dele a leva nao guarda video, guarda 180 pastas com um
+     video dentro de cada. */
+  var LOGO_DRIVE =
+    '<svg class="mid-drive-logo" viewBox="0 0 87.3 78" aria-hidden="true">' +
+    '<path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8' +
+      'H0c0 1.55.4 3.1 1.2 4.5z"/>' +
+    '<path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44' +
+      'A9.06 9.06 0 0 0 0 53h27.5z"/>' +
+    '<path fill="#ea4335" d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5' +
+      'c.8-1.4 1.2-2.95 1.2-4.5H59.798l5.852 11.5z"/>' +
+    '<path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4' +
+      'c-1.6 0-3.15.45-4.5 1.2z"/>' +
+    '<path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8' +
+      'c1.6 0 3.15-.45 4.5-1.2z"/>' +
+    '<path fill="#ffba00" d="M73.4 26.5 60.7 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25' +
+      'l16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z"/></svg>';
+
+  function botaoDrive(s) {
+    if (!s.pasta_id) return '';
+    return '<a class="mid-drive cl-li-drive" target="_blank" rel="noopener" ' +
+      'href="https://drive.google.com/drive/folders/' + seguro(s.pasta_id) + '" ' +
+      'title="Abrir no Drive a pasta deste vídeo" ' +
+      'aria-label="Abrir no Drive a pasta deste vídeo">' + LOGO_DRIVE + '</a>';
+  }
+
+  /* A LINHA DO PAINEL DO DIA. A primeira versao punha a hora numa coluna de 44 pixels
+     colada na capa, o nome de arquivo inteiro no meio e o numero de visualizacoes na
+     ponta: tres pesos iguais disputando a mesma linha, sem nada mandando. Agora a HORA
+     e' a ancora, com o fio de agenda ligando uma saida na outra; o nome curto manda no
+     meio; e a direita ficam so' duas coisas, o estado e o caminho para o arquivo. */
   function linhaDoDia(s) {
-    var c = contaDe(s.conta);
-    return '<div class="cl-li' + (s.estado === 'programado' ? ' vem' : '') + '">' +
-      '<span class="cl-li-hora">' + hora(s.quando) + '</span>' +
-      (s.capa != null
-        ? '<span class="cl-li-capa"><img src="' + capa(s.capa) + '" alt=""></span>'
-        : '<span class="cl-li-capa sem"></span>') +
-      '<span class="cl-li-txt"><b>' + seguro(pedaco(s.titulo, 42)) + '</b>' +
-        '<span><i style="background:' + corDe(s.conta) + '"></i>@' +
-        seguro(s.conta) + (s.nome ? ' · ' + seguro(pedaco(s.nome, 22)) : '') +
-        (s.exemplo ? ' <em class="mid-ex" title="Exemplo"></em>' : '') +
-        '</span></span>' +
-      '<span class="cl-li-dir">' + (s.estado === 'publicado'
-        ? (s.vis != null ? '<b>' + curto(s.vis) + '</b><span>Visualizações</span>'
-                         : '<span class="mid-pin foi"><i></i>Foi Ao Ar</span>')
-        : '<span class="mid-pin marcado"><i></i>Marcado</span>') + '</span>' +
+    var vem = s.estado === 'programado';
+    return '<div class="cl-li' + (vem ? ' vem' : '') + '">' +
+      '<span class="cl-li-quando"><b>' + hora(s.quando).replace('h', ':') + '</b>' +
+        '<i class="cl-li-fio"></i></span>' +
+      '<span class="cl-li-corpo">' +
+        (s.capa != null
+          ? '<span class="cl-li-capa"><img src="' + capa(s.capa) + '" alt=""></span>'
+          : '<span class="cl-li-capa sem">' + icoFilme() + '</span>') +
+        '<span class="cl-li-txt"><b>' + seguro(rotulo(s)) + '</b>' +
+          '<span class="cl-li-quem"><i style="background:' + corDe(s.conta) +
+          '"></i>@' + seguro(s.conta) + '</span>' +
+          '<span class="cl-li-leva">' +
+          seguro(pedaco(maiuscula(s.leva || '—'), 26)) +
+          (s.exemplo ? ' <em class="mid-ex" title="Exemplo"></em>' : '') + '</span>' +
+        '</span>' +
+        '<span class="cl-li-dir">' +
+          (vem ? '<span class="mid-pin marcado"><i></i>Agendado</span>'
+               : '<span class="mid-pin foi"><i></i>Publicado</span>') +
+          (s.vis != null ? '<span class="cl-li-vis"><b>' + curto(s.vis) +
+            '</b> visualizações</span>' : '') +
+        '</span>' +
+        botaoDrive(s) +
+      '</span>' +
     '</div>';
+  }
+
+  function icoFilme() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.7" stroke-linecap="round"><rect x="3" y="4" width="18" ' +
+      'height="16" rx="2.5"/><path d="M7 4v16M17 4v16M3 12h18"/></svg>';
   }
 
   function fecharDia() {
@@ -460,6 +597,7 @@
     data: data, dia: dia, hora: hora, chaveDia: chaveDia, mesmoDia: mesmoDia,
     capa: capa, corDe: corDe, contaDe: contaDe, face: face,
     saidasDe: saidasDe, porDia: porDia, resumo: resumo,
+    levas: levas, gruposDeLeva: gruposDeLeva,
     abas: abas, visao: function () { return visao; },
     faixa: faixa, fds: fds, fracaoHora: fracaoHora, semanas: semanas,
     seletor: seletor, escolhida: function () { return escolhida; },

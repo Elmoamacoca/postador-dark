@@ -3,21 +3,29 @@
    propostas usam. Cor, sombra e raio saem das variaveis do painel; a pilula de
    estado e a barra de rolagem vem do `06-midias.css`, que ja' esta' na casa. */
 
-/* ---------------------------------------------------------- o seletor de conta */
+/* ---------------------------------------------------------- o seletor de conta
+   A primeira versao era uma caixa de 52 por 264 com avatar de 34 com borda, arroba e
+   mercado em duas linhas: um cartao no lugar de um controle, e ele reprovou em 11/09.
+   Agora e' uma pilula da altura dos outros controles da barra, com o arroba mandando
+   e o mercado na lista, onde ha' espaco para ele. */
 .cl-sel{position:relative;flex:none}
-.cl-sel-bt{display:flex;align-items:center;gap:11px;height:52px;padding:0 14px 0 10px;
-  border-radius:12px;border:1px solid var(--rule-solid);background:var(--branco,var(--paper));
-  cursor:pointer;color:inherit;min-width:264px;text-align:left}
-.cl-sel-bt:hover{border-color:var(--soft)}
-.cl-av{width:34px;height:34px;flex:none;border-radius:50%;object-fit:cover;
-  display:grid;place-items:center;color:#fff;font-size:11.5px;font-weight:800;
-  border:1px solid var(--rule-solid)}
-.cl-av.cl-rede{background:var(--paper-2);color:var(--soft)}
-.cl-av.cl-rede svg{width:17px;height:17px}
-.cl-sel-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-.cl-sel-txt b{font-size:13.5px;font-weight:800;letter-spacing:-.2px}
-.cl-sel-txt span{font-size:10.5px;color:var(--soft)}
-.cl-sel-cv{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;
+.cl-sel-bt{display:flex;align-items:center;gap:9px;height:38px;padding:0 11px 0 5px;
+  border-radius:999px;border:1px solid var(--rule-solid);background:var(--paper-2);
+  cursor:pointer;color:inherit;max-width:260px;text-align:left}
+.cl-sel-bt:hover{background:var(--branco,var(--paper));border-color:var(--soft)}
+.cl-sel-bt[aria-expanded="true"]{background:var(--branco,var(--paper));
+  border-color:var(--ink)}
+.cl-av{width:28px;height:28px;flex:none;border-radius:50%;object-fit:cover;
+  display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800}
+.cl-av.cl-rede{background:var(--ink);color:var(--paper)}
+.cl-av.cl-rede svg{width:15px;height:15px}
+.cl-sel-txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:7px}
+.cl-sel-txt b{font-size:12.5px;font-weight:800;letter-spacing:-.2px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+/* O MERCADO SAI DO BOTAO. Duas linhas dentro de um controle de barra e' o que fazia
+   ele parecer um cartao solto no meio da tela. */
+.cl-sel-txt span{display:none}
+.cl-sel-cv{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;
   stroke-width:2;stroke-linecap:round;color:var(--soft)}
 
 .cl-sel-cx{position:absolute;top:calc(100% + 7px);left:0;z-index:40;width:320px;
@@ -103,26 +111,50 @@
 .cl-peek-vazio p b{color:var(--ink);font-weight:800}
 .cl-peek-vazio .ct-bt{margin-top:8px}
 
-/* ------------------------------------------------------- a linha de uma saida */
-.cl-li{display:flex;align-items:center;gap:11px;padding:9px 18px;
-  border-bottom:1px solid var(--rule-solid)}
-.cl-li:last-child{border-bottom:0}
-.cl-li-hora{flex:none;width:44px;font-size:12px;font-weight:800;
-  font-variant-numeric:tabular-nums}
-.cl-li.vem .cl-li-hora{color:var(--accent)}
-.cl-li-capa{flex:none;width:34px;height:46px;border-radius:6px;overflow:hidden;
-  background:var(--paper-2);border:1px solid var(--rule-solid)}
+/* --------------------------------------------------- a linha de uma saida
+   A HORA E' A ANCORA e fica numa coluna propria, com o fio da agenda ligando uma
+   saida na seguinte. O resto vira um cartao: capa, nome curto, conta, leva, estado e
+   o caminho para o arquivo. */
+.cl-li{display:flex;align-items:stretch;gap:12px;padding:0 18px}
+.cl-li-quando{position:relative;flex:none;width:46px;padding:14px 0 14px;
+  display:flex;justify-content:flex-end}
+.cl-li-quando b{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;
+  letter-spacing:-.3px;line-height:1;height:14px}
+.cl-li.vem .cl-li-quando b{color:var(--accent)}
+/* O FIO DA AGENDA: sem ele as horas viram uma coluna de numeros soltos. */
+.cl-li-fio{position:absolute;left:calc(100% + 11px);top:0;bottom:0;width:2px;
+  border-radius:2px;background:color-mix(in srgb,var(--soft) 30%,transparent)}
+.cl-li:first-child .cl-li-fio{top:20px}
+.cl-li:last-child .cl-li-fio{bottom:calc(100% - 20px)}
+.cl-li-quando::after{content:'';position:absolute;left:calc(100% + 7px);top:17px;
+  width:9px;height:9px;border-radius:999px;background:var(--soft);
+  box-shadow:0 0 0 3px var(--branco,var(--paper))}
+.cl-li.vem .cl-li-quando::after{background:var(--accent)}
+
+.cl-li-corpo{flex:1;min-width:0;display:flex;align-items:center;gap:11px;
+  margin:6px 0;padding:9px 11px;border-radius:11px;
+  border:1px solid var(--rule-solid);background:var(--branco,var(--paper))}
+.cl-li.vem .cl-li-corpo{border-color:color-mix(in srgb,var(--accent) 35%,
+  var(--rule-solid));background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.cl-li-capa{flex:none;width:44px;height:58px;border-radius:8px;overflow:hidden;
+  background:var(--paper-2);display:grid;place-items:center;color:var(--soft)}
 .cl-li-capa img{width:100%;height:100%;object-fit:cover;display:block}
-.cl-li-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.cl-li-txt b{font-size:12px;font-weight:600;line-height:1.35;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap}
-.cl-li-txt > span{display:flex;align-items:center;gap:5px;font-size:10.5px;
-  color:var(--soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cl-li-txt > span i{width:6px;height:6px;border-radius:999px;flex:none}
-.cl-li-dir{flex:none;text-align:right;display:flex;flex-direction:column;gap:2px;
-  align-items:flex-end}
-.cl-li-dir b{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
-.cl-li-dir > span{font-size:9.5px;color:var(--soft)}
+.cl-li-capa svg{width:17px;height:17px}
+.cl-li-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.cl-li-txt b{font-size:12.5px;font-weight:800;letter-spacing:-.2px;line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-li-quem{display:flex;align-items:center;gap:5px;font-size:10.5px;
+  font-weight:700;color:var(--soft)}
+.cl-li-quem i{width:6px;height:6px;border-radius:999px;flex:none}
+.cl-li-leva{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--soft);
+  opacity:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-li-dir{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.cl-li-vis{font-size:9.5px;color:var(--soft)}
+.cl-li-vis b{font-size:11px;font-weight:800;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.cl-li-drive{flex:none}
+
+.cl-peek-pins{display:flex;gap:6px;margin-top:7px}
 
 /* O selo de exemplo, no mesmo desenho da sub-aba Midias. */
 .mid-ex{display:inline-block;width:6px;height:6px;border-radius:999px;

@@ -100,10 +100,29 @@ def agenda(reais):
         saidas.append({
             'titulo': s.get('titulo') or 'Publicação', 'conta': s.get('conta'),
             'quando': (s.get('quando') or '')[:19], 'estado': 'publicado',
-            'sc': s.get('sc'), 'capa': None, 'nome': '', 'exemplo': False})
+            'sc': s.get('sc'), 'capa': None, 'nome': '', 'exemplo': False,
+            'leva': 'Antes do painel', 'leva_id': '', 'pasta_id': '',
+            'leva_exemplo': False})
 
     midias = reais.get('midias') or []
     capas = reais.get('capas') or []
+    # A LEVA E' A BARRA DO GANTT: ela tem comeco, fim e progresso, e e' a unica coisa
+    # nesta tela com duracao. Publicacao solta e' ponto no tempo, e ponto no tempo nao
+    # vira barra. As 180 midias do painel sao TODAS da @borusaof e todas da leva 31;
+    # as outras duas contas nao tem pasta ligada, entao a leva delas e' exemplo
+    # declarado, como ja' e' todo o futuro desta maquete.
+    leva_real = (midias[0].get('leva') if midias else '') or 'Leva ligada'
+    leva_real_id = (midias[0].get('leva_id') if midias else '') or ''
+    LEVAS = {
+        'borusaof': [(leva_real, leva_real_id, False),
+                     ('leva 32 de leisdamentemilionaria', '', True)],
+        'macrofoco.br': [('leva 08 de macrofoco', '', True)],
+        'perdeunovar': [('leva 03 de perdeunovar', '', True)],
+    }
+    # A @borusaof vira de leva no meio do periodo: e' exatamente a troca que o gantt
+    # existe para mostrar, e a leva 31 acaba em algum momento.
+    VIRADA = 6
+
     n = [0]
     for conta in ('borusaof', 'macrofoco.br', 'perdeunovar'):
         rnd = random.Random('cal' + conta)
@@ -125,6 +144,8 @@ def agenda(reais):
                 hora = de + round((ate - de) * (i + 0.5) / max(quantas, 1))
                 minuto = rnd.randint(0, 59)
                 quando = dia.replace(hour=min(hora, 23), minute=minuto, second=0)
+                lista = LEVAS[conta]
+                leva = lista[1] if (len(lista) > 1 and passo >= VIRADA) else lista[0]
                 saidas.append({
                     'titulo': m.get('pasta') or 'Corte',
                     'nome': m.get('nome') or '',
@@ -134,6 +155,10 @@ def agenda(reais):
                     'sc': None,
                     'capa': (n[0] - 1) % max(len(capas), 1) if capas else None,
                     'vis': int(rnd.lognormvariate(5.4, 1.0)) + 25 if passo < 0 else None,
+                    'leva': leva[0], 'leva_id': leva[1], 'leva_exemplo': leva[2],
+                    # O ENDERECO DA PASTA DO VIDEO, e nao o da leva: ele pegou esse erro
+                    # na sub-aba Midias em 10/09, e cada corte tem a propria subpasta.
+                    'pasta_id': m.get('pasta_id') or '',
                     'exemplo': True})
     saidas.sort(key=lambda s: s['quando'])
     return saidas
