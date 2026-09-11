@@ -1,25 +1,20 @@
-/* ================================================== PROPOSTA A · A TORRE
-   O arranjo do Admin Dashboard da Preline lido no navegador em 11/09: faixa de
-   medidas em cima, o desenho grande com a leitura ao lado, e a tabela fechando a
-   tela. Aqui isso vira: o estado da rede, o ritmo, o que trava e a linha por conta.
+/* ================================================== PROPOSTA A · A SALA
+   Grade densa de cartoes, cada um com um desenho dentro. A leitura desce do que
+   aconteceu (faixa de quatro) para o ritmo, o acervo, o calendario e o ranking.
 
-   SO' GRADE. Toda peca desta tela ja' existe no painel. */
+   SO' GRADE. */
 
-.pn-a-med { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px }
-.pn-a-duas { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: 16px; align-items: stretch }
-.pn-a-duas > .rs-cd { display: flex; flex-direction: column }
-.pn-a-duas .rs-cd-b { flex: 1; display: flex; flex-direction: column }
+.pn-a-faixa { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px }
+.pn-a-2 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px }
+.pn-a-3 { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px }
+.pn-a-2 > .rs-cd, .pn-a-3 > .rs-cd { display: flex; flex-direction: column }
+.pn-a-2 .rs-cd-b, .pn-a-3 .rs-cd-b { flex: 1 }
 
-/* a tabela rola na horizontal quando a janela aperta, como no portal */
-.pn-a-tab { overflow-x: auto }
-.pn-a-tab td.nm { width: 232px; min-width: 232px }
-.pn-a-av { display: flex; align-items: center; gap: 10px }
-.pn-a-av img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
-  flex: none }
-.pn-a-sp { width: 92px; height: 30px; display: block }
+/* o cartao pequeno da faixa: rotulo, numero e a curva ocupando o pe' */
+.pn-a-mini .rs-cd-b { padding-top: 2px }
+.pn-a-mini .pn-tit { margin-bottom: 8px }
 
 @media (max-width: 1180px) {
-  .pn-a-med { grid-template-columns: repeat(2, minmax(0, 1fr)) }
-  .pn-a-duas { grid-template-columns: 1fr }
+  .pn-a-faixa { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .pn-a-2, .pn-a-3 { grid-template-columns: 1fr }
 }

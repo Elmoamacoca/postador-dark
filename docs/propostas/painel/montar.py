@@ -70,6 +70,16 @@ def capturar():
     pac = {'rede': ler('painel/rede'), 'pastas': ler('midia/ligadas')['pastas'],
            'saidas': ler('calendario/saidas')['saidas'], 'meta': ler('contas/meta'),
            'estado': ler('midia/estado')}
+    # O DESEMPENHO ENTRA NA HOME por decisao dele em 11/09/2026, depois de reprovar a
+    # primeira rodada por falta de grafico: so' com operacao (2 contas, fila zero) nao
+    # ha' o que desenhar. Daqui saem visualizacao, curtida, comentario e engajamento
+    # por publicacao, o formato e a hora de cada saida.
+    pac['contas'] = {}
+    for c in pac['rede']['contas']:
+        try:
+            pac['contas'][c['arroba']] = ler('conta?u=' + c['arroba'])
+        except Exception:
+            pac['contas'][c['arroba']] = {}
     # O RETRATO JA' VEM EMBUTIDO na resposta de `painel/rede`, como `data:image/jpeg`.
     # Tratar isso como endereco e tentar baixar zerava o campo em silencio, e as tres
     # propostas apareciam sem retrato nenhum. So' baixa o que for endereco de verdade.
@@ -107,6 +117,20 @@ def dados(reais):
         if not p.get('total'):
             alvo['vazias'] += 1
 
+    # as publicacoes com os numeros de desempenho, conta a conta
+    fichas = reais.get('contas') or {}
+    posts = []
+    for arroba, ficha in fichas.items():
+        for p in (ficha.get('posts') or []):
+            posts.append({
+                'conta': arroba, 'sc': p.get('sc') or '', 'fmt': p.get('fmt') or 'reel',
+                'quando': (p.get('quando') or '')[:19],
+                'views': p.get('views') or 0, 'cur': p.get('cur') or 0,
+                'com': p.get('com') or 0, 'eng': p.get('eng') or 0,
+                'legenda': p.get('legenda') or '',
+            })
+    posts.sort(key=lambda p: p['quando'])
+
     contas = []
     for c in rede['contas']:
         a = c['arroba']
@@ -125,6 +149,10 @@ def dados(reais):
             'serie': serie,
             'posts90': sum(v for _, v in serie),
             'saidas': [s for s in saidas if s.get('conta') == a],
+            'meus': [p for p in posts if p['conta'] == a],
+            'mediana': (fichas.get(a) or {}).get('mediana') or 0,
+            'percurso': (fichas.get(a) or {}).get('percurso') or {},
+            'formatos': (fichas.get(a) or {}).get('formatos') or {},
         })
 
     # o acervo que nao esta' ligado a conta nenhuma continua contando para a rede
@@ -136,8 +164,12 @@ def dados(reais):
                        fila=sum(c['fila'] for c in contas),
                        erros=sum(c['erros'] for c in contas),
                        posts90=sum(c['posts90'] for c in contas),
-                       vazias=sum(1 for p in pastas if not p.get('total'))),
-        'serie': rede['serie'], 'semana': rede['semana'],
+                       vazias=sum(1 for p in pastas if not p.get('total')),
+                       views=sum(p['views'] for p in posts),
+                       eng=sum(p['eng'] for p in posts),
+                       publicados=len(posts),
+                       acervo=sum(p.get('total') or 0 for p in pastas)),
+        'serie': rede['serie'], 'semana': rede['semana'], 'posts': posts,
         'pastas': [{'nome': p.get('nome') or '', 'conta': p.get('conta') or '',
                     'total': p.get('total') or 0,
                     'prateleira': p.get('prateleira') or 0,
@@ -248,7 +280,7 @@ def main():
         encoding='utf-8')
 
     molde = (AQUI / 'pagina.html').read_text(encoding='utf-8')
-    NOMES = {'a': 'A Torre', 'b': 'O Mosaico', 'c': 'A Régua'}
+    NOMES = {'a': 'A Sala', 'b': 'O Mural', 'c': 'O Mosaico'}
     for letra in ('a', 'b', 'c'):
         pagina = (molde.replace('{{LETRA}}', letra.upper())
                   .replace('{{NOME}}', NOMES[letra])
