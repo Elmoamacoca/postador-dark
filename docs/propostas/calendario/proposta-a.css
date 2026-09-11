@@ -297,3 +297,7 @@
   stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .rs-kpi .rs-delta-pe{font-size:12.5px}
 .rs-casa .rs-delta-v{font-variant-numeric:tabular-nums;white-space:nowrap}
+/* O vazio do gantt fala em duas alturas: o que aconteceu, e o que fazer com isso. */
+.pa-gt-sem b{display:block;font-size:14px;font-weight:800;color:var(--ink);
+  margin-bottom:6px}
+.pa-gt-sem span{display:block;max-width:420px;margin:0 auto;line-height:1.6}

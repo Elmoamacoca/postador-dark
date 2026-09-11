@@ -317,9 +317,23 @@
       };
     }).filter(Boolean);
 
+    /* O VAZIO TEM DE DIZER QUAL VAZIO E'. "Troque a escala" so' ajuda quando existe
+       algo fora da janela; com a agenda inteira vazia, mandar trocar a escala e'
+       mandar procurar o que nao existe. */
     if (!grupos.length) {
-      return '<div class="pa-gt-sem">Nada nesta janela. Troque a escala ali em cima.' +
-        '</div>';
+      var todas = C.saidasDe(u);
+      if (!todas.length) {
+        return '<div class="pa-gt-sem"><b>Nenhuma saída nesta conta.</b><span>' +
+          'Ligue uma pasta na ficha da conta para as levas aparecerem aqui.' +
+          '</span></div>';
+      }
+      var perto = todas.slice().sort(function (a, b) {
+        return Math.abs(C.data(a.quando) - C.HOJE) - Math.abs(C.data(b.quando) - C.HOJE);
+      })[0];
+      return '<div class="pa-gt-sem"><b>Nada nesta janela.</b><span>' +
+        'A saída mais próxima é ' + C.dia(perto.quando) + ' de ' +
+        C.data(perto.quando).getFullYear() + '. Ande no tempo arrastando o quadro, ' +
+        'ou abra o Mês.</span></div>';
     }
 
     return '<div class="pa-gt">' +
