@@ -1,0 +1,36 @@
+/* ================================================== PROPOSTA C · A RÉGUA
+   O arranjo dos Dashboards da Untitled UI e do dashboard-01 da shadcn: uma coluna
+   de contexto grudada na esquerda e o corpo lendo em ordem cronologica na direita.
+
+   A DIFERENCA DE FUNDO para as outras duas: aqui a rede nao e' somada. Cada conta
+   tem a ficha dela no trilho, e o corpo mostra a linha do tempo do que aconteceu.
+
+   SO' GRADE. */
+
+.pn-c { display: grid; grid-template-columns: 332px minmax(0, 1fr); gap: 16px;
+  align-items: start }
+.pn-c-trilho { display: flex; flex-direction: column; gap: 14px;
+  position: sticky; top: 16px }
+.pn-c-corpo { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+.pn-c-med { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
+
+/* a ficha da conta: retrato, estado e os tres numeros que decidem */
+.pn-c-topo { display: flex; align-items: center; gap: 11px }
+.pn-c-topo img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+  flex: none }
+.pn-c-topo .nm { min-width: 0; flex: 1 }
+.pn-c-topo .nm b { display: block; font-size: 14px; font-weight: 800;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.pn-c-tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
+  margin: 14px 0 12px }
+.pn-c-tres > div { min-width: 0 }
+.pn-c-tres .vl { font-size: 19px; font-weight: 800; letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums; line-height: 1.1 }
+.pn-c-sp { height: 30px; margin-bottom: 12px }
+.pn-c-pe { display: flex; align-items: center; justify-content: space-between; gap: 10px }
+
+@media (max-width: 1180px) {
+  .pn-c { grid-template-columns: 1fr }
+  .pn-c-trilho { position: static; display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}

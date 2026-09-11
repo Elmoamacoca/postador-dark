@@ -1,0 +1,77 @@
+/* ===== RECORTADO de social-tracker/telas/estilo.bb7d50b95d.css =====
+   O motor (`window.montarGrafico`) veio do tracker e escreve estas classes.
+   O painel tem o motor e nao tem a folha: por isso o grafico da home no ar
+   sai sem estilo. Aqui ela entra copiada, sem uma linha reescrita. */
+/* ======================================== o Chart, traduzido do shadcn
+   O Gabriel mandou o `chart.tsx` em 13/08 como modelo. Lá é React sobre Recharts; aqui é
+   HTML escrito por um programa, então ele entrou traduzido, como o Select e o botão.
+   O que cada classe do original virou:
+
+     ChartContainer        -> .grafico          (a caixa, a tipografia miúda)
+     ChartStyle            -> --cor-serie       (o mesmo truque do --color-<key>)
+     ChartLegend           -> .grafico-abas     (cada métrica é uma aba com o seu total)
+     CartesianGrid         -> .gg               (stroke-border/50)
+     XAxis / YAxis tick    -> .gt               (fill-muted-foreground)
+     Area + gradiente      -> .ga
+     Line                  -> .gl
+     tooltip-cursor        -> .gcursor
+     recharts-dot ativo    -> .gponto
+     ChartTooltipContent   -> .grafico-balao + .glabel + .glinha + .gdot/.gnome/.gval */
+/* O CARTÃO MODELO NÃO TEM CAIXA DE NÚMERO. As cinco métricas viraram as abas do gráfico:
+   o total de cada uma é o número da própria aba, e clicar nela desenha a série. Clicar em
+   duas desenha as duas juntas. O espaço que as caixas ocupavam foi para a mídia. */
+.sinal-series.modelo{display:block;min-width:0}
+.grafico{position:relative;--cor-serie:var(--accent);display:flex;flex-direction:column;
+         height:100%}
+/* O GRÁFICO MORA DENTRO DE UM CARTÃO, e não solto no meio do outro. Sem a borda ele fica
+   boiando: as abas encostam no nada à esquerda e a curva não tem onde terminar. */
+.pn-nunca .grafico{border:1px solid var(--rule-solid);border-radius:var(--r-lg);
+                             background:var(--paper);padding:6px 16px 12px}
+.grafico-abas{display:flex;gap:0;flex-wrap:wrap;margin-bottom:10px;
+              border-bottom:1px solid var(--rule-solid)}
+.gaba{appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+      padding:7px 15px 9px;margin-bottom:-1px;text-align:left;cursor:pointer;
+      font:inherit;color:var(--muted);transition:color .16s ease,border-color .16s ease}
+.gaba span{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;
+           text-transform:uppercase;letter-spacing:.03em}
+/* A bolinha da aba é da cor da curva dela: sem isso, com duas curvas no mesmo desenho,
+   não dá para saber qual linha é qual. É o marcador da legenda do original. */
+.gaba span::before{content:"";width:8px;height:8px;flex:0 0 8px;border-radius:2px;
+                   background:var(--cor-serie);opacity:.28;transition:opacity .16s ease}
+.gaba[aria-selected="true"] span::before{opacity:1}
+.gaba b{display:block;margin-top:3px;font-size:17px;font-weight:700;letter-spacing:-.5px;
+        line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.gaba[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--cor-serie)}
+.gaba:hover:not(:disabled):not([aria-selected="true"]){color:var(--ink)}
+/* Métrica sem dado continua na fileira, apagada: sumir com a aba esconderia que a
+   métrica existe e que este post simplesmente não tem esse número. */
+.gaba:disabled{cursor:default;opacity:.45}
+.gaba:disabled b{color:var(--soft)}
+.grafico-tela{flex:1;min-height:236px}
+.grafico-tela svg{display:block}
+.grafico-sem{margin:0;padding:70px 16px;text-align:center;font-size:12.5px;
+             color:var(--soft);border:1px dashed var(--rule-solid);border-radius:10px;
+             background:var(--paper)}
+.gg{stroke:color-mix(in srgb,var(--rule-solid) 50%,transparent);stroke-width:1}
+.gt{font:12px var(--fonte);fill:var(--muted)}
+.gl{fill:none;stroke:var(--cor-serie);stroke-width:2;stroke-linecap:round;
+    stroke-linejoin:round}
+/* A BARRA usa a mesma cor da série que a curva usaria: são duas vistas do mesmo
+   número, e não dois desenhos. */
+.gb{fill:var(--cor-serie)}
+.gcursor{stroke:var(--rule-solid);stroke-width:1}
+.gponto{fill:var(--branco);stroke:var(--cor-serie);stroke-width:2}
+/* O balão: `rounded-lg border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl` */
+.grafico-balao{position:absolute;pointer-events:none;z-index:5;min-width:9rem;
+               border:1px solid color-mix(in srgb,var(--rule-solid) 60%,transparent);
+               border-radius:var(--r-md);background:var(--branco);
+               padding:6px 10px;font-size:12px;
+               box-shadow:0 12px 28px rgba(0,0,0,.14),0 2px 6px rgba(0,0,0,.08)}
+.grafico-balao[hidden]{display:none}
+.glabel{font-weight:600;color:var(--ink);margin-bottom:4px}
+.glinha{display:flex;align-items:center;gap:7px}
+.gdot{width:10px;height:10px;flex:0 0 10px;border-radius:2px;background:var(--cor-serie)}
+.gnome{color:var(--muted)}
+.gval{margin-left:auto;font-weight:600;color:var(--ink);
+      font-variant-numeric:tabular-nums}
+

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light" data-menu="aberto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel · Proposta C · A Régua · Postador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="painel.css">
+<link rel="stylesheet" href="sala.css">
+<link rel="stylesheet" href="grafico.css">
+<link rel="stylesheet" href="comum.css">
+<style>
+/* ================================================== PROPOSTA C · A RÉGUA
+   O arranjo dos Dashboards da Untitled UI e do dashboard-01 da shadcn: uma coluna
+   de contexto grudada na esquerda e o corpo lendo em ordem cronologica na direita.
+
+   A DIFERENCA DE FUNDO para as outras duas: aqui a rede nao e' somada. Cada conta
+   tem a ficha dela no trilho, e o corpo mostra a linha do tempo do que aconteceu.
+
+   SO' GRADE. */
+
+.pn-c { display: grid; grid-template-columns: 332px minmax(0, 1fr); gap: 16px;
+  align-items: start }
+.pn-c-trilho { display: flex; flex-direction: column; gap: 14px;
+  position: sticky; top: 16px }
+.pn-c-corpo { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+.pn-c-med { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
+
+/* a ficha da conta: retrato, estado e os tres numeros que decidem */
+.pn-c-topo { display: flex; align-items: center; gap: 11px }
+.pn-c-topo img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+  flex: none }
+.pn-c-topo .nm { min-width: 0; flex: 1 }
+.pn-c-topo .nm b { display: block; font-size: 14px; font-weight: 800;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.pn-c-tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
+  margin: 14px 0 12px }
+.pn-c-tres > div { min-width: 0 }
+.pn-c-tres .vl { font-size: 19px; font-weight: 800; letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums; line-height: 1.1 }
+.pn-c-sp { height: 30px; margin-bottom: 12px }
+.pn-c-pe { display: flex; align-items: center; justify-content: space-between; gap: 10px }
+
+@media (max-width: 1180px) {
+  .pn-c { grid-template-columns: 1fr }
+  .pn-c-trilho { position: static; display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
+
+</style>
+</head>
+<body>
+
+<svg class="tinta" aria-hidden="true">
+  <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+  <symbol id="i-agenda" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/>
+      <path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></g>
+  </symbol>
+</svg>
+
+<aside class="menu" aria-label="Menu do Postador">
+  <div class="menu-marca">
+    <img class="marca-clara" src="marca-clara.png" alt="">
+    <img class="marca-escura" src="marca-escura.png" alt="">
+    <span class="menu-nome">Postador</span>
+  </div>
+  <button class="menu-botao" id="botao-menu" aria-expanded="true"
+          aria-label="Abrir ou fechar o menu">
+    <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+  </button>
+  <nav class="menu-rolo" id="menu">
+    <button class="mi ativo" data-pag="painel">
+      <svg class="mi-ic" viewBox="0 0 24 24"><rect x="3" y="3.5" width="7.5" height="9" rx="1.6"/><rect x="13.5" y="3.5" width="7.5" height="5" rx="1.6"/><rect x="3" y="15.5" width="7.5" height="5" rx="1.6"/><rect x="13.5" y="11.5" width="7.5" height="9" rx="1.6"/></svg>
+      <span class="mi-rot">Painel</span>
+    </button>
+    <button class="mi" data-pag="calendario">
+      <svg class="mi-ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span class="mi-rot">Calendário</span>
+    </button>
+    <button class="mi" data-pag="analytics">
+      <svg class="mi-ic" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8 16v-5M13 16V7M18 16v-8"/></svg>
+      <span class="mi-rot">Analytics</span>
+    </button>
+    <button class="mi" data-pag="contas">
+      <svg class="mi-ic" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c0-3.7 3.3-6 7.5-6s7.5 2.3 7.5 6"/></svg>
+      <span class="mi-rot">Contas</span>
+    </button>
+  </nav>
+  <div class="menu-acao">
+    <button class="btn brasa" id="menu-programar" type="button"
+            aria-label="Programar publicações">
+      <svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
+      <span class="txt">
+        <svg class="ag-selo" aria-hidden="true"><use href="#i-agenda"/></svg>
+        <span class="ag-rot">Programar</span></span>
+      <span class="circ"></span>
+      <svg class="seta seta-dir" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
+    </button>
+  </div>
+  <div class="menu-pe">
+    <div class="pe-linha">
+      <span class="pp" style="font-weight:700;font-variant-numeric:tabular-nums">v1</span>
+      <span class="pe-rot">Proposta C · A Régua</span>
+    </div>
+    <div class="pe-linha">
+      <svg class="tema-icone" viewBox="0 0 24 24" id="tema-icone">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+      </svg>
+      <span class="pe-rot">tema</span>
+      <button class="chave" id="chave" role="switch" aria-checked="false"
+              aria-label="Trocar tema"><i></i></button>
+    </div>
+  </div>
+</aside>
+
+<main class="palco">
+  <section class="pagina ativa rs-casa" id="pag-painel">
+    <div class="cab">
+      <div>
+        <h1>Painel</h1>
+        <p class="p" id="pn-dia">A rede, o que está guardado e o que falta sair.</p>
+      </div>
+      <div class="dir">
+        <span class="pp" id="pn-lido"></span>
+        <button class="bt mini" id="pn-atualizar">Atualizar</button>
+        <button class="btn brasa" id="pn-programar" type="button">
+          <svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
+          <span class="txt">
+            <svg class="ag-selo" aria-hidden="true"><use href="#i-agenda"/></svg>
+            Programar publicações</span>
+          <span class="circ"></span>
+          <svg class="seta seta-dir" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="pn-palco"></div>
+  </section>
+</main>
+
+<div class="rs-tip" id="rs-tip" hidden></div>
+
+<script src="dados.js"></script>
+<script src="casa.js"></script>
+<script src="comum.js"></script>
+<script>
+/* ================================================== PROPOSTA C · A RÉGUA
+   A rede nao aparece somada. Cada conta tem a ficha dela no trilho da esquerda, com
+   o estado, os tres numeros que decidem e a curva de 30 dias. O corpo da direita le'
+   em ordem de tempo: o que trava agora, o que saiu antes, e o ritmo por baixo.
+   ========================================================================== */
+(function () {
+  var P = window.PN;
+  var palco = document.getElementById('pn-palco');
+  var filtro = 'tudo';
+
+  function ficha(c, i) {
+    var vals = c.serie.slice(-30).map(function (v) { return v[1]; });
+    var ultimos30 = vals.reduce(function (t, v) { return t + v; }, 0);
+    var estado = !c.ligada ? ['bl', 'Caída']
+      : c.fila ? ['no', 'Publicando'] : ['pa', 'Parada'];
+    return '<section class="rs-cd"><div class="rs-cd-b" style="padding-top:15px">'
+      + '<div class="pn-c-topo">'
+      + (c.avatar ? '<img src="' + c.avatar + '" alt="">' : '')
+      + '<span class="nm"><b>@' + P.seguro(c.u) + '</b>'
+      + '<span class="rs-rot3">' + P.seguro(c.mercado || c.nome || 'sem mercado')
+      + '</span></span>'
+      + '<span class="rs-pil ' + estado[0] + '">' + estado[1] + '</span></div>'
+      + '<div class="pn-c-tres">'
+      + '<div><span class="rs-rot2">Fila</span><div class="vl">'
+      + (c.fila ? P.n(c.fila) : '—') + '</div></div>'
+      + '<div><span class="rs-rot2">Guardados</span><div class="vl">'
+      + (c.prateleira ? P.n(c.prateleira) : '—') + '</div></div>'
+      + '<div><span class="rs-rot2">30 Dias</span><div class="vl">'
+      + (ultimos30 ? P.n(ultimos30) : '—') + '</div></div></div>'
+      + (ultimos30 ? '<div class="pn-c-sp">' + P.spark(vals) + '</div>' : '')
+      + '<div class="pn-c-pe"><span class="rs-rot3">'
+      + (c.ultimo ? 'última saída ' + P.idade(c.ultimo) : 'nunca publicou')
+      + '</span><button class="bt mini' + (c.fila ? '' : ' forte') + '" type="button">'
+      + (c.fila ? 'Ver a fila' : 'Programar') + '</button></div>'
+      + '</div></section>';
+  }
+
+  function eventos() {
+    var travas = P.travas().map(function (t) {
+      return { tipo: 'trava', ico: t.ico, tom: 'am', titulo: t.titulo, desc: t.desc,
+               botao: t.botao, forte: t.forte, vai: t.vai };
+    });
+    var saidas = P.saidasRecentes(12).map(function (s) {
+      s.tipo = 'saida'; return s;
+    });
+    var lista = filtro === 'travas' ? travas
+      : filtro === 'saidas' ? saidas : travas.concat(saidas);
+    return P.fita(lista);
+  }
+
+  function montar() {
+    var m = P.medidas();
+    var travas = P.travas();
+
+    palco.innerHTML = '<div class="pn-c">'
+      + '<div class="pn-c-trilho">' + P.CONTAS.map(ficha).join('') + '</div>'
+      + '<div class="pn-c-corpo">'
+      + '<div class="pn-c-med">' + [m[1], m[2], m[3]].map(P.kpi).join('') + '</div>'
+
+      + '<section class="rs-cd"><div class="rs-cd-h"><h3>A linha do tempo</h3>'
+      + '<div class="rs-dir"><div class="rs-seg" id="c-f">'
+      + [['tudo', 'Tudo'], ['travas', 'O Que Trava'], ['saidas', 'O Que Saiu']]
+        .map(function (i) {
+          return '<button type="button" data-v="' + i[0] + '"'
+            + (i[0] === filtro ? ' class="on"' : '') + '>' + i[1] + '</button>';
+        }).join('') + '</div></div></div>'
+      + '<div class="rs-cd-b"><p class="pn-abre">De cima para baixo: primeiro o que '
+      + 'precisa de você hoje, depois o que já saiu. '
+      + (travas.length ? '<b>' + travas.length + '</b> '
+          + P.plural(travas.length, 'trava aberta', 'travas abertas') + '.'
+          : 'Nenhuma trava aberta.') + '</p>'
+      + '<div id="c-fita">' + eventos() + '</div></div></section>'
+
+      + '<section class="rs-cd"><div class="rs-cd-h"><h3>O ritmo, conta a conta</h3>'
+      + '<span class="rs-rot3">últimos 90 dias</span></div>'
+      + '<div class="rs-cd-b"><div class="pn-graf pn-medio" id="c-graf"></div>'
+      + '<div class="pn-leg" id="c-leg"></div></div></section>'
+      + '</div></div>';
+
+    P.grafico(document.getElementById('c-graf'), {
+      tipo: 'barra', dominio: P.dominio(90), series: P.seriePorConta(90, 'barra')
+    });
+    document.getElementById('c-leg').innerHTML = P.CONTAS.map(function (c, i) {
+      return '<span><i style="background:' + P.CORES[i % P.CORES.length] + '"></i>@'
+        + P.seguro(c.u) + '</span>';
+    }).join('');
+
+    document.getElementById('c-f').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-v]'); if (!b) return;
+      filtro = b.dataset.v;
+      this.querySelectorAll('[data-v]').forEach(function (o) {
+        o.classList.toggle('on', o === b);
+      });
+      document.getElementById('c-fita').innerHTML = eventos();
+    });
+  }
+
+  P.casca();
+  montar();
+  document.getElementById('pn-atualizar').addEventListener('click', montar);
+})();
+
+</script>
+</body>
+</html>

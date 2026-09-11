@@ -1,0 +1,50 @@
+/* ================================================== PROPOSTA B · O MOSAICO
+   O arranjo do Stats Bento do 21st.dev, lido do pacote publico da demo em 11/09:
+   blocos de tamanhos diferentes, com UM numero dominante mandando na tela e os
+   outros em volta. Aqui o numero dominante e' o que decide o dia: quantas
+   publicacoes estao programadas.
+
+   SO' GRADE. */
+
+.pn-b-bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: minmax(128px, auto); gap: 14px }
+.pn-b-heroi { grid-column: span 3; grid-row: span 2; display: flex;
+  flex-direction: column; justify-content: space-between }
+.pn-b-larga { grid-column: span 3 }
+/* OS TRES PEQUENOS DIVIDEM A SEGUNDA LINHA ao lado do bloco dominante: tres de uma
+   coluna fecham as seis exatamente. Com dois de duas colunas sobrava uma celula, e o
+   mosaico ficava com buraco no meio, que e' o defeito que o bento existe para evitar. */
+.pn-b-terco { grid-column: span 1 }
+
+/* o bloco dominante: o numero manda, e a frase embaixo diz o que ele significa */
+.pn-b-num { font-size: 78px; font-weight: 800; letter-spacing: -.05em; line-height: .95;
+  font-variant-numeric: tabular-nums }
+.pn-b-heroi .rs-cd-b { display: flex; flex-direction: column; gap: 14px }
+.pn-b-frase { font-size: 14px; color: var(--muted); max-width: 38ch }
+.pn-b-frase b { color: var(--ink); font-weight: 700 }
+.pn-b-acao { display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+
+/* o trilho de uso da prateleira, a peca `.rs-li-tr` da sala */
+.pn-b-uso { margin-top: 12px }
+.pn-b-lin { display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; font-size: 12px; color: var(--muted); margin-bottom: 7px }
+.pn-b-lin b { color: var(--ink); font-weight: 700 }
+
+/* NO BLOCO ESTREITO A LINHA DE BAIXO EMPILHA. A pilula e a leitura lado a lado
+   cabem nos 300 pixels da faixa da proposta A, nao nos 178 daqui: a frase saia
+   cortada no meio, e frase cortada e' o defeito que esta tela existe para nao ter. */
+.pn-b-terco .lin > span { display: flex; flex-direction: column; align-items: flex-start;
+  gap: 7px }
+.pn-b-terco .rs-delta-pe { margin-left: 0 }
+
+.pn-b-duas { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 16px; align-items: stretch }
+.pn-b-duas > .rs-cd { display: flex; flex-direction: column }
+.pn-b-duas .rs-cd-b { flex: 1 }
+
+@media (max-width: 1180px) {
+  .pn-b-bento { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .pn-b-heroi, .pn-b-larga, .pn-b-terco { grid-column: span 2 }
+  .pn-b-heroi { grid-row: auto }
+  .pn-b-duas { grid-template-columns: 1fr }
+}

@@ -1,0 +1,59 @@
+/* ===================================== O COMPARTILHADO DAS PROPOSTAS DO PAINEL
+   SO' GRADE E POSICAO. Cor, raio, sombra, altura de controle, peso de texto e
+   pilula vem das folhas do painel (`painel.css`) e da sala de controle
+   (`sala.css`). Se aparecer aqui altura de botao ou raio de cartao, e' porque eu
+   desenhei peca nova, e peca nova nao entra nesta tela. */
+
+/* o palco da pagina: as faixas empilham com o mesmo respiro do painel */
+#pn-palco { display: flex; flex-direction: column; gap: 16px }
+
+/* o mapa de calor por SEMANAS: a grade e as colunas vem no `style` de cada quadro,
+   porque o numero de semanas depende da janela. Aqui so' a altura da celula, que na
+   sala de controle e' de 24 pixels para 24 colunas e aqui tem sete linhas. */
+.pn-hm { justify-content: start }
+.pn-hm i { height: 22px }
+.pn-hm-t { font-size: 12px; color: var(--muted); margin-bottom: 12px }
+
+/* o quadro a esquerda, a leitura dele a direita: quadro sozinho nao decide nada */
+.pn-calor { display: grid; grid-template-columns: auto minmax(220px, 1fr); gap: 28px;
+  align-items: start }
+@media (max-width: 1180px) { .pn-calor { grid-template-columns: 1fr } }
+
+/* a legenda de contas do grafico, quando a proposta mostra as duas juntas */
+.pn-leg { display: flex; align-items: center; gap: 14px; flex-wrap: wrap }
+.pn-leg span { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px;
+  font-weight: 700; color: var(--soft) }
+.pn-leg i { width: 9px; height: 9px; border-radius: 3px; flex: none }
+
+/* a altura que o motor de grafico precisa reservar (o `.rs-ec` da casa e' 250).
+   AS ABAS DO GRAFICO FICAM DE FORA: aqui cada serie e' uma conta, e o nome dela ja'
+   esta' na legenda; a aba com total por metrica e' peca do cartao do tracker, que
+   tem cinco metricas. E' o mesmo que o painel faz no `.pn-sem-abas`. */
+.pn-graf .grafico-abas { display: none }
+.pn-alto .grafico-tela { height: 250px; min-height: 250px }
+.pn-medio .grafico-tela { height: 186px; min-height: 186px }
+.pn-alto, .pn-medio { display: flex; flex-direction: column }
+
+/* A EXPLICACAO DA TRAVA PRECISA DE DUAS LINHAS. Na sala de controle a fita lista
+   evento curto e corta com reticencias; aqui a linha de baixo e' a frase que diz o
+   que aconteceu e o que fazer, e frase cortada no meio nao explica nada. */
+.pn-ev { align-items: flex-start }
+.pn-ev .ic { margin-top: 2px }
+.pn-ev .c span { white-space: normal; overflow: visible; text-overflow: clip;
+  line-height: 1.45 }
+.pn-ev-dir { flex: none; padding-left: 4px; align-self: center }
+
+/* A BARRA DE ROLAGEM DA FITA E' A FINA DA CASA, a mesma do painel lateral do
+   Analytics (`.sp-corpo`). Sem isso a fita sobe com a barra branca do sistema, que
+   no tema escuro vira uma faixa clara colada no cartao. */
+.rs-fita { scrollbar-width: thin; scrollbar-color: var(--rule-solid) transparent }
+.rs-fita::-webkit-scrollbar { width: 10px }
+.rs-fita::-webkit-scrollbar-track { background: transparent }
+.rs-fita::-webkit-scrollbar-thumb { background: var(--rule-solid); border-radius: 999px;
+  border: 2px solid transparent; background-clip: padding-box }
+.rs-fita::-webkit-scrollbar-thumb:hover { background: var(--soft);
+  background-clip: padding-box }
+
+/* linha de apoio: a frase que abre um bloco dizendo o que ele mostra */
+.pn-abre { font-size: 12.5px; color: var(--muted); margin: -2px 0 14px }
+.pn-abre b { color: var(--ink); font-weight: 700 }
