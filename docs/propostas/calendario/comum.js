@@ -25,6 +25,7 @@
   var CONTAS = D.contas || [];
   var CAPAS = D.capas || [];
   var SAIDAS = D.saidas || [];
+  SAIDAS.forEach(function (s, i) { s.id = i; });   /* para a previa achar a saida */
   var REDE = '*';
 
   var escolhida = CONTAS.length ? CONTAS[0].u : REDE;
@@ -493,26 +494,116 @@
     '<path fill="#ffba00" d="M73.4 26.5 60.7 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25' +
       'l16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z"/></svg>';
 
-  /* AS ACOES SAO A FILA `.bc-acoes` DA SUB-ABA MIDIAS, com os mesmos botoes de 34: a
-     logo do Drive na caixa `.como-bt` e o atalho para o Instagram quando a publicacao
-     existe la'. Botao sem back atras nao entra. */
-  function acoes(s) {
-    var fora = '';
+  var ICO_IG = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" ' +
+    'rx="5"/><circle cx="12" cy="12" r="3.6"/><path d="M17.4 6.7h.01"/></svg>';
+  var ICO_OLHO = '<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12' +
+    's-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+  /* AS ACOES SAO A FILA `.bc-acoes` DA SUB-ABA MIDIAS, com os mesmos botoes de 34.
+
+     A REGRA QUE ELE PEDIU EM 11/09: se ja' foi ao ar, o caminho e' o Instagram; se
+     ainda esta' na fila, o caminho e' o Drive. E sempre a previa.
+
+     O QUE O SISTEMA PERMITE HOJE: as 180 midias do painel estao TODAS guardadas, e
+     nenhuma tem codigo de publicacao; as 8 saidas que a Meta conhece tem codigo mas
+     nao vieram de pasta ligada. Entao o botao que nao tem para onde ir aparece
+     desligado, dizendo por que: promessa de botao e' pior que botao ausente. */
+  function acoes(s, tamanho) {
+    var cls = tamanho === 'peq' ? ' peq' : '';
+    var fora = '<button type="button" class="mid-ac' + cls +
+      '" data-previa="' + s.id + '" title="Ver a prévia do conteúdo">' +
+      ICO_OLHO + '</button>';
+
+    if (s.estado === 'publicado') {
+      fora += s.sc
+        ? '<a class="mid-ac' + cls + '" target="_blank" rel="noopener" ' +
+          'href="https://www.instagram.com/reel/' + seguro(s.sc) + '/" ' +
+          'title="Ver a publicação no Instagram">' + ICO_IG + '</a>'
+        : '<span class="mid-ac' + cls + ' morto" title="Saída de exemplo: não existe ' +
+          'publicação no Instagram para abrir">' + ICO_IG + '</span>';
+    }
     if (s.pasta_id) {
-      fora += '<a class="mid-drive como-bt" target="_blank" rel="noopener" ' +
+      fora += '<a class="mid-drive como-bt' + cls + '" target="_blank" rel="noopener" ' +
         'href="https://drive.google.com/drive/folders/' + seguro(s.pasta_id) + '" ' +
         'title="Abrir no Drive a pasta deste vídeo" ' +
         'aria-label="Abrir no Drive a pasta deste vídeo">' + LOGO_DRIVE + '</a>';
+    } else if (s.estado === 'programado') {
+      fora += '<span class="mid-drive como-bt' + cls + ' morto" title="Esta saída não ' +
+        'veio de uma pasta ligada, então não há pasta para abrir">' +
+        LOGO_DRIVE + '</span>';
     }
-    if (s.sc) {
-      fora += '<a class="mid-ac" target="_blank" rel="noopener" ' +
-        'href="https://www.instagram.com/reel/' + seguro(s.sc) + '/" ' +
-        'title="Ver a publicação no Instagram">' +
-        '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/>' +
-        '<circle cx="12" cy="12" r="3.6"/><path d="M17.4 6.7h.01"/></svg></a>';
-    }
-    return fora ? '<div class="bc-acoes">' + fora + '</div>' : '';
+    return '<div class="bc-acoes">' + fora + '</div>';
   }
+
+  /* ------------------------------------------------------------------- a previa
+     A CAPA E' O QUE A CASA TEM. O video mora no Drive e a Meta nao devolve arquivo de
+     reel; entao a previa mostra a miniatura em tamanho grande, os dados da saida e os
+     dois caminhos, e diz de onde vem o que esta' na tela. */
+  function abrirPrevia(id) {
+    var s = SAIDAS[Number(id)];
+    if (!s) return;
+    var alvo = document.getElementById('cl-previa');
+    if (!alvo) {
+      alvo = document.createElement('div');
+      alvo.id = 'cl-previa';
+      alvo.className = 'cl-prev';
+      alvo.hidden = true;
+      document.body.appendChild(alvo);
+    }
+    alvo.innerHTML =
+      '<div class="cl-prev-cx">' +
+        '<button class="cl-prev-x" type="button" data-previa-fechar aria-label="Fechar">' +
+          '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' +
+        '<div class="cl-prev-capa">' +
+          (s.capa != null ? '<img src="' + capa(s.capa) + '" alt="">'
+                          : '<span class="cl-prev-sem">' + icoFilme() + '</span>') +
+        '</div>' +
+        '<div class="cl-prev-lado">' +
+          (s.estado === 'programado'
+            ? '<span class="mid-pin marcado"><i></i>Agendado</span>'
+            : '<span class="mid-pin foi"><i></i>Publicado</span>') +
+          '<h3 class="bc-nome">' + seguro(rotulo(s)) + '</h3>' +
+          '<div class="bc-pares">' +
+            par('Conta', '@' + s.conta) +
+            par(s.estado === 'programado' ? 'Sai' : 'Saiu',
+                dia(s.quando) + ' · ' + hora(s.quando)) +
+            par('Leva', maiuscula(s.leva || '—')) +
+            (s.nome ? par('Arquivo', s.nome, true) : '') +
+            (s.vis != null ? par('Visualizações', n(s.vis)) : '') +
+          '</div>' +
+          acoes(s) +
+          '<p class="cl-prev-nota">A prévia mostra a capa do vídeo, que é o que o ' +
+            'painel guarda. O arquivo abre no Drive.' +
+            (s.exemplo ? ' Esta saída é exemplo.' : '') + '</p>' +
+        '</div>' +
+      '</div>';
+    alvo.hidden = false;
+    void alvo.offsetHeight;
+    alvo.classList.add('on');
+  }
+
+  function fecharPrevia() {
+    var alvo = document.getElementById('cl-previa');
+    if (!alvo) return;
+    alvo.classList.remove('on');
+    setTimeout(function () {
+      if (!alvo.classList.contains('on')) alvo.hidden = true;
+    }, 220);
+  }
+
+  document.addEventListener('click', function (e) {
+    var p = e.target.closest('[data-previa]');
+    if (p) { e.stopPropagation(); abrirPrevia(p.dataset.previa); return; }
+    if (e.target.closest('[data-previa-fechar]') ||
+        (e.target.id === 'cl-previa')) fecharPrevia();
+  });
+  document.addEventListener('keydown', function (e) {
+    var alvo = document.getElementById('cl-previa');
+    if (e.key === 'Escape' && alvo && !alvo.hidden) {
+      e.stopPropagation();
+      fecharPrevia();
+    }
+  }, true);
 
   function par(rot, valor, quebra) {
     return '<div class="bc-par' + (quebra ? ' quebra' : '') + '"><span>' + rot +
@@ -582,6 +673,10 @@
   }
 
   document.addEventListener('click', function (e) {
+    /* CLIQUE NUMA ACAO NAO E' CLIQUE NO DIA. A fila de acoes mora dentro de linhas que
+       carregam `data-dia`, e sem esta guarda abrir a previa abria o painel do dia
+       junto, por tras dela. */
+    if (e.target.closest('.bc-acoes')) return;
     var abrir = e.target.closest('[data-dia]');
     if (abrir) { abrirDia(abrir.dataset.dia); return; }
     if (e.target.closest('[data-dia-fechar]') || e.target.closest('#cl-fundo')) {
@@ -649,7 +744,7 @@
     n: n, curto: curto, seguro: seguro, maiuscula: maiuscula, pedaco: pedaco,
     rotulo: rotulo,
     data: data, dia: dia, hora: hora, chaveDia: chaveDia, mesmoDia: mesmoDia,
-    capa: capa, corDe: corDe, contaDe: contaDe, face: face,
+    capa: capa, corDe: corDe, contaDe: contaDe, face: face, acoes: acoes,
     saidasDe: saidasDe, porDia: porDia, resumo: resumo,
     levas: levas, gruposDeLeva: gruposDeLeva,
     abas: abas, visao: function () { return visao; },

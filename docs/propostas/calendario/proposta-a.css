@@ -273,3 +273,9 @@
    a lista da esquerda e para a dica do ponteiro. */
 .pa-gt-marco.so-marca em{display:none}
 .pa-gt-marco.so-marca{padding:4px}
+
+/* O CAMPO E' ARRASTAVEL: puxar para o lado anda no tempo, porque a linha do tempo
+   cabe inteira na largura e nao ha' rolagem para levar o periodo. */
+.pa-gt-campo{cursor:grab;user-select:none}
+.pa-gt-campo.arrastando{cursor:grabbing}
+.pa-gt-campo button,.pa-gt-campo a{cursor:pointer}

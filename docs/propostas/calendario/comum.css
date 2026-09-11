@@ -115,3 +115,46 @@
 .mid-nota-ex .mid-ex{margin-top:5px}
 
 .cl-torrada{z-index:130}
+
+/* -------------------------------------------------- a previa do conteudo
+   A CAPA E' O QUE A CASA TEM: o video mora no Drive e a Meta nao devolve arquivo de
+   reel. Entao a previa mostra a miniatura grande, os dados e os dois caminhos. */
+.cl-prev{position:fixed;inset:0;z-index:120;display:grid;place-items:center;
+  padding:24px;background:rgba(14,14,14,.52);opacity:0;transition:opacity .2s ease}
+.cl-prev.on{opacity:1}
+.cl-prev[hidden]{display:none}
+:root[data-theme="dark"] .cl-prev{background:rgba(0,0,0,.66)}
+.cl-prev-cx{position:relative;display:flex;gap:22px;max-width:760px;width:100%;
+  padding:22px;border-radius:16px;background:var(--branco,var(--paper));
+  border:1px solid var(--rule-solid);box-shadow:0 30px 70px rgba(14,14,14,.26);
+  transform:translateY(10px);transition:transform .22s cubic-bezier(.32,.72,0,1)}
+.cl-prev.on .cl-prev-cx{transform:none}
+.cl-prev-x{position:absolute;top:12px;right:12px;width:30px;height:30px;
+  border-radius:8px;border:1px solid var(--rule-solid);background:var(--paper);
+  color:var(--soft);cursor:pointer;display:grid;place-items:center;z-index:2}
+.cl-prev-x:hover{color:var(--ink);border-color:var(--ink)}
+.cl-prev-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round}
+.cl-prev-capa{flex:none;width:236px;aspect-ratio:9/16;border-radius:12px;
+  overflow:hidden;background:var(--paper-2);display:grid;place-items:center;
+  color:var(--soft)}
+.cl-prev-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.cl-prev-capa svg{width:34px;height:34px}
+.cl-prev-lado{flex:1;min-width:0;display:flex;flex-direction:column;
+  align-items:flex-start;padding-right:34px}
+.cl-prev-lado .bc-nome{margin:9px 0 0;font-size:17px;word-break:normal}
+.cl-prev-lado .bc-pares{width:100%;margin-top:14px}
+.cl-prev-nota{margin:14px 0 0;font-size:11px;line-height:1.55;color:var(--soft)}
+
+/* O BOTAO SEM DESTINO fica desligado e explica na dica, em vez de sumir: some, e a
+   fila de acoes muda de tamanho de linha para linha sem motivo aparente. */
+.mid-ac.morto,.mid-drive.como-bt.morto{opacity:.3;cursor:not-allowed}
+.mid-ac.peq,.mid-drive.como-bt.peq{width:26px;height:26px;border-radius:7px}
+.mid-ac.peq svg{width:13px;height:13px}
+.mid-drive.como-bt.peq .mid-drive-logo{width:12px;height:12px}
+.pa-gt-li.post .bc-acoes{margin:0;gap:5px;flex:none}
+
+@media (max-width:900px){
+  .cl-prev-cx{flex-direction:column}
+  .cl-prev-capa{width:100%;aspect-ratio:16/9}
+}

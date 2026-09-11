@@ -19,6 +19,7 @@
   var escala = 'semana';                       /* hoje | semana | quinzena | mes */
   var piscar = null;                           /* dia a piscar depois de pintar */
   var abertas = {};                            /* levas com as publicacoes a vista */
+  var desloc = 0;                              /* dias andados no gantt, com o arrasto */
 
   window.CAL_PINTAR = pintar;
 
@@ -132,7 +133,14 @@
           '</div>' +
           '<span class="rs-rot3">' + C.MES[mes.getMonth()] + ' de ' +
             mes.getFullYear() + '</span>'
-        : '<div class="rs-seg">' +
+        : '<button class="bt" type="button" data-andar="0">Hoje</button>' +
+          '<div class="rs-seg pa-nav">' +
+            '<button type="button" data-andar="-1" aria-label="Período anterior">' +
+              '<svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>' +
+            '<button type="button" data-andar="1" aria-label="Próximo período">' +
+              '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>' +
+          '</div>' +
+          '<div class="rs-seg">' +
             ESCALAS.map(function (e) {
               return '<button type="button" data-escala="' + e.v + '"' +
                 (escala === e.v ? ' class="on"' : '') + '>' + e.r + '</button>';
@@ -227,7 +235,7 @@
   function periodo() {
     var e = daEscala();
     var a = new Date(C.HOJE.getFullYear(), C.HOJE.getMonth(),
-                     C.HOJE.getDate() + e.de);
+                     C.HOJE.getDate() + e.de + desloc);
     var b = new Date(a.getFullYear(), a.getMonth(), a.getDate() + e.dias - 1,
                      23, 59, 59);
     return { de: a, ate: b, dias: e.dias, hora: e.v === 'hoje' };
@@ -361,9 +369,10 @@
               '" style="--cor:' + C.corDe(s.conta) + '"></span>' +
             '<span class="pa-gt-nome"><b>' + C.seguro(C.rotulo(s)) + '</b><span>' +
               C.dia(s.quando) + ' · ' + C.hora(s.quando) + '</span></span>' +
-            '<span class="pa-gt-c">' + (s.estado === 'programado'
-              ? '<span class="mid-pin marcado"><i></i>Agendado</span>'
-              : '<span class="mid-pin foi"><i></i>Publicado</span>') + '</span>' +
+            /* O CAMINHO DO CONTEUDO NA PROPRIA LINHA: previa sempre, Instagram para o
+               que ja' foi ao ar, Drive para o que ainda esta' na fila. O estado deixa
+               de precisar de pilula aqui, porque o losango ao lado ja' diz. */
+            C.acoes(s, 'peq') +
           '</div>';
         }).join('') : '') +
         '';
@@ -568,8 +577,59 @@
       var k = lv.dataset.leva;
       if (abertas[k]) delete abertas[k]; else abertas[k] = true;
       pintar();
+      return;
+    }
+    var an = e.target.closest('[data-andar]');
+    if (an) {
+      var n = Number(an.dataset.andar);
+      /* A SETA ANDA MEIA JANELA, e nao uma inteira: pulando o periodo todo, perde-se a
+         emenda entre o que estava na tela e o que entrou. */
+      desloc = n === 0 ? 0
+        : desloc + n * Math.max(Math.round(daEscala().dias / 2), 1);
+      pintar();
     }
   });
+
+  /* ---------------------------------------------------------------- o arrasto
+     ARRASTAR O QUADRO ANDA NO TEMPO. Como a linha do tempo cabe inteira na largura,
+     nao ha' rolagem para levar o periodo: o arrasto converte os pixels percorridos em
+     DIAS e desloca a janela. Um dia de deslocamento por coluna percorrida.
+
+     So' o botao esquerdo, e so' fora dos botoes: arrastar comecando num marco tem de
+     continuar sendo um clique nele. */
+  (function ligarArrasto() {
+    var pegando = null;
+
+    document.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return;
+      var campo = e.target.closest('.pa-gt-campo');
+      if (!campo || e.target.closest('button,a')) return;
+      var cols = daEscala().dias;
+      pegando = {
+        x: e.clientX, base: desloc,
+        porDia: campo.getBoundingClientRect().width / cols
+      };
+      campo.classList.add('arrastando');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!pegando) return;
+      var dias = Math.round((pegando.x - e.clientX) / pegando.porDia);
+      if (pegando.base + dias === desloc) return;
+      desloc = pegando.base + dias;
+      pintar();
+      var campo = document.querySelector('.pa-gt-campo');
+      if (campo) campo.classList.add('arrastando');
+    });
+
+    document.addEventListener('mouseup', function () {
+      if (!pegando) return;
+      pegando = null;
+      var campo = document.querySelector('.pa-gt-campo');
+      if (campo) campo.classList.remove('arrastando');
+    });
+  })();
 
   document.addEventListener('DOMContentLoaded', function () {
     C.ligarCasca();
