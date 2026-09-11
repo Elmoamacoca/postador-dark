@@ -173,6 +173,52 @@
     };
   }
 
+  /* -------------------------------------------------------- os numeros que entram
+     NUMERO QUE APARECE PRONTO PARECE MAQUETE. Ele apontou isso em 11/09: a faixa de
+     indicadores parecia colada na tela. Todo numero marcado com `data-num` sobe de
+     zero ate' o valor, com desaceleracao, e so' quando o valor MUDA: repintar o gantt
+     ao arrastar nao pode fazer a faixa inteira piscar a cada dia percorrido.
+
+     Quem pede menos movimento no sistema nao recebe animacao nenhuma. */
+  var ultimos = {};
+
+  function fmtNum(v, dec) {
+    return v.toLocaleString('pt-BR', { minimumFractionDigits: dec,
+                                       maximumFractionDigits: dec });
+  }
+
+  function animarNumeros(raiz) {
+    var quieto = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    raiz.querySelectorAll('[data-num]').forEach(function (el) {
+      var chave = el.dataset.chave || el.dataset.num;
+      var fim = parseFloat(el.dataset.num);
+      var dec = Number(el.dataset.dec || 0);
+      var sinal = el.dataset.sinal || '';
+      var texto = function (v) { return sinal + fmtNum(v, dec); };
+
+      if (quieto || ultimos[chave] === fim) {
+        el.textContent = texto(fim);
+        ultimos[chave] = fim;
+        return;
+      }
+      ultimos[chave] = fim;
+
+      /* O VALOR FINAL ENTRA PRIMEIRO, e a contagem comeca dentro do primeiro quadro.
+         Navegador com a aba oculta PAUSA `requestAnimationFrame`: comecando em zero, o
+         numero ficava preso no zero ate' a aba voltar a vista. E' o mesmo tipo de
+         armadilha da transicao pausada que ja' custou uma tela nesta sessao. */
+      var t0 = null, dur = 620;
+      el.textContent = texto(fim);
+      requestAnimationFrame(function passo(t) {
+        if (t0 === null) { t0 = t; el.textContent = texto(0); }
+        var k = Math.min((t - t0) / dur, 1);
+        el.textContent = texto(fim * (1 - Math.pow(1 - k, 3)));
+        if (k < 1) requestAnimationFrame(passo);
+      });
+    });
+  }
+
   /* ------------------------------------------------------------------ as levas
      A LEVA E' A UNICA COISA COM DURACAO nesta tela: comeca, termina e tem progresso.
      Publicacao e' ponto no tempo, e ponto no tempo nao vira barra de gantt. */
@@ -293,15 +339,14 @@
      pagina). O que eu tinha feito antes era um controle novo com as mesmas funcoes e
      medidas diferentes, e ele reprovou duas vezes. */
   function seletor() {
-    var c = escolhida === REDE ? null : contaDe(escolhida);
+    var c = contaDe(escolhida);
     return '<div class="cb" id="cl-sel">' +
       '<button class="cb-bt" type="button" id="cl-sel-bt" aria-haspopup="listbox" ' +
       'aria-expanded="false">' +
-        (c ? face(c, 'cb-av') : '<span class="cb-av cl-rede">' + icoRede() + '</span>') +
-        '<span class="cb-txt"><b>' + (c ? '@' + seguro(c.u) : 'Toda A Rede') +
-        '</b><small>' + (c ? (c.mercado ? seguro(maiuscula(c.mercado))
-                                        : 'sem mercado definido')
-                           : CONTAS.length + ' contas ligadas') + '</small></span>' +
+        face(c, 'cb-av') +
+        '<span class="cb-txt"><b>@' + seguro(c.u) + '</b><small>' +
+        (c.mercado ? seguro(maiuscula(c.mercado)) : 'sem mercado definido') +
+        '</small></span>' +
         '<svg class="cb-cv" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>' +
       '</button>' +
       '<div class="cb-m" id="cl-sel-cx" hidden>' +
@@ -326,13 +371,15 @@
       '<path d="M12 4a12 12 0 0 1 0 16a12 12 0 0 1 0-16"/></svg>';
   }
 
+  /* SEM "TODA A REDE". Ele cortou a opcao em 11/09: o calendario e' de uma conta por
+     vez, ponto. O codigo que trata a rede continua de pe' para nao quebrar as outras
+     duas propostas, mas ela deixa de ser escolhivel aqui. */
   function opcoes(busca) {
-    var lista = [{ u: REDE, nome: 'Toda A Rede' }].concat(CONTAS);
+    var lista = CONTAS.slice();
     if (busca) {
       var q = busca.toLowerCase().replace('@', '');
       lista = lista.filter(function (c) {
-        return c.u === REDE ? 'toda a rede'.indexOf(q) >= 0
-          : (c.u + ' ' + (c.mercado || '')).toLowerCase().indexOf(q) >= 0;
+        return (c.u + ' ' + (c.mercado || '')).toLowerCase().indexOf(q) >= 0;
       });
     }
     return lista;
@@ -348,13 +395,10 @@
       return '<button type="button" class="cb-o' +
         (c.u === escolhida ? ' sel' : '') + (i === marcado ? ' mrc' : '') +
         '" data-conta="' + seguro(c.u) + '" role="option">' +
-        (c.u === REDE ? '<span class="cb-av peq cl-rede">' + icoRede() + '</span>'
-                      : face(c, 'cb-av peq')) +
-        '<span class="cb-txt"><b>' +
-        (c.u === REDE ? 'Toda A Rede' : '@' + seguro(c.u)) + '</b>' +
-        '<small>' + (c.u === REDE ? CONTAS.length + ' contas'
-          : (c.mercado ? seguro(maiuscula(c.mercado)) : 'sem mercado definido')) +
-        '</small></span>' +
+        face(c, 'cb-av') +
+        '<span class="cb-txt"><b>@' + seguro(c.u) + '</b>' +
+        '<small>' + (c.mercado ? seguro(maiuscula(c.mercado))
+                               : 'sem mercado definido') + '</small></span>' +
         (c.u === escolhida ? '<svg class="cb-ok" viewBox="0 0 24 24">' +
           '<path d="M20 6 9 17l-5-5"/></svg>'
           : '<span class="cl-op-n rs-tn">' + quantas + '</span>') + '</button>';
@@ -748,6 +792,7 @@
     saidasDe: saidasDe, porDia: porDia, resumo: resumo,
     levas: levas, gruposDeLeva: gruposDeLeva,
     abas: abas, visao: function () { return visao; },
+    animarNumeros: animarNumeros,
     faixa: faixa, fds: fds, fracaoHora: fracaoHora, semanas: semanas,
     seletor: seletor, escolhida: function () { return escolhida; },
     abrirDia: abrirDia, linhaDoDia: linhaDoDia, torrada: torrada,

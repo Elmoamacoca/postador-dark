@@ -45,6 +45,8 @@
        inteira na largura, em qualquer escala. Some com ela a barra de rolagem do
        rodape, e some junto o velho erro de nascer no lugar errado. */
 
+    C.animarNumeros(palco);
+
     if (piscar) {
       var alvo = palco.querySelector('[data-dia="' + piscar + '"]');
       if (alvo) {
@@ -75,19 +77,20 @@
   function indicadores(u) {
     var r = C.resumo(u);
     return '<div class="rs-grade rs-g4">' +
-      cartao(ICO.saiu, 'Publicados', C.n(r.publicados),
-        delta(r.publicados, r.publicadosAntes), 'nos últimos 14 dias') +
-      cartao(ICO.fila, 'Agendados', C.n(r.agendados),
+      cartao(ICO.saiu, 'Publicados', num('pub', r.publicados),
+        delta('d-pub', r.publicados, r.publicadosAntes), 'nos últimos 14 dias') +
+      cartao(ICO.fila, 'Agendados', num('ag', r.agendados),
         r.folego != null && r.folego > 0
-          ? '<span class="rs-delta fl">' + r.folego + ' dias de fôlego</span>' : '',
+          ? '<span class="rs-delta fl">' + num('fol', r.folego) +
+            ' dias de fôlego</span>' : '',
         'nos próximos 14 dias') +
       cartao(ICO.ritmo, 'Cadência',
-        r.cadencia.toFixed(1).replace('.', ',') + ' <small>por dia</small>',
-        delta(r.cadencia, r.cadenciaAntes), 'média de 14 dias') +
+        num('cad', r.cadencia, 1) + ' <small>por dia</small>',
+        delta('d-cad', r.cadencia, r.cadenciaAntes), 'média de 14 dias') +
       cartao(ICO.cob, 'Cobertura',
-        r.cobertos + ' <small>de ' + r.janela + ' dias</small>',
+        num('cob', r.cobertos) + ' <small>de ' + r.janela + ' dias</small>',
         '<span class="rs-delta ' + (r.vazios ? 'dw' : 'up') + '">' +
-          Math.round(r.cobertos / r.janela * 100) + '%</span>',
+          num('d-cob', Math.round(r.cobertos / r.janela * 100)) + '%</span>',
         r.vazios
           ? (r.vazios === 1 ? 'um dia vazio, em ' : r.vazios + ' dias vazios, ') +
             (r.vazios === 1 ? '' : 'o primeiro em ') +
@@ -96,15 +99,28 @@
     '</div>';
   }
 
+  /* TODO NUMERO DESTA FAIXA SOBE DE ZERO na entrada, e so' quando o valor muda. A
+     chave e' o que diz ao contador que aquele numero e' o mesmo de antes. */
+  function num(chave, valor, dec, sinal) {
+    return '<b data-num="' + valor + '" data-chave="' + chave + '"' +
+      (dec ? ' data-dec="' + dec + '"' : '') +
+      (sinal ? ' data-sinal="' + sinal + '"' : '') + '>' +
+      valor.toLocaleString('pt-BR', { minimumFractionDigits: dec || 0,
+                                      maximumFractionDigits: dec || 0 }) + '</b>';
+  }
+
   /* A VARIACAO CONTRA O PERIODO ANTERIOR, nas mesmas tres faces do Analytics: subiu,
      caiu ou ficou igual. Sem base de comparacao a pilula nao entra. */
-  function delta(agora, antes) {
+  function delta(chave, agora, antes) {
     if (!antes) return '';
     var v = Math.round((agora / antes - 1) * 100);
     var cls = v > 2 ? 'up' : v < -2 ? 'dw' : 'fl';
     var seta = v > 2 ? 'm6 15 6-6 6 6' : v < -2 ? 'm6 9 6 6 6-6' : 'M5 12h14';
+    /* O NUMERO E O SINAL DE PORCENTO FICAM NO MESMO ITEM: soltos, o espacamento da
+       pilula entrava entre os dois e saia "+68 %". */
     return '<span class="rs-delta ' + cls + '"><svg viewBox="0 0 24 24">' +
-      '<path d="' + seta + '"/></svg>' + (v > 0 ? '+' : '') + v + '%</span>';
+      '<path d="' + seta + '"/></svg><span class="rs-delta-v">' +
+      num(chave, v, 0, v > 0 ? '+' : '') + '%</span></span>';
   }
 
   function cartao(ico, rot, valor, pilula, pe) {

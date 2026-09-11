@@ -158,3 +158,16 @@
   .cl-prev-cx{flex-direction:column}
   .cl-prev-capa{width:100%;aspect-ratio:16/9}
 }
+
+/* ----------------------------------------------- o seletor de conta, maior
+   O retrato vinha em 34 no botao e 30 na lista, e ele reclamou de tamanho e de
+   qualidade. O arquivo tem 206 por 206, entao aguenta bem mais: 46 no botao e 40 na
+   lista, com suavizacao de reducao. */
+.rs-casa .cb-bt{height:60px;padding:0 14px 0 8px;gap:12px}
+.rs-casa .cb-av{width:46px;height:46px}
+.rs-casa .cb-av.peq{width:40px;height:40px}
+.rs-casa .cb-av img{image-rendering:auto}
+.rs-casa .cb-txt b{font-size:15px}
+.rs-casa .cb-txt small{font-size:12px}
+.rs-casa .cb-m{width:340px}
+.rs-casa .cb-o{padding:9px 10px;gap:12px}
