@@ -79,7 +79,15 @@ def conferir(css: str) -> None:
         raise SystemExit('FOLHA RECUSADA: ' + '; '.join(problemas))
 
 
-def escopar(css: str, escopo: str) -> str:
+# O ESCOPO VALE PARA DUAS ABAS desde 11/09/2026. A aba de Calendario passou a usar as
+# pecas desta folha (cartao de indicador `.rs-cd.rs-kpi`, alternador `.rs-seg`, linha
+# `.rs-topo` e o combobox `.cb`) em vez de redesenhar cada uma; peca que ja' existe no
+# painel nao se redesenha, se copia. Duas listas de seletor no lugar de uma so' custa
+# alguns bytes e evita duas versoes do mesmo controle.
+ESCOPOS = ('#pag-analytics', '#pag-calendario')
+
+
+def escopar(css: str, escopo) -> str:
     """Prefixa cada seletor com o escopo, respeitando quem mora no `body`.
 
     Escrito na mao de proposito: puxar um pre-processador so' para prefixar uma folha
@@ -152,7 +160,14 @@ def escopar(css: str, escopo: str) -> str:
             p = parte.strip()
             if not p:
                 continue
-            partes.append(p if p.startswith(LIVRES) else escopo + ' ' + p)
+            if p.startswith(LIVRES):
+                partes.append(p)
+                continue
+            # UMA PARTE POR ESCOPO. Prefixar a lista inteira de uma vez sairia
+            # `#pag-analytics, #pag-calendario .cb`, que casa a pagina toda de um lado
+            # e so' o `.cb` do outro: erro silencioso e do pior tipo.
+            for e in escopo:
+                partes.append(e + ' ' + p)
         saida.append((chr(10).join(comentarios) + chr(10) if comentarios else '')
                      + (',' + chr(10)).join(partes) + css[abre:fecha])
         i = fecha
@@ -183,9 +198,9 @@ def main():
         + '/* ====== 1. a sala de controle, recortada do portal ====== */' + chr(10)
         + sala + chr(10)
         + '/* ====== 2. o compartilhado das propostas ====== */' + chr(10)
-        + escopar(comum, '#pag-analytics') + chr(10)
+        + escopar(comum, ESCOPOS) + chr(10)
         + '/* ====== 3. o especifico desta aba ====== */' + chr(10)
-        + escopar(proprio, '#pag-analytics'))
+        + escopar(proprio, ESCOPOS))
     conferir(folha)
     ALVO.write_text(folha, encoding='utf-8')
     print('04-analytics.css', round(ALVO.stat().st_size / 1024), 'KB')

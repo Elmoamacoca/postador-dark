@@ -85,17 +85,11 @@
 .jp-linha b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;
             white-space:nowrap}
 
-/* A ficha do calendário vira botão: mesmo desenho, mais o dedo do mouse. */
-#pag-calendario .cal-ev,#pag-calendario .cal-marca,#pag-calendario .cal-item{
-  cursor:pointer;border:0;font:inherit;text-align:left;width:100%}
-#pag-calendario .cal-ev:hover,#pag-calendario .cal-marca:hover{filter:brightness(.97)}
-#pag-calendario .cal-item:hover b{text-decoration:underline}
+/* AS REGRAS DO CALENDARIO ANTIGO SAIRAM DAQUI EM 11/09/2026. `.cal-ev`, `.cal-marca`,
+   `.cal-item` e `.cal-recado` eram do calendario traduzido do ReUI, que foi refeito:
+   a aba nova nao tem nenhuma dessas classes. Regra morta em folha viva e' armadilha
+   para quem vier depois procurar de onde vem um estilo que nao existe mais. */
 
-/* O recado do calendário: uma linha, acima da grade, quando o que a grade mostra pode
-   ser mal lido. */
-#pag-calendario .cal-recado{padding:10px 16px;font-size:13px;color:var(--muted);
-                            border-bottom:1px solid var(--rule-solid);
-                            background:var(--paper)}
 /* O video do preview entra por cima da capa e so' aparece com quadro pronto. */
 .jp-video{position:absolute;inset:0;opacity:0;transition:opacity .18s ease}
 .jp-video.pronto{opacity:1}

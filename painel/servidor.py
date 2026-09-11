@@ -442,6 +442,12 @@ class SemCache(http.server.SimpleHTTPRequestHandler):
             #   1. o que JA' SAIU, lido da API do Instagram e guardado em `analytics.json`
             #   2. o que AINDA VAI SAIR, que nasce quando o assistente gravar as datas no
             #      livro-caixa. Hoje isso e' zero, e zero aqui e' informacao, nao falha.
+            #
+            # CADA SAIDA CARREGA O CAMINHO ATE' O CONTEUDO, porque e' isso que a tela
+            # faz com ela: a LEVA (que no gantt vira barra, por ser a unica coisa com
+            # duracao), a PASTA DO CORTE (o botao do Drive) e a CAPA (a previa). Quem
+            # tem esses tres campos e' o livro-caixa; quem tem o codigo do Instagram e
+            # as visualizacoes e' o `analytics.json`.
             saidas = []
             try:
                 d = _analytics()
@@ -455,21 +461,17 @@ class SemCache(http.server.SimpleHTTPRequestHandler):
                         "titulo": _pedaco(post.get("legenda") or "", 48)
                                   or {"reel": "Reel", "carrossel": "Carrossel"}.get(
                                       post.get("fmt"), "Publicação"),
-                        "conta": conta, "quando": post.get("quando"),
+                        "nome": "", "conta": conta, "quando": post.get("quando"),
                         "estado": "publicado", "sc": post.get("sc"),
                         "fmt": post.get("fmt", "reel"),
+                        "vis": post.get("vis"),
+                        "leva": "", "leva_id": "", "pasta_id": "", "capa": "",
                     })
             try:
-                con = midia.abrir()
-                for l in con.execute(
-                        "SELECT nome, conta, quando, estado FROM video "
-                        "WHERE quando IS NOT NULL ORDER BY quando"):
-                    saidas.append({"titulo": l["nome"], "conta": l["conta"],
-                                   "quando": l["quando"], "estado": l["estado"],
-                                   "sc": None, "fmt": "reel"})
-                con.close()
+                saidas.extend(midia.saidas())
             except Exception:
                 pass
+            saidas.sort(key=lambda s: s.get("quando") or "")
             return self.responder({"saidas": saidas})
 
         if rota == "img":

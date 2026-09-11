@@ -794,6 +794,57 @@ def midias(conta: str) -> dict:
             "pastas": [{"id": k, "nome": v} for k, v in pastas.items()]}
 
 
+def saidas() -> list:
+    """Tudo que tem data marcada no livro-caixa, pronto para a aba de Calendario.
+
+    POR QUE AQUI E NAO NO SERVIDOR. A tela do calendario precisa, por saida, do mesmo
+    trio que a sub-aba Midias ja' resolve: a LEVA (no gantt ela vira barra, por ser a
+    unica coisa nesta tela com inicio, fim e progresso), a PASTA DO PROPRIO CORTE (o
+    botao do Drive, que aponta para a subpasta e nao para a leva) e a CAPA servida pela
+    casa (o endereco do Drive expira). Duplicar essa juncao no servidor seria manter
+    duas versoes da mesma regra.
+    """
+    con = abrir()
+    linhas = con.execute(
+        "SELECT id, pasta_id, sub_id, sub_nome, nome, capa, estado, quando, conta, "
+        "       post_id FROM video WHERE quando IS NOT NULL ORDER BY quando"
+    ).fetchall()
+    pastas = {p["id"]: p["nome"] for p in
+              con.execute("SELECT id, nome FROM pasta")}
+    con.close()
+
+    curto, vistas = {}, {}
+    try:
+        an = json.loads((PASTA / "analytics.json").read_text(encoding="utf-8"))
+        for _, fundo in (an.get("fundo") or {}).items():
+            for post in fundo.get("posts", []):
+                if post.get("id"):
+                    if post.get("sc"):
+                        curto[str(post["id"])] = post["sc"]
+                    vistas[str(post["id"])] = post.get("vis")
+    except Exception:
+        pass
+
+    # O CALENDARIO SO' CONHECE DOIS ESTADOS: o que ja' foi ao ar e o que esta' na fila.
+    # `baixado` e `erro` sao etapas do caminho ate' publicar, nao um terceiro lugar no
+    # tempo, e a tela nao tem o que fazer com essa distincao.
+    fora = []
+    for l in linhas:
+        ident = str(l["post_id"] or "")
+        fora.append({
+            "titulo": l["nome"], "nome": l["nome"], "conta": l["conta"],
+            "quando": l["quando"],
+            "estado": "publicado" if l["estado"] == "publicado" else "programado",
+            "fmt": "reel",
+            "sc": curto.get(ident) or None,
+            "vis": vistas.get(ident),
+            "leva": pastas.get(l["pasta_id"], ""), "leva_id": l["pasta_id"],
+            "pasta_id": l["sub_id"] or l["pasta_id"],
+            "capa": ("midia/capa?v=" + l["id"]) if l["capa"] else "",
+        })
+    return fora
+
+
 # ============================================================== o pulso da rede
 def gravar_pulso(publicando: int, paradas: int, caidas: int) -> dict:
     """Um retrato por dia, sobrescrito enquanto o dia corre.

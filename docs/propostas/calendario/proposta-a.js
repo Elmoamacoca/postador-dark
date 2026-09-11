@@ -33,7 +33,7 @@
     document.getElementById('cal-troca').innerHTML = C.seletor();
 
     palco.innerHTML =
-      '<div class="rs rs-casa cal-corpo">' +
+      '<div class="rs rs-casa cal-pilha">' +
         barra(noMes) +
         indicadores(u) +
         '<div class="rs-cd">' +

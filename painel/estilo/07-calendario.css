@@ -1,187 +1,503 @@
-/* GERADO PELO CORTE DO ARQUIVO UNICO (fase 2). A ORDEM DOS ARQUIVOS E LEI:
-   eles se concatenam na ordem numerica e reproduzem o estilo original. */
-/* ================================================================ CALENDARIO
-   Traduzido do ReUI Event Calendar. As medidas do original: cabecalho de dia com 12px e
-   peso 500, altura de 28 e respiro 6 por 8; grade com fio de 1 pixel entre celulas; ficha
-   de 12px com canto pequeno. O que muda e' a paleta, que e' a da casa. */
-#pag-calendario .cal-barra{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-                           padding:10px 12px;border-bottom:1px solid var(--rule-solid)}
-#pag-calendario .cal-titulo{font-size:15px;font-weight:700;margin-left:6px}
-#pag-calendario .cal-seta{width:30px;height:30px;flex:none;display:grid;place-items:center;
-                          border:1px solid var(--rule-solid);background:var(--branco);
-                          border-radius:8px;cursor:pointer;color:var(--muted)}
-#pag-calendario .cal-seta:hover{color:var(--ink);border-color:var(--soft)}
-#pag-calendario .cal-seta svg{width:15px;height:15px;fill:none;stroke:currentColor;
-                              stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-/* O seletor de visao: pilula unica com o aceso preenchido, como no original. */
-#pag-calendario .cal-visoes{display:inline-flex;gap:2px;padding:3px;border-radius:10px;
-                            background:var(--paper-2)}
-#pag-calendario .cal-v{border:0;background:none;font:inherit;font-size:12.5px;
-                       font-weight:600;color:var(--muted);padding:6px 12px;
-                       border-radius:8px;cursor:pointer}
-#pag-calendario .cal-v:hover{color:var(--ink)}
-#pag-calendario .cal-v.ativo{background:var(--branco);color:var(--ink);
-                             box-shadow:0 1px 2px rgba(14,14,14,.06)}
-#pag-calendario .cal-barra .dir{margin-left:auto;display:flex;align-items:center;gap:10px}
-#pag-calendario .cal-legenda{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-#pag-calendario .cal-leg{display:inline-flex;align-items:center;gap:6px;font-size:12px;
-                         color:var(--muted)}
-#pag-calendario .cal-leg i{width:8px;height:8px;border-radius:50%}
+/* =====================================================================
+   A ABA DE CALENDARIO
 
-/* ------------------------------------------------------------------ visao de mes */
-#pag-calendario .cal-cab{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
-                         border-bottom:1px solid var(--rule-solid)}
-#pag-calendario .cal-cab span{font-size:12px;font-weight:500;color:var(--muted);
-                              padding:6px 8px;text-transform:capitalize}
-#pag-calendario .cal-mes{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-#pag-calendario .cal-dia{min-height:104px;border-right:1px solid var(--rule-solid);
-                         border-bottom:1px solid var(--rule-solid);padding:6px 6px 26px;
-                         position:relative;display:flex;flex-direction:column;gap:3px;
-                         min-width:0}
-#pag-calendario .cal-dia:nth-child(7n){border-right:0}
-#pag-calendario .cal-mes > .cal-dia:nth-last-child(-n+7){border-bottom:0}
-#pag-calendario .cal-num{position:absolute;right:7px;bottom:6px;font-size:12px;
-                         color:var(--muted);font-variant-numeric:tabular-nums}
-#pag-calendario .cal-dia.fora{background:var(--paper)}
-#pag-calendario .cal-dia.fora .cal-num{color:var(--soft)}
-/* Hoje vira circulo cheio, igual ao original. E' o unico ponto escuro da grade, entao o
-   olho acha a data de hoje sem procurar. */
-#pag-calendario .cal-dia.hoje .cal-num{background:var(--ink);color:var(--paper);
-                                       width:20px;height:20px;border-radius:50%;
-                                       display:grid;place-items:center;right:5px;
-                                       bottom:4px;font-weight:600}
-#pag-calendario .cal-dia:hover{background:var(--paper-2)}
+   ESTA FOLHA E' GERADA. Nao edite aqui: mexa em `docs/propostas/calendario/comum.css`
+   ou `proposta-a.css` e rode `python docs/propostas/calendario/portar.py`.
 
-/* A ficha do post. Ponto de cor, titulo cortado, hora a direita. */
-#pag-calendario .cal-ev{display:flex;align-items:center;gap:6px;padding:3px 6px;
-                        border-radius:6px;font-size:12px;line-height:1.3;cursor:default;
-                        background:var(--ev-fundo);min-width:0}
-#pag-calendario .cal-ev i{width:6px;height:6px;border-radius:50%;flex:none;
-                          background:var(--ev-cor)}
-#pag-calendario .cal-ev b{font-weight:600;overflow:hidden;text-overflow:ellipsis;
-                          white-space:nowrap;min-width:0;flex:1}
-#pag-calendario .cal-ev span{color:var(--muted);font-variant-numeric:tabular-nums;
-                             flex:none;font-size:11.5px}
-#pag-calendario .cal-ev.saiu{opacity:.55}
-#pag-calendario .cal-ev.falhou{background:color-mix(in srgb,var(--vermelho) 14%,transparent)}
-#pag-calendario .cal-ev.falhou i{background:var(--vermelho)}
-#pag-calendario .cal-mais{font-size:11.5px;color:var(--muted);padding:1px 6px;
-                          background:none;border:0;font-family:inherit;cursor:pointer;
-                          text-align:left}
-#pag-calendario .cal-mais:hover{color:var(--ink)}
+   O DESENHO E' A PROPOSTA A, aprovada em 11/09/2026: o mes em linhas de texto e um
+   gantt sobre as levas, no molde do ClickUp, no mesmo alternador.
 
-/* ---------------------------------------------------------------- visao de semana */
-#pag-calendario .cal-semana{display:grid;grid-template-columns:56px repeat(7,minmax(0,1fr));
-                            max-height:640px;overflow:auto;scrollbar-width:none;
-                            padding-top:9px}
-#pag-calendario .cal-semana::-webkit-scrollbar{width:0;height:0;display:none}
-#pag-calendario .cal-hora{font-size:11px;color:var(--soft);text-align:right;
-                          padding:0 8px 0 0;height:44px;position:relative;top:-7px;
-                          font-variant-numeric:tabular-nums}
-#pag-calendario .cal-col{border-left:1px solid var(--rule-solid);position:relative}
-#pag-calendario .cal-fio{height:44px;border-bottom:1px solid var(--rule-solid)}
-/* A saida e' ponto no tempo, e nao bloco com duracao: altura fixa, posicao pela hora. */
-#pag-calendario .cal-marca{position:absolute;left:3px;right:3px;height:22px;
-                           border-radius:6px;background:var(--ev-fundo);display:flex;
-                           align-items:center;gap:5px;padding:0 6px;font-size:11.5px;
-                           overflow:hidden}
-#pag-calendario .cal-marca i{width:5px;height:5px;border-radius:50%;flex:none;
-                             background:var(--ev-cor)}
-#pag-calendario .cal-marca b{font-weight:600;overflow:hidden;text-overflow:ellipsis;
-                             white-space:nowrap;flex:1;min-width:0}
-#pag-calendario .cal-marca span{color:var(--muted);font-size:11px;flex:none;
-                                font-variant-numeric:tabular-nums}
-#pag-calendario .cal-diacab{display:grid;grid-template-columns:56px repeat(7,minmax(0,1fr));
-                            border-bottom:1px solid var(--rule-solid)}
-#pag-calendario .cal-diacab div{padding:8px;font-size:12px;color:var(--muted);
-                                text-align:center}
-#pag-calendario .cal-diacab div b{display:block;font-size:15px;color:var(--ink);
-                                  font-weight:700}
-#pag-calendario .cal-diacab div.hoje b{color:var(--link)}
+   O QUE NAO ESTA' AQUI vem do `04-analytics.css`, que escopa em `#pag-analytics` e
+   `#pag-calendario`: o cartao de indicador (`.rs-cd.rs-kpi`), o alternador (`.rs-seg`),
+   a linha de controle (`.rs-topo`) e o combobox de conta (`.cb`). Eles nao foram
+   redesenhados de proposito.
 
-/* ------------------------------------------------------------------ visao de lista */
-#pag-calendario .cal-lista-dia{display:grid;grid-template-columns:132px minmax(0,1fr);
-                               gap:16px;padding:14px 18px;
-                               border-bottom:1px solid var(--rule-solid)}
-#pag-calendario .cal-lista-dia:last-child{border-bottom:0}
-#pag-calendario .cal-lista-dia > b{font-size:13px}
-#pag-calendario .cal-lista-dia > b span{display:block;font-size:12px;color:var(--muted);
-                                        font-weight:400}
-#pag-calendario .cal-item{display:flex;align-items:center;gap:10px;padding:7px 0;
-                          font-size:13.5px;min-width:0}
-#pag-calendario .cal-item .h{font-variant-numeric:tabular-nums;color:var(--muted);
-                             font-size:12.5px;width:46px;flex:none}
-#pag-calendario .cal-item i{width:8px;height:8px;border-radius:50%;flex:none;
-                            background:var(--ev-cor)}
-#pag-calendario .cal-item b{font-weight:600;overflow:hidden;text-overflow:ellipsis;
-                            white-space:nowrap;min-width:0}
-#pag-calendario .cal-item .q{color:var(--muted);font-size:12.5px;flex:none}
-#pag-calendario .cal-vazio{padding:60px 20px;text-align:center;color:var(--soft);
-                           font-size:13px}
-@media(max-width:900px){
-  #pag-calendario .cal-semana,#pag-calendario .cal-diacab{grid-template-columns:44px repeat(7,minmax(0,1fr))}
-}
+   ARMADILHAS JA' MEDIDAS, registradas para nao voltarem:
 
+   1. O CABECALHO PRECISA DE `z-index`. `.pagina.ativa > *` recebe animacao de entrada,
+      e animacao com `transform` cria contexto de empilhamento: sem isso o menu do
+      combobox fica preso dentro do cabecalho e os cartoes passam por cima dele. A tela
+      parece ter bug de clique, e o defeito e' de empilhamento.
 
-/* ---------------------------------------------------- mercado e etiqueta em Contas
-   Celula que vira campo ao clicar. Sem botao de editar, sem tela separada: a tabela e' o
-   formulario. Com duas contas isso e' o mais rapido, e com trinta continua sendo. */
-#pag-contas .campo{border:1px dashed transparent;border-radius:8px;padding:4px 7px;
-                   margin:-4px -7px;cursor:text;font-size:13.5px;color:var(--ink);
-                   min-height:26px;display:inline-flex;align-items:center;gap:6px}
-#pag-contas .campo:hover{border-color:var(--rule-solid);background:var(--paper-2)}
-#pag-contas .campo.vazio{color:var(--soft);font-size:13px}
-#pag-contas .campo input{border:0;background:none;font:inherit;color:var(--ink);
-                         outline:none;width:120px;padding:0}
-#pag-contas .etqs{display:flex;flex-wrap:wrap;gap:5px;align-items:center;max-width:210px}
-#pag-contas .etq{display:inline-flex;align-items:center;gap:5px;font-size:12px;
-                 font-weight:600;background:var(--accent-tint);color:var(--link);
-                 border-radius:999px;padding:4px 9px}
-#pag-contas .etq button{border:0;background:none;color:inherit;cursor:pointer;padding:0;
-                        font:inherit;opacity:.6;line-height:1}
-#pag-contas .etq button:hover{opacity:1}
-#pag-contas .etq-mais{border:1px dashed var(--rule-solid);background:none;color:var(--soft);
-                      border-radius:999px;padding:4px 10px;font:inherit;font-size:12px;
-                      cursor:pointer}
-#pag-contas .etq-mais:hover{border-color:var(--soft);color:var(--ink)}
+   2. O GANTT TRABALHA EM PORCENTAGEM, e nao em pixel. E' o que faz o quadro ocupar a
+      largura inteira em qualquer escala e o que elimina a barra de rolagem horizontal.
 
-/* ------------------------------------------------- validade do acesso, em Contas
-   Sessenta dias e a janela inteira. A barra mostra quanto dela ja correu, o numero
-   diz quantos dias sobram, e a cor vira ambar a duas semanas e vermelha a uma. */
-#pag-contas .acesso{display:flex;flex-direction:column;gap:6px;min-width:104px}
-#pag-contas .acesso .barra{height:6px}
-#pag-contas .acesso .quanto{font-size:13px;font-weight:700;
-                            font-variant-numeric:tabular-nums}
-#pag-contas .acesso .quando{font-size:11.5px;color:var(--soft)}
-.barra i.ruim{background:var(--vermelho)}
+   3. O ROTULO DA BARRA FICA FORA DA FITA. Dentro dela ele roubava largura, e como os
+      blocos sao posicionados sobre a largura total do periodo, a parte ja' publicada
+      aparecia como um toco no comeco.
+   ===================================================================== */
+/* ====== 1. o compartilhado: painel do dia, previa, saida ====== */
+/* ======================================= O COMPARTILHADO DO CALENDARIO (CSS)
+   O seletor de conta, o painel lateral de um dia e as pecas de saida que as tres
+   propostas usam. Cor, sombra e raio saem das variaveis do painel; a pilula de
+   estado e a barra de rolagem vem do `06-midias.css`, que ja' esta' na casa. */
 
-/* ------------------------------------------------------------------ o aviso
-   Uma faixa so, no alto da aba, e so quando ha o que avisar. Ambar para o que vai
-   vencer, vermelho para o que ja morreu. */
-#pag-contas .aviso{display:flex;align-items:center;gap:11px;padding:13px 16px;
-  margin-bottom:16px;border-radius:var(--r-md);font-size:13.5px;color:var(--ink);
-  background:color-mix(in srgb,var(--ambar) 10%,transparent);
-  border:1px solid color-mix(in srgb,var(--ambar) 32%,transparent)}
-#pag-contas .aviso svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--ambar);
+/* ---------------------------------------------------------- o seletor de conta
+   NAO TEM CSS AQUI, E E' DE PROPOSITO. O seletor e' o combobox `.cb` do painel, que
+   ja' esta' no ar na aba de Analytics; as regras dele vem do `04-analytics.css`, que
+   o `montar.py` junta trocando o escopo `#pag-analytics` pela classe `.rs-casa`. O
+   alternador de visao, pelo mesmo motivo, virou o `.rs-seg` da casa.
+
+   Eu tinha reescrito esses dois controles do zero, com as mesmas funcoes e medidas
+   diferentes, e ele reprovou duas vezes. Peca que ja' existe no painel nao se
+   redesenha: se copia. */
+.cl-rede{background:var(--ink);color:var(--paper);display:grid;place-items:center}
+.cl-rede svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
+.cb-av.cl-inicial{display:grid;place-items:center;color:#fff;font-size:11px;
+  font-weight:800}
+.cb-av.peq.cl-inicial{font-size:10px}
+.cl-op-n{font-size:11.5px;font-weight:800;color:var(--soft);margin-left:auto;
+  flex:none;font-variant-numeric:tabular-nums}
+
+/* ------------------------------------------------------------- a legenda */
+.cl-legenda{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cl-lg{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--soft)}
+.cl-lg i{width:8px;height:8px;border-radius:999px;flex:none}
+.cl-lg.tracado i{background:transparent;box-shadow:inset 0 0 0 2px currentColor}
+
+/* ------------------------------------------------ o painel lateral de um dia
+   A MESMA PECA DA SUB-ABA MIDIAS, aprovada em 10/09. Aqui ele mostra o DIA. A
+   entrada e' por `transform`, e nao por largura: transicao de layout pausada trava o
+   valor e ja' custou uma tela que nao recuava. */
+.cl-fundo{position:fixed;inset:0;z-index:60;background:rgba(14,14,14,.34);opacity:0;
+  transition:opacity .22s ease}
+.cl-fundo.on{opacity:1}
+.cl-fundo[hidden]{display:none}
+:root[data-theme="dark"] .cl-fundo{background:rgba(0,0,0,.56)}
+
+.cl-peek{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:92vw;z-index:61;
+  background:var(--branco,var(--paper));border-left:1px solid var(--rule-solid);
+  box-shadow:-18px 0 48px rgba(14,14,14,.18);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .26s cubic-bezier(.32,.72,0,1)}
+.cl-peek.on{transform:none}
+.cl-peek[hidden]{display:none}
+:root[data-theme="dark"] .cl-peek{box-shadow:-18px 0 48px rgba(0,0,0,.5)}
+
+.cl-peek-cab{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex:none;padding:17px 18px;border-bottom:1px solid var(--rule-solid)}
+.cl-peek-quem b{display:block;font-size:16px;font-weight:800;letter-spacing:-.3px}
+.cl-peek-quem span{display:block;font-size:11px;color:var(--soft);margin-top:2px}
+.cl-peek-setas{display:flex;gap:6px}
+.cl-peek-setas button{width:30px;height:30px;border-radius:8px;
+  border:1px solid var(--rule-solid);background:var(--paper);color:var(--soft);
+  cursor:pointer;display:grid;place-items:center}
+.cl-peek-setas button:hover{color:var(--ink);border-color:var(--ink)}
+.cl-peek-setas svg{width:14px;height:14px;fill:none;stroke:currentColor;
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#pag-contas .aviso.grave{background:color-mix(in srgb,var(--vermelho) 9%,transparent);
-  border-color:color-mix(in srgb,var(--vermelho) 32%,transparent)}
-#pag-contas .aviso.grave svg{stroke:var(--vermelho)}
+.cl-peek-corpo{flex:1;min-height:0;overflow:auto;padding:8px 0}
+.cl-peek-vazio{padding:44px 22px;text-align:center}
+.cl-peek-vazio p{font-size:12.5px;line-height:1.6;color:var(--soft);margin:0 0 8px}
+.cl-peek-vazio p b{color:var(--ink);font-weight:800}
+.cl-peek-vazio .ct-bt{margin-top:8px}
 
-/* ------------------------------------------------- o mês inteiro dentro da tela
-   A grade recebe a altura que sobra e divide entre as seis linhas. Sem isso ela crescia
-   por conteudo e empurrava a pagina para a rolagem, que e' justamente o que o Gabriel
-   nao quer no mes. */
-#pag-calendario .cal-mes{grid-template-rows:repeat(6,minmax(0,1fr))}
-#pag-calendario .cal-dia{min-height:0;overflow:hidden}
-/* O pulso de "hoje". Duas piscadas curtas e acabou: animacao longa em tela de trabalho
-   vira distracao. */
-@keyframes calPulso{
-  0%,100%{background:transparent}
-  25%,75%{background:var(--accent-tint)}
+/* --------------------------------------------------- a linha de uma saida
+   A HORA E' A ANCORA e fica numa coluna propria, com o fio da agenda ligando uma
+   saida na seguinte. O resto vira um cartao: capa, nome curto, conta, leva, estado e
+   o caminho para o arquivo. */
+.cl-li{display:flex;align-items:stretch;gap:12px;padding:0 18px}
+.cl-li-quando{position:relative;flex:none;width:46px;padding:14px 0 14px;
+  display:flex;justify-content:flex-end}
+.cl-li-quando b{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;
+  letter-spacing:-.3px;line-height:1;height:14px}
+.cl-li.vem .cl-li-quando b{color:var(--accent)}
+/* O FIO DA AGENDA: sem ele as horas viram uma coluna de numeros soltos. */
+.cl-li-fio{position:absolute;left:calc(100% + 11px);top:0;bottom:0;width:2px;
+  border-radius:2px;background:color-mix(in srgb,var(--soft) 30%,transparent)}
+.cl-li:first-child .cl-li-fio{top:20px}
+.cl-li:last-child .cl-li-fio{bottom:calc(100% - 20px)}
+.cl-li-quando::after{content:'';position:absolute;left:calc(100% + 7px);top:17px;
+  width:9px;height:9px;border-radius:999px;background:var(--soft);
+  box-shadow:0 0 0 3px var(--branco,var(--paper))}
+.cl-li.vem .cl-li-quando::after{background:var(--accent)}
+
+.cl-li-corpo{flex:1;min-width:0;margin:6px 0;padding:12px 13px 13px;
+  border-radius:13px;border:1px solid var(--rule-solid);
+  background:var(--branco,var(--paper))}
+.cl-li.vem .cl-li-corpo{border-color:color-mix(in srgb,var(--accent) 32%,
+  var(--rule-solid));background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.cl-li-topo{display:flex;align-items:flex-start;gap:12px}
+.cl-li-capa{flex:none;width:58px;height:78px;border-radius:9px;overflow:hidden;
+  background:var(--paper-2);display:grid;place-items:center;color:var(--soft)}
+.cl-li-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.cl-li-capa svg{width:20px;height:20px}
+.cl-li-txt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;
+  gap:5px}
+.cl-li-txt .bc-nome{margin:0;font-size:14px;word-break:normal}
+.cl-li-quem{display:flex;align-items:center;gap:6px;font-size:11.5px;
+  font-weight:700;color:var(--soft)}
+.cl-li-quem i{width:7px;height:7px;border-radius:999px;flex:none}
+/* Os pares e as acoes vem do `06-midias.css`; aqui so' o respiro muda, porque no
+   painel do dia eles se repetem por saida e nao uma vez so'. */
+.cl-li-corpo .bc-pares{margin-top:11px}
+.cl-li-corpo .bc-par{padding:6px 0;font-size:12px}
+.cl-li-corpo .bc-acoes{margin-top:11px;gap:8px}
+.cl-li-ex{display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  font-size:10.5px;color:var(--soft)}
+
+.cl-peek-pins{display:flex;gap:6px;margin-top:7px}
+
+/* O selo de exemplo, no mesmo desenho da sub-aba Midias. */
+.mid-ex{display:inline-block;width:6px;height:6px;border-radius:999px;
+  background:var(--soft);opacity:.5;flex:none}
+.mid-nota-ex{display:flex;align-items:flex-start;gap:7px;margin-top:16px;
+  font-size:11px;color:var(--soft);line-height:1.5;max-width:760px}
+.mid-nota-ex .mid-ex{margin-top:5px}
+
+.cl-torrada{z-index:130}
+
+/* -------------------------------------------------- a previa do conteudo
+   A CAPA E' O QUE A CASA TEM: o video mora no Drive e a Meta nao devolve arquivo de
+   reel. Entao a previa mostra a miniatura grande, os dados e os dois caminhos. */
+.cl-prev{position:fixed;inset:0;z-index:120;display:grid;place-items:center;
+  padding:24px;background:rgba(14,14,14,.52);opacity:0;transition:opacity .2s ease}
+.cl-prev.on{opacity:1}
+.cl-prev[hidden]{display:none}
+:root[data-theme="dark"] .cl-prev{background:rgba(0,0,0,.66)}
+.cl-prev-cx{position:relative;display:flex;gap:22px;max-width:760px;width:100%;
+  padding:22px;border-radius:16px;background:var(--branco,var(--paper));
+  border:1px solid var(--rule-solid);box-shadow:0 30px 70px rgba(14,14,14,.26);
+  transform:translateY(10px);transition:transform .22s cubic-bezier(.32,.72,0,1)}
+.cl-prev.on .cl-prev-cx{transform:none}
+.cl-prev-x{position:absolute;top:12px;right:12px;width:30px;height:30px;
+  border-radius:8px;border:1px solid var(--rule-solid);background:var(--paper);
+  color:var(--soft);cursor:pointer;display:grid;place-items:center;z-index:2}
+.cl-prev-x:hover{color:var(--ink);border-color:var(--ink)}
+.cl-prev-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round}
+.cl-prev-capa{flex:none;width:236px;aspect-ratio:9/16;border-radius:12px;
+  overflow:hidden;background:var(--paper-2);display:grid;place-items:center;
+  color:var(--soft)}
+.cl-prev-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.cl-prev-capa svg{width:34px;height:34px}
+.cl-prev-lado{flex:1;min-width:0;display:flex;flex-direction:column;
+  align-items:flex-start;padding-right:34px}
+.cl-prev-lado .bc-nome{margin:9px 0 0;font-size:17px;word-break:normal}
+.cl-prev-lado .bc-pares{width:100%;margin-top:14px}
+.cl-prev-nota{margin:14px 0 0;font-size:11px;line-height:1.55;color:var(--soft)}
+
+/* O BOTAO SEM DESTINO fica desligado e explica na dica, em vez de sumir: some, e a
+   fila de acoes muda de tamanho de linha para linha sem motivo aparente. */
+.mid-ac.morto,.mid-drive.como-bt.morto{opacity:.3;cursor:not-allowed}
+.mid-ac.peq,.mid-drive.como-bt.peq{width:26px;height:26px;border-radius:7px}
+.mid-ac.peq svg{width:13px;height:13px}
+.mid-drive.como-bt.peq .mid-drive-logo{width:12px;height:12px}
+.pa-gt-li.post .bc-acoes{margin:0;gap:5px;flex:none}
+
+@media (max-width:900px){
+  .cl-prev-cx{flex-direction:column}
+  .cl-prev-capa{width:100%;aspect-ratio:16/9}
 }
-#pag-calendario .cal-dia.pulsa{animation:calPulso .9s ease-in-out 1}
-@media(prefers-reduced-motion:reduce){#pag-calendario .cal-dia.pulsa{animation:none;
-  background:var(--accent-tint)}}
+
+/* ----------------------------------------------- o seletor de conta, maior
+   O retrato vinha em 34 no botao e 30 na lista, e ele reclamou de tamanho e de
+   qualidade. O arquivo tem 206 por 206, entao aguenta bem mais: 46 no botao e 40 na
+   lista, com suavizacao de reducao. */
+.rs-casa .cb-bt{height:60px;padding:0 14px 0 8px;gap:12px}
+.rs-casa .cb-av{width:46px;height:46px}
+.rs-casa .cb-av.peq{width:40px;height:40px}
+.rs-casa .cb-av img{image-rendering:auto}
+.rs-casa .cb-txt b{font-size:15px}
+.rs-casa .cb-txt small{font-size:12px}
+.rs-casa .cb-m{width:340px}
+.rs-casa .cb-o{padding:9px 10px;gap:12px}
+
+/* ====== 2. o especifico da aba: o mes e o gantt ====== */
+/* =========================================== PROPOSTA A: A PAUTA (CSS, v4)
+
+   REGRA DESTA FOLHA: aqui so' entra o que NAO existe no painel. Cartao de indicador,
+   linha de controle, alternador segmentado e seletor de conta ja' existem e vem das
+   folhas da casa (`.rs-cd.rs-kpi`, `.rs-topo`, `.rs-seg`, `.cb`). O que sobra e' a
+   grade do mes e o gantt, que nao tem equivalente pronto.
+
+   ISSO E' A CORRECAO DE RAIZ de 11/09. A estetica falhava rodada apos rodada porque
+   eu compunha peca nova toda vez em vez de reusar a que ja' estava no ar e aprovada:
+   cada peca inventada era mais uma chance de errar peso, altura e espacamento. */
+
+/* `.rs-casa` E' SO' O ESCOPO da folha do Analytics e nao carrega estilo proprio: ela
+   marca os dois lugares onde as pecas da casa aparecem, o corpo da pagina e o canto
+   do cabecalho onde mora o seletor de conta. Dar layout a ela quebrava o cabecalho. */
+.cal-pilha{display:flex;flex-direction:column;gap:16px}
+/* O CABECALHO PRECISA SUBIR ACIMA DO CONTEUDO. `.pagina.ativa > *` recebe uma animacao
+   de entrada, e animacao com `transform` cria contexto de empilhamento: o menu do
+   seletor, com z-index 60, ficava preso dentro do cabecalho e os cartoes passavam por
+   cima dele. Era isso que parecia bug ao escolher a conta. */
+.cab{position:relative;z-index:20}
+.pa-ki{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;color:var(--soft)}
+.rs-kpi .num small{font-size:13px;font-weight:700;color:var(--soft);
+  letter-spacing:0}
+/* O rodape do cartao ganhou corpo: pilula de variacao mais a linha de contexto, com
+   respiro de verdade entre o numero e o pe. */
+.rs-kpi .lin{margin-top:12px;align-items:flex-start}
+.rs-kpi .lin > span{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  min-width:0}
+/* O PE QUEBRA EM VEZ DE SUMIR. Com `nowrap` o aviso de dia vazio, que e' a unica coisa
+   nesta faixa que pede acao, terminava em reticencia. */
+.rs-kpi .rs-delta-pe{font-size:12px;font-weight:600;margin-left:0;white-space:normal;
+  line-height:1.4;min-width:0}
+.pa-nav button{padding:7px 9px;display:grid;place-items:center}
+.pa-nav svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+
+/* --------------------------------------------------------------- a grade do mes */
+.pa-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  background:var(--paper-2);border-bottom:1px solid var(--rule-solid)}
+.pa-dias span{padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--soft)}
+.pa-grade{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+
+.pa-cel{position:relative;min-height:112px;padding:7px 8px 8px;text-align:left;
+  background:none;border:0;border-right:1px solid var(--rule-solid);
+  border-bottom:1px solid var(--rule-solid);cursor:pointer;color:inherit;
+  display:flex;flex-direction:column;gap:5px}
+.pa-cel:nth-child(7n){border-right:0}
+.pa-cel:nth-last-child(-n+7){border-bottom:0}
+.pa-cel:hover{background:var(--paper-2)}
+.pa-cel.fora{background:var(--paper-2);opacity:.55}
+.pa-cel.aberto{background:var(--paper-2);box-shadow:inset 0 0 0 2px var(--ink)}
+.pa-num{font-size:12px;font-weight:700;color:var(--soft);
+  font-variant-numeric:tabular-nums;line-height:1}
+/* HOJE SEM O DISCO PRETO. O disco ficava estranho nos dois temas (no escuro ele vira
+   um buraco) e roubava a largura da primeira linha do dia mais cheio. Agora o dia de
+   hoje se marca pelo que a casa ja' usa: faixa na cor da casa e o numero em tinta
+   cheia, com o rotulo escrito por extenso. */
+.pa-cel.hoje{box-shadow:inset 0 2px 0 var(--accent);
+  background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.pa-cel.hoje .pa-num{color:var(--ink);font-weight:800;display:flex;align-items:center;
+  gap:7px}
+.pa-cel.hoje .pa-num::after{content:'Hoje';font-size:9px;font-weight:800;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--accent)}
+
+/* O HOJE QUE PISCA: clicar em "Hoje" ja' estando no mes de hoje nao mudava nada. */
+@keyframes pa-pisca{
+  0%,100%{box-shadow:inset 0 0 0 0 transparent}
+  15%,45%,75%{box-shadow:inset 0 0 0 2px var(--ink);background:var(--paper-2)}
+  30%,60%,90%{box-shadow:inset 0 0 0 0 transparent}
+}
+.pa-cel.pisca{animation:pa-pisca 1.5s ease-in-out 1}
+
+.pa-lista{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pa-li{display:flex;align-items:center;gap:5px;height:19px;padding:0 5px 0 4px;
+  border-radius:5px;min-width:0}
+.pa-li i{width:3px;height:11px;border-radius:2px;flex:none}
+.pa-li b{flex:none;font-size:10.5px;font-weight:800;color:var(--ink);
+  font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.pa-li > span{flex:1;min-width:0;font-size:10.5px;color:var(--soft);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pa-li .mid-ex{flex:none}
+/* O futuro leva a cor da casa; o passado fica neutro. */
+.pa-li.vem{background:color-mix(in srgb,var(--accent) 11%,transparent)}
+.pa-li.vem b{color:var(--accent)}
+.pa-li.vem > span{color:color-mix(in srgb,var(--accent) 62%,var(--ink))}
+.pa-mais{font-size:9.5px;font-weight:700;color:var(--soft);padding-left:14px}
+.pa-slot{height:19px;border:1px dashed color-mix(in srgb,var(--vermelho) 45%,
+  var(--rule-solid));border-radius:5px;display:grid;place-items:center;font-size:9.5px;
+  font-weight:700;color:color-mix(in srgb,var(--vermelho) 72%,var(--soft))}
 
 
+/* ============================================================ O GANTT
+   Molde do ClickUp: dois paineis, regua de dois niveis, barra por leva com progresso,
+   barra de resumo por conta e o risco de hoje.
+
+   TUDO EM PORCENTAGEM: o quadro ocupa a largura inteira em qualquer escala, e a barra
+   de rolagem horizontal do rodape deixa de existir. As alturas sao fixas e IGUAIS nos
+   dois lados: gantt desalinhado entre a lista e a linha do tempo e' gantt quebrado. */
+.pa-gt{display:flex;align-items:stretch;min-height:0}
+.pa-gt-lista{flex:none;width:300px;border-right:1px solid var(--rule-solid);
+  background:var(--branco,var(--paper));z-index:2}
+.pa-gt-quadro{flex:1;min-width:0;overflow:hidden}
+/* UM PISO DE ALTURA: com uma conta e uma leva o quadro virava uma tirinha de 170
+   pixels no meio do branco, e ele pediu o gantt maior. */
+.pa-gt-lista,.pa-gt-campo{min-height:224px}
+.pa-gt-cab,.pa-gt-regua{height:56px}
+.pa-gt-cab{display:flex;align-items:flex-end;gap:8px;padding:0 16px 10px;
+  border-bottom:1px solid var(--rule-solid);background:var(--paper-2);
+  font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--soft)}
+.pa-gt-cab .pa-gt-c{margin-left:auto}
+
+/* AS FAIXAS SAO ALTAS: ele pediu o gantt maior, e altura de linha e' o que se ve'
+   primeiro num gantt. */
+.pa-gt-li{display:flex;align-items:center;gap:10px;padding:0 16px;
+  border-bottom:1px solid var(--rule-solid)}
+.pa-gt-li.conta{height:64px;background:var(--paper-2)}
+.pa-gt-li.leva{height:58px}
+.pa-gt-seta{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;color:var(--soft);
+  transform:rotate(90deg)}
+.pa-gt-li .cb-av{width:28px;height:28px;font-size:10px}
+/* O LOSANGO E' O MARCADOR DE ITEM do gantt, como no ClickUp. */
+.pa-gt-losango{width:9px;height:9px;flex:none;margin-left:24px;background:var(--cor);
+  transform:rotate(45deg);border-radius:1.5px}
+.pa-gt-nome{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pa-gt-nome b{font-size:13px;font-weight:800;letter-spacing:-.2px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pa-gt-li.leva .pa-gt-nome b{font-weight:700}
+.pa-gt-nome > span{font-size:11px;color:var(--soft);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pa-gt-c{flex:none;font-size:11.5px;color:var(--soft);
+  font-variant-numeric:tabular-nums}
+.pa-gt-c b{font-size:13.5px;font-weight:800;color:var(--ink)}
+
+/* A REGUA DE DOIS NIVEIS: mes em cima, dia embaixo. */
+.pa-gt-regua{border-bottom:1px solid var(--rule-solid);background:var(--paper-2)}
+.pa-gt-meses{display:flex;height:25px;border-bottom:1px solid var(--rule-solid)}
+.pa-gt-mes{flex:none;display:flex;align-items:center;padding:0 10px;
+  border-right:1px solid var(--rule-solid);overflow:hidden}
+.pa-gt-mes:last-child{border-right:0}
+.pa-gt-mes span{font-size:11px;font-weight:800;letter-spacing:.3px;color:var(--soft);
+  white-space:nowrap}
+.pa-gt-dias{display:flex;height:30px}
+.pa-gt-d{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;line-height:1.1;
+  border-right:1px solid color-mix(in srgb,var(--rule-solid) 55%,transparent)}
+.pa-gt-d:last-child{border-right:0}
+.pa-gt-d b{font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.pa-gt-d span{font-size:8.5px;font-weight:700;color:var(--soft);
+  text-transform:uppercase}
+.pa-gt-d.fds{background:color-mix(in srgb,var(--rule-solid) 40%,transparent)}
+.pa-gt-d.fds b{color:var(--soft)}
+.pa-gt-d.hoje b{color:var(--accent);font-weight:800}
+.pa-gt-d.hoje{box-shadow:inset 0 2px 0 var(--accent)}
+
+.pa-gt-campo{position:relative}
+.pa-gt-fundo{position:absolute;inset:0;display:flex;z-index:0}
+.pa-gt-col{flex:1;min-width:0;border-right:1px solid
+  color-mix(in srgb,var(--rule-solid) 55%,transparent)}
+.pa-gt-col:last-child{border-right:0}
+.pa-gt-col.fds{background:color-mix(in srgb,var(--paper-2) 60%,transparent)}
+.pa-gt-col.hoje{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+
+.pa-gt-faixas{position:relative;z-index:1}
+.pa-gt-faixa{position:relative;height:58px;border-bottom:1px solid var(--rule-solid)}
+.pa-gt-faixa.conta{height:64px}
+/* O rotulo fica FORA da fita: dentro dela roubava largura da barra e deslocava os
+   blocos, que sao posicionados sobre a largura total do periodo. */
+.pa-gt-fita{position:absolute;top:50%;transform:translateY(-50%);height:26px}
+.pa-gt-fita.corta-esq .pa-gt-bloco:first-child,
+.pa-gt-fita.corta-esq .pa-gt-resumo{border-top-left-radius:0;
+  border-bottom-left-radius:0}
+.pa-gt-fita.corta-esq::before,.pa-gt-fita.corta-dir::after{content:'';
+  position:absolute;top:50%;width:0;height:0;transform:translateY(-50%);
+  border-top:6px solid transparent;border-bottom:6px solid transparent}
+.pa-gt-fita.corta-esq::before{left:-7px;border-right:6px solid var(--soft);opacity:.6}
+.pa-gt-fita.corta-dir::after{right:-7px;border-left:6px solid var(--soft);opacity:.6}
+
+/* A barra de resumo da conta e' fina e chata, como o rollup do ClickUp: ela nao
+   disputa com as barras das levas, so' fecha o grupo. */
+.pa-gt-resumo{position:absolute;left:0;right:0;top:50%;height:11px;
+  transform:translateY(-50%);border-radius:3px;overflow:hidden;
+  background:color-mix(in srgb,var(--cor) 18%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cor) 40%,transparent)}
+.pa-gt-resumo i{display:block;height:100%;background:var(--cor);opacity:.55}
+
+/* A BARRA DA LEVA E' SEGMENTADA: dia sem saida vira corte, e o buraco de agenda
+   aparece como falha na barra. */
+.pa-gt-barra{position:absolute;inset:0}
+.pa-gt-bloco{position:absolute;top:0;height:100%;border-radius:6px;
+  background:var(--cor);opacity:.85}
+.pa-gt-bloco.vem{background:transparent;opacity:1;
+  box-shadow:inset 0 0 0 1.5px var(--cor);
+  background-image:repeating-linear-gradient(135deg,
+    color-mix(in srgb,var(--cor) 26%,transparent) 0 5px,
+    transparent 5px 10px)}
+
+/* NA ESCALA DE HORAS a barra vira trilho com um pino por saida: ali a leva nao tem
+   duracao, tem horario. */
+.pa-gt-barra.fina{display:flex;align-items:center}
+.pa-gt-trilho{position:absolute;left:0;right:0;top:50%;height:4px;
+  transform:translateY(-50%);border-radius:999px;
+  background:color-mix(in srgb,var(--cor) 22%,transparent)}
+.pa-gt-pino{position:absolute;top:50%;width:14px;height:14px;border-radius:999px;
+  transform:translate(-50%,-50%);background:var(--cor);
+  box-shadow:0 0 0 3px var(--branco,var(--paper))}
+.pa-gt-pino.vem{background:var(--branco,var(--paper));
+  box-shadow:inset 0 0 0 3px var(--cor),0 0 0 3px var(--branco,var(--paper))}
+
+.pa-gt-rot{position:absolute;left:calc(100% + 10px);top:50%;
+  transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--soft);
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+.pa-gt-fita.rot-dentro .pa-gt-rot{left:auto;right:calc(100% + 10px)}
+
+.pa-gt-risco{position:absolute;top:0;bottom:0;width:2px;background:var(--vermelho);
+  z-index:3;opacity:.75}
+.pa-gt-risco span{position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  background:var(--vermelho);color:#fff;font-size:9px;font-weight:800;
+  letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;
+  border-radius:0 0 5px 5px}
+.pa-gt-sem{padding:70px 20px;text-align:center;font-size:13px;color:var(--soft)}
+
+@media (max-width:1180px){
+  .pa-cel{min-height:98px}
+  .pa-gt-lista{width:238px}
+}
+
+/* --------------------------------- as publicacoes dentro do gantt (3o nivel)
+   Ele pediu em 11/09 para ver as publicacoes no gantt, nem que virasse muita linha.
+   A leva abre pela seta e cada saida do periodo ganha a linha dela, dos dois lados.
+   O quadro inteiro rola na vertical, com o cabecalho e a regua presos no topo. */
+.pa-gt{max-height:min(560px,calc(100vh - 300px));overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--rule-solid) transparent}
+.pa-gt::-webkit-scrollbar{width:10px}
+.pa-gt::-webkit-scrollbar-thumb{background:var(--rule-solid);border-radius:999px;
+  border:2px solid transparent;background-clip:padding-box}
+.pa-gt-cab,.pa-gt-regua{position:sticky;top:0;z-index:5}
+.pa-gt-lista{position:relative}
+
+.pa-gt-li.leva{width:100%;border-left:0;border-right:0;border-top:0;
+  background:none;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.pa-gt-li.leva:hover{background:var(--paper-2)}
+.pa-gt-li.leva .pa-gt-seta{transform:rotate(0deg);transition:transform .16s ease}
+.pa-gt-li.leva.abre .pa-gt-seta{transform:rotate(90deg)}
+.pa-gt-li.leva .pa-gt-losango{margin-left:0}
+
+.pa-gt-li.post,.pa-gt-faixa.post{height:44px}
+.pa-gt-li.post{padding-left:56px;background:
+  color-mix(in srgb,var(--paper-2) 45%,transparent)}
+.pa-gt-li.post .pa-gt-nome b{font-size:12px;font-weight:700}
+.pa-gt-li.post .pa-gt-nome > span{font-size:10.5px}
+.pa-gt-ponto{width:7px;height:7px;flex:none;border-radius:999px;background:var(--cor)}
+.pa-gt-ponto.vem{background:var(--branco,var(--paper));
+  box-shadow:inset 0 0 0 2px var(--cor)}
+.pa-gt-faixa.post{background:color-mix(in srgb,var(--paper-2) 45%,transparent)}
+
+/* O MARCO DA PUBLICACAO: losango no instante dela, com a hora ao lado. E' o marco do
+   ClickUp, que la' marca entrega de duracao zero, e aqui marca a saida. */
+.pa-gt-marco{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;
+  align-items:center;gap:7px;border:0;background:none;padding:4px 6px;cursor:pointer;
+  border-radius:8px;color:inherit}
+.pa-gt-marco:hover{background:var(--paper-2)}
+.pa-gt-marco i{width:11px;height:11px;flex:none;background:var(--cor);
+  transform:rotate(45deg);border-radius:2px}
+.pa-gt-marco.vem i{background:var(--branco,var(--paper));
+  box-shadow:inset 0 0 0 2px var(--cor)}
+.pa-gt-marco em{font-style:normal;font-size:10.5px;font-weight:700;color:var(--soft);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Na escala de mes a coluna tem poucos pixels: fica so' o losango, e a hora vai para
+   a lista da esquerda e para a dica do ponteiro. */
+.pa-gt-marco.so-marca em{display:none}
+.pa-gt-marco.so-marca{padding:4px}
+
+/* O CAMPO E' ARRASTAVEL: puxar para o lado anda no tempo, porque a linha do tempo
+   cabe inteira na largura e nao ha' rolagem para levar o periodo. */
+.pa-gt-campo{cursor:grab;user-select:none}
+.pa-gt-campo.arrastando{cursor:grabbing}
+.pa-gt-campo button,.pa-gt-campo a{cursor:pointer}
+
+/* ---------------------------------------------- o numero do indicador, maior
+   `--rs-n2` da' 24 pixels, e ele leu isso como pequeno para o numero que manda no
+   cartao. Aqui ele sobe para 36, com o sufixo acompanhando. */
+.rs-kpi .num{font-size:36px;letter-spacing:-.04em;margin-top:10px;
+  display:flex;align-items:baseline;gap:7px}
+.rs-kpi .num small{font-size:14px}
+.rs-kpi .num b{font-weight:800;font-variant-numeric:tabular-nums}
+
+/* O RODAPE GANHOU PESO: a pilula maior, o texto maior e respiro entre os dois. Ele
+   estava miudo demais para o tamanho do numero acima. */
+.rs-kpi .lin{margin-top:14px}
+.rs-kpi .lin > span{gap:9px}
+.rs-casa .rs-delta{font-size:12px;padding:4px 9px 4px 7px;border-radius:999px}
+.rs-casa .rs-delta svg{width:14px;height:14px;fill:none;stroke:currentColor;
+  stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.rs-kpi .rs-delta-pe{font-size:12.5px}
+.rs-casa .rs-delta-v{font-variant-numeric:tabular-nums;white-space:nowrap}

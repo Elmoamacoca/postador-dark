@@ -253,92 +253,24 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
   </section>
 
   <!-- -------------------------------------------------------- Calendário -->
+  <!-- ================================================== A ABA DE CALENDARIO
+       O desenho e' a proposta A, aprovada em 11/09/2026: o mes em linhas de texto e
+       um gantt sobre as levas, no molde do ClickUp, no mesmo alternador.
+
+       A CASCA E' A MESMA DA ABA DE ANALYTICS, e de proposito: o seletor de conta vive
+       no canto direito do cabecalho, e o corpo e' desenhado pelo `03-calendario.js`.
+       As pecas de controle (cartao de indicador, alternador, linha de topo, combobox)
+       vem do `04-analytics.css`, que escopa nas duas abas. -->
   <section class="pagina" id="pag-calendario">
     <div class="cab">
       <div>
         <h1>Calendário</h1>
-        <p class="p">Toda a agenda, por conta. É daqui que sai a programação em lote.</p>
+        <p class="p">Uma conta por vez. O que saiu, o que vai sair e onde está o
+          buraco.</p>
       </div>
-      <div class="dir">
-        <button class="bt forte" id="cal-programar">Programar publicações</button>
-      </div>
+      <div class="dir rs-casa" id="cal-troca"></div>
     </div>
-
-    <div class="filtros" id="cal-filtros">
-      <div class="ac" id="calac">
-        <div class="ac-campo">
-          <svg class="ac-lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/>
-               <path d="M20 20l-3.5-3.5"/></svg>
-          <input id="calacq" type="text" autocomplete="off" spellcheck="false"
-                 placeholder="Buscar conta pelo arroba">
-          <button class="ac-limpar" id="calaclimpar" type="button" hidden
-                  aria-label="Limpar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-          </button>
-        </div>
-        <div class="ac-lista" id="calaclista" role="listbox"></div>
-      </div>
-
-      <div class="sel" id="calmerc">
-        <button class="sel-gatilho" id="calmercg" type="button" aria-haspopup="listbox"
-                aria-expanded="false">
-          <span class="sel-valor" id="calmercv" data-vazio="true">Todos os mercados</span>
-          <svg class="sel-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <div class="sel-lista" id="calmercl" role="listbox">
-          <div class="sel-grupo" id="calmercgr"></div>
-        </div>
-      </div>
-
-      <div class="autocomplete" id="caletq">
-        <div class="autocomplete__trigger" id="caletqgatilho" role="combobox" tabindex="0"
-             aria-haspopup="listbox" aria-expanded="false">
-          <span class="autocomplete__value" id="caletqvalor"
-                data-placeholder="true">Todas as etiquetas</span>
-          <button class="autocomplete__clear-button" id="caletqlimpar" type="button"
-                  data-empty="true" aria-label="Limpar as etiquetas">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-          </button>
-          <span class="autocomplete__indicator" id="caletqseta" data-open="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-          </span>
-        </div>
-        <div class="autocomplete__popover" id="caletqpop">
-          <div class="autocomplete__busca">
-            <input id="caletqq" type="text" autocomplete="off" spellcheck="false"
-                   placeholder="Buscar etiqueta">
-          </div>
-          <div class="list-box" id="caletqlista" role="listbox"
-               aria-multiselectable="true"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="caixa solta">
-      <div class="cal-barra">
-        <button class="bt mini" data-cal="hoje">Hoje</button>
-        <div class="cal-visoes">
-          <button class="cal-v ativo" data-visao="mes">Mês</button>
-          <button class="cal-v" data-visao="semana">Semana</button>
-          <button class="cal-v" data-visao="lista">Lista</button>
-        </div>
-        <button class="cal-seta" data-cal="antes" aria-label="Período anterior">
-          <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
-        </button>
-        <button class="cal-seta" data-cal="depois" aria-label="Próximo período">
-          <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-        </button>
-        <b class="cal-titulo" id="cal-titulo"></b>
-        <div class="dir"><div class="cal-legenda" id="cal-legenda"></div></div>
-      </div>
-      <div id="cal-corpo"></div>
-    </div>
+    <div id="cal-palco"></div>
   </section>
 
   <!-- ---------------------------------------------------------- Publicar -->
@@ -531,6 +463,9 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
      essas tres rotas lendo `analytics.json`. Manter o contrato de dados foi de proposito:
      mudando o formato, seria preciso mexer no motor, e a copia deixaria de ser copia. -->
 <script src="codigo/02-analytics.js"></script>
+
+<!-- A ABA DE CALENDARIO. Gerado por `docs/propostas/calendario/portar-js.py`. -->
+<script src="codigo/03-calendario.js"></script>
 
 <!-- ================================================== A JANELA DE UM POST
      Uma so' para o painel inteiro: ela e' preenchida na hora de abrir. Duas janelas

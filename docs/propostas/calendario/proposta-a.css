@@ -12,7 +12,7 @@
 /* `.rs-casa` E' SO' O ESCOPO da folha do Analytics e nao carrega estilo proprio: ela
    marca os dois lugares onde as pecas da casa aparecem, o corpo da pagina e o canto
    do cabecalho onde mora o seletor de conta. Dar layout a ela quebrava o cabecalho. */
-.cal-corpo{display:flex;flex-direction:column;gap:16px}
+.cal-pilha{display:flex;flex-direction:column;gap:16px}
 /* O CABECALHO PRECISA SUBIR ACIMA DO CONTEUDO. `.pagina.ativa > *` recebe uma animacao
    de entrada, e animacao com `transform` cria contexto de empilhamento: o menu do
    seletor, com z-index 60, ficava preso dentro do cabecalho e os cartoes passavam por
