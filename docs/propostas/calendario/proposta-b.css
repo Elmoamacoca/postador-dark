@@ -139,7 +139,7 @@
 .mu-g-quem b{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap}
 .mu-g-quem span span{font-size:10px;color:var(--soft)}
-.mu-g-quem .cl-av{width:28px;height:28px;font-size:10px}
+.mu-g-quem .cb-av{width:28px;height:28px;border-radius:50%;overflow:hidden}
 
 .mu-g-dia,.mu-g-cel{flex:none;width:124px;border-right:1px solid var(--rule-solid)}
 .mu-g-dia.fds,.mu-g-cel.fds{background:color-mix(in srgb,var(--paper-2) 55%,transparent)}

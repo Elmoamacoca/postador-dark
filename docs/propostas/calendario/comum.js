@@ -207,20 +207,16 @@
      gantt responde "em que ritmo". Trocar de visao nao troca de conta nem de mes. */
   var visao = 'mes';
 
+  /* O ALTERNADOR E' O `.rs-seg` DA CASA, o mesmo que a aba de Analytics usa para o
+     periodo. Eu tinha desenhado um proprio, com icone e altura diferentes: peca nova
+     onde ja' havia peca aprovada e' o que vinha deixando a tela fora do tom. */
   function abas() {
-    return '<div class="cl-visao" role="tablist">' +
-      [['mes', 'Mês', icoMes()], ['gantt', 'Gantt', icoGantt()]].map(function (v) {
+    return '<div class="rs-seg" role="tablist">' +
+      [['mes', 'Mês'], ['gantt', 'Gantt']].map(function (v) {
         return '<button type="button" role="tab" data-visao="' + v[0] + '"' +
           ' aria-selected="' + (visao === v[0] ? 'true' : 'false') + '"' +
-          (visao === v[0] ? ' class="on"' : '') + '>' + v[2] + v[1] + '</button>';
+          (visao === v[0] ? ' class="on"' : '') + '>' + v[1] + '</button>';
       }).join('') + '</div>';
-  }
-  function icoMes() {
-    return '<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" ' +
-      'rx="2.4"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>';
-  }
-  function icoGantt() {
-    return '<svg viewBox="0 0 24 24"><path d="M4 6.5h9M4 12h15M4 17.5h6"/></svg>';
   }
 
   document.addEventListener('click', function (e) {
@@ -270,32 +266,37 @@
   /* --------------------------------------------------------- o seletor de conta */
   var aberto = false, marcado = 0;
 
+  /* O SELETOR E' O COMBOBOX `.cb` DO PAINEL, copiado da aba de Analytics que ja' esta'
+     no ar: mesma marcacao, mesmas classes, mesmo lugar (canto direito do cabecalho da
+     pagina). O que eu tinha feito antes era um controle novo com as mesmas funcoes e
+     medidas diferentes, e ele reprovou duas vezes. */
   function seletor() {
     var c = escolhida === REDE ? null : contaDe(escolhida);
-    return '<div class="cl-sel" id="cl-sel">' +
-      '<button class="cl-sel-bt" type="button" id="cl-sel-bt" aria-haspopup="listbox" ' +
+    return '<div class="cb" id="cl-sel">' +
+      '<button class="cb-bt" type="button" id="cl-sel-bt" aria-haspopup="listbox" ' +
       'aria-expanded="false">' +
-        (c ? face(c, 'cl-av') : '<span class="cl-av cl-rede">' + icoRede() + '</span>') +
-        '<span class="cl-sel-txt"><b>' + (c ? '@' + seguro(c.u) : 'Toda A Rede') +
-        '</b><span>' + (c ? (c.mercado ? seguro(maiuscula(c.mercado))
-                                       : 'Sem Mercado Definido')
-                          : CONTAS.length + ' Contas Ligadas') + '</span></span>' +
-        '<svg class="cl-sel-cv" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>' +
+        (c ? face(c, 'cb-av') : '<span class="cb-av cl-rede">' + icoRede() + '</span>') +
+        '<span class="cb-txt"><b>' + (c ? '@' + seguro(c.u) : 'Toda A Rede') +
+        '</b><small>' + (c ? (c.mercado ? seguro(maiuscula(c.mercado))
+                                        : 'sem mercado definido')
+                           : CONTAS.length + ' contas ligadas') + '</small></span>' +
+        '<svg class="cb-cv" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>' +
       '</button>' +
-      '<div class="cl-sel-cx" id="cl-sel-cx" hidden>' +
-        '<label class="cl-sel-busca"><svg viewBox="0 0 24 24">' +
+      '<div class="cb-m" id="cl-sel-cx" hidden>' +
+        '<label class="cb-busca"><svg viewBox="0 0 24 24" fill="none" ' +
+          'stroke="currentColor" stroke-width="2">' +
           '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>' +
           '<input type="text" id="cl-sel-q" placeholder="Buscar conta pelo arroba" ' +
           'autocomplete="off" spellcheck="false"></label>' +
-        '<div class="cl-sel-lista" id="cl-sel-lista" role="listbox"></div>' +
+        '<div class="cb-lista" id="cl-sel-lista" role="listbox"></div>' +
       '</div></div>';
   }
 
   function face(c, classe) {
     return c.avatar
-      ? '<img class="' + classe + '" src="' + seguro(c.avatar) + '" alt="">'
-      : '<span class="' + classe + '" style="background:' + corDe(c.u) + '">' +
-        seguro(c.u.slice(0, 2).toUpperCase()) + '</span>';
+      ? '<span class="' + classe + '"><img src="' + seguro(c.avatar) + '" alt=""></span>'
+      : '<span class="' + classe + ' cl-inicial" style="background:' + corDe(c.u) +
+        '">' + seguro(c.u.slice(0, 2).toUpperCase()) + '</span>';
   }
   function icoRede() {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
@@ -322,17 +323,20 @@
     marcado = Math.min(marcado, Math.max(lista.length - 1, 0));
     caixa.innerHTML = lista.length ? lista.map(function (c, i) {
       var quantas = c.u === REDE ? SAIDAS.length : saidasDe(c.u).length;
-      return '<button type="button" class="cl-op' +
-        (c.u === escolhida ? ' on' : '') + (i === marcado ? ' marcado' : '') +
+      return '<button type="button" class="cb-o' +
+        (c.u === escolhida ? ' sel' : '') + (i === marcado ? ' mrc' : '') +
         '" data-conta="' + seguro(c.u) + '" role="option">' +
-        (c.u === REDE ? '<span class="cl-av cl-rede">' + icoRede() + '</span>'
-                      : face(c, 'cl-av')) +
-        '<span class="cl-op-txt"><b>' +
+        (c.u === REDE ? '<span class="cb-av peq cl-rede">' + icoRede() + '</span>'
+                      : face(c, 'cb-av peq')) +
+        '<span class="cb-txt"><b>' +
         (c.u === REDE ? 'Toda A Rede' : '@' + seguro(c.u)) + '</b>' +
-        '<span>' + (c.u === REDE ? CONTAS.length + ' contas'
-          : (c.mercado ? seguro(maiuscula(c.mercado)) : 'Sem mercado definido')) +
-        '</span></span><span class="cl-op-n">' + quantas + '</span></button>';
-    }).join('') : '<div class="cl-op-sem">Nenhuma conta com esse nome.</div>';
+        '<small>' + (c.u === REDE ? CONTAS.length + ' contas'
+          : (c.mercado ? seguro(maiuscula(c.mercado)) : 'sem mercado definido')) +
+        '</small></span>' +
+        (c.u === escolhida ? '<svg class="cb-ok" viewBox="0 0 24 24">' +
+          '<path d="M20 6 9 17l-5-5"/></svg>'
+          : '<span class="cl-op-n rs-tn">' + quantas + '</span>') + '</button>';
+    }).join('') : '<div class="cb-vazio">Nenhuma conta com esse nome.</div>';
   }
 
   function abrirSeletor(abre) {
@@ -341,6 +345,7 @@
     if (!cx) return;
     aberto = abre;
     cx.hidden = !abre;
+    document.getElementById('cl-sel').classList.toggle('aberto', abre);
     bt.setAttribute('aria-expanded', abre ? 'true' : 'false');
     if (abre) {
       marcado = 0;
@@ -381,7 +386,7 @@
       marcado = Math.max(0, Math.min(lista.length - 1,
         marcado + (e.key === 'ArrowDown' ? 1 : -1)));
       pintarLista(document.getElementById('cl-sel-q').value);
-      var alvo = document.querySelector('.cl-op.marcado');
+      var alvo = document.querySelector('.cb-o.mrc');
       if (alvo) alvo.scrollIntoView({ block: 'nearest' });
       return;
     }

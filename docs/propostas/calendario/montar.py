@@ -34,9 +34,18 @@ PORTAL = pathlib.Path.home() / 'repos' / 'borusa-iscas'
 REAIS = AQUI / 'reais.json'
 BASE = 'https://postador.borusa.com.br/'
 
-ORDEM = ['01-base.css', '02-menu.css', '03-componentes.css', '06-midias.css',
-         '07-calendario.css', '08-filtros.css', '10-painel.css', '11-programar.css',
-         '13-contas.css']
+ORDEM = ['01-base.css', '02-menu.css', '03-componentes.css', '04-analytics.css',
+         '06-midias.css', '07-calendario.css', '08-filtros.css', '10-painel.css',
+         '11-programar.css', '13-contas.css']
+
+# A FOLHA DO ANALYTICS ENTRA AGORA, e e' a correcao de raiz de 11/09. Ele reclamou de
+# estetica em toda rodada desta sessao, e o motivo era sempre o mesmo: eu compunha
+# peca nova (cartao de indicador, alternador, seletor) em vez de usar a que ja' esta'
+# no ar e aprovada. O painel ja' tem cartao de indicador (`.rs-cd.rs-kpi`), alternador
+# segmentado (`.rs-seg`), linha de controle (`.rs-topo`) e seletor de conta (`.cb`).
+# As regras delas sao escopadas por `#pag-analytics`; aqui o escopo vira uma classe,
+# para a mesma folha valer na pagina do Calendario sem copiar uma linha de estilo.
+ESCOPO = ('#pag-analytics', '.rs-casa')
 
 HOJE = datetime(2026, 9, 10, 12, 0)
 
@@ -172,8 +181,13 @@ def main():
 
     pedacos = []
     for nome in ORDEM:
+        folha = (RAIZ / 'painel' / 'estilo' / nome).read_text(encoding='utf-8')
+        if nome == '04-analytics.css':
+            if ESCOPO[0] not in folha:
+                raise SystemExit('o escopo ' + ESCOPO[0] + ' sumiu do 04-analytics')
+            folha = folha.replace(*ESCOPO)
         pedacos.append('/* ===== ' + nome + ' ===== */')
-        pedacos.append((RAIZ / 'painel' / 'estilo' / nome).read_text(encoding='utf-8'))
+        pedacos.append(folha)
     (AQUI / 'painel.css').write_text('\n'.join(pedacos), encoding='utf-8')
 
     if PORTAL.exists():

@@ -26,19 +26,31 @@
     var palco = document.getElementById('cal-palco');
     var noMes = C.visao() === 'mes';
 
+    /* O SELETOR DE CONTA VAI PARA O CANTO DIREITO DO CABECALHO, exatamente onde a aba
+       de Analytics o poe. Ele estava no meio do conteudo, virando mais um bloco. */
+    document.getElementById('cal-troca').innerHTML = C.seletor();
+
     palco.innerHTML =
-      indicadores(u) +
-      '<div class="caixa solta pa-caixa">' +
+      '<div class="rs rs-casa cal-corpo">' +
         barra(noMes) +
-        (noMes ? grade(u) : gantt(u)) +
+        indicadores(u) +
+        '<div class="rs-cd">' +
+          (noMes ? grade(u) : gantt(u)) +
+        '</div>' +
       '</div>';
 
-    /* O GANTT NASCE EM HOJE, e nao trinta dias atras: quem abre quer saber o que vem. */
+    /* O GANTT NASCE EM HOJE, e nao trinta dias atras: quem abre quer saber o que vem.
+
+       O ALVO E' O RISCO, cujo `left` ja' esta' em pixels do quadro. Usar `offsetLeft`
+       da coluna da regua traz o deslocamento da PAGINA junto, porque nenhum ancestral
+       dela e' posicionado: dava 1519 no lugar de 1220, e hoje nascia fora da vista.
+       E' a terceira vez que este mesmo erro aparece nesta tela. */
     if (!noMes) {
       var rolo = palco.querySelector('.pa-gt-rolo');
-      var col = palco.querySelector('.pa-gt-d.hoje');
-      if (rolo && col) {
-        rolo.scrollLeft = Math.max(col.offsetLeft - rolo.clientWidth * 0.34, 0);
+      var marca = palco.querySelector('.pa-gt-risco');
+      if (rolo && marca) {
+        rolo.scrollLeft = Math.max(
+          parseFloat(marca.style.left) - rolo.clientWidth * 0.34, 0);
       }
     }
 
@@ -53,85 +65,71 @@
   }
 
   /* ------------------------------------------------------------ os indicadores
-     CADA DESENHO AQUI TEM DENOMINADOR. Barra sempre cheia e' enfeite: os dois
-     primeiros mostram a DISTRIBUICAO dos catorze dias, dia a dia, e os dois ultimos
-     mostram uma PROPORCAO que existe de verdade. */
+     SEM GRAFICO. Ele mandou tirar em 11/09, e estava certo: indicador de topo e' um
+     numero que se le' de relance, e eu tinha enfiado uma serie de catorze barras
+     dentro de cada cartao. O cartao aqui e' o `.rs-cd.rs-kpi` do painel, o mesmo que
+     a aba de Analytics usa: rotulo, numero e uma linha de contexto. Nada mais. */
+  var ICO = {
+    saiu: '<path d="M20 6 9 17l-5-5"/>',
+    fila: '<rect x="3" y="4.5" width="18" height="16" rx="2.5"/>' +
+          '<path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
+    ritmo: '<path d="M4 19V9M10 19V5M16 19v-7M22 19h-20"/>',
+    cob: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 2"/>'
+  };
+
   function indicadores(u) {
     var r = C.resumo(u);
-    var antes = serie(u, -14, -1), frente = serie(u, 0, 13);
-    var pico = Math.max.apply(null, antes.concat(frente).concat([1]));
-
-    return '<div class="pa-kpis">' +
-      cartao('Publicados', String(r.publicados), '',
-        'Últimos 14 dias · pico de ' + pico + ' num dia',
-        faisca(antes, pico, 'neutro')) +
-      cartao('Agendados', String(r.agendados), '',
+    return '<div class="rs-grade rs-g4">' +
+      cartao(ICO.saiu, 'Publicados', C.n(r.publicados), 'nos últimos 14 dias') +
+      cartao(ICO.fila, 'Agendados', C.n(r.agendados),
         r.folego != null && r.folego > 0
-          ? 'Próximos 14 dias · fôlego de ' + r.folego + ' dias no ritmo atual'
-          : 'Próximos 14 dias',
-        faisca(frente, pico, 'vem')) +
-      cartao('Cadência', r.cadencia.toFixed(1).replace('.', ','), 'por dia',
-        'Média dos últimos 14 dias, contra o pico de ' + pico,
-        barrinha(r.cadencia / pico, 'neutro')) +
-      cartao('Cobertura',
-        r.cobertos + '<span class="pa-k-de">/' + r.janela + '</span>', 'dias',
+          ? 'nos próximos 14 dias · fôlego de ' + r.folego + ' dias'
+          : 'nos próximos 14 dias') +
+      cartao(ICO.ritmo, 'Cadência',
+        r.cadencia.toFixed(1).replace('.', ',') + ' <small>por dia</small>',
+        'média dos últimos 14 dias') +
+      cartao(ICO.cob, 'Cobertura',
+        r.cobertos + ' <small>de ' + r.janela + ' dias</small>',
         r.vazios
           ? r.vazios + (r.vazios === 1 ? ' dia sem publicação, em '
                                        : ' dias sem publicação, o primeiro em ') +
             C.dia(C.chaveDia(r.primeiroVazio))
-          : 'Nenhum dia sem publicação',
-        barrinha(r.cobertos / r.janela, r.vazios ? 'mau' : 'bom'),
+          : 'nenhum dia sem publicação',
         r.vazios ? 'mau' : '') +
     '</div>';
   }
 
-  function cartao(rot, valor, uni, pe, desenho, tom) {
-    return '<div class="pa-k' + (tom ? ' ' + tom : '') + '">' +
-      '<span class="pa-k-rot">' + rot + '</span>' +
-      '<span class="pa-k-val"><b>' + valor + '</b>' +
-        (uni ? '<em>' + uni + '</em>' : '') + '</span>' +
-      desenho + '<span class="pa-k-pe">' + pe + '</span></div>';
+  function cartao(ico, rot, valor, pe, tom) {
+    return '<div class="rs-cd rs-kpi">' +
+      '<div class="cab"><svg class="pa-ki" viewBox="0 0 24 24">' + ico + '</svg>' +
+        '<span class="rs-rot2">' + rot + '</span></div>' +
+      '<div class="num rs-tn">' + valor + '</div>' +
+      '<div class="lin"><span class="rs-delta-pe' + (tom ? ' ' + tom : '') + '">' +
+        pe + '</span></div></div>';
   }
 
-  function serie(u, de, ate) {
-    var mapa = C.porDia(u), fora = [];
-    C.faixa(de, ate).forEach(function (d) {
-      fora.push((mapa[C.chaveDia(d)] || []).length);
-    });
-    return fora;
-  }
-  /* O DIA VAZIO E' UM TRACO NO CHAO, e nao um buraco: buraco na serie some e a conta
-     de catorze dias deixa de fechar a olho. */
-  function faisca(vals, pico, tom) {
-    return '<span class="pa-k-faisca ' + tom + '">' + vals.map(function (v) {
-      return '<i class="' + (v ? '' : 'zero') + '" style="height:' +
-        (v ? Math.max(Math.round(v / pico * 100), 16) : 0) + '%"></i>';
-    }).join('') + '</span>';
-  }
-  function barrinha(fracao, tom) {
-    return '<span class="pa-k-barra ' + tom + '"><i style="width:' +
-      Math.max(Math.round(fracao * 100), 2) + '%"></i></span>';
-  }
-
-  /* ------------------------------------------------------------------ a barra */
+  /* -------------------------------------------------------------------- a barra
+     E' o `.rs-topo` do painel: rotulo a esquerda, controles a direita, e o alternador
+     no `.rs-seg` que a aba de Analytics ja' usa para o periodo. */
   function barra(noMes) {
-    return '<div class="pa-barra">' + C.seletor() + '<i class="pa-div"></i>' +
-      C.abas() + '<div class="pa-barra-dir">' +
+    return '<div class="rs-topo">' +
+      '<span class="rs-rot2">' + (noMes ? 'Mês' : 'Período') + '</span>' +
+      '<div class="rs-dir">' + C.abas() +
       (noMes
-        ? '<button class="pa-hoje" type="button" data-ir="hoje">Hoje</button>' +
-          '<span class="pa-nav">' +
+        ? '<button class="bt" type="button" data-ir="hoje">Hoje</button>' +
+          '<div class="rs-seg pa-nav">' +
             '<button type="button" data-ir="-1" aria-label="Mês anterior">' +
               '<svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>' +
             '<button type="button" data-ir="1" aria-label="Próximo mês">' +
               '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>' +
-          '</span>' +
-          '<b class="pa-titulo">' + C.MES[mes.getMonth()] + ' De ' +
-            mes.getFullYear() + '</b>'
-        : '<span class="pa-escala">' +
+          '</div>' +
+          '<span class="rs-rot3">' + C.MES[mes.getMonth()] + ' de ' +
+            mes.getFullYear() + '</span>'
+        : '<div class="rs-seg">' +
             [['semana', 'Semana'], ['mes', 'Mês']].map(function (e) {
               return '<button type="button" data-escala="' + e[0] + '"' +
                 (escala === e[0] ? ' class="on"' : '') + '>' + e[1] + '</button>';
-            }).join('') + '</span>') +
+            }).join('') + '</div>') +
       '</div></div>';
   }
 
@@ -265,7 +263,7 @@
     return '<div class="pa-gt-grupo" data-grupo="' + C.seguro(g.conta.u) + '">' +
       '<div class="pa-gt-li conta">' +
         '<svg class="pa-gt-seta" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>' +
-        C.face(g.conta, 'cl-av') +
+        C.face(g.conta, 'cb-av peq') +
         '<span class="pa-gt-nome"><b>@' + C.seguro(g.conta.u) + '</b><span>' +
           g.levas.length + (g.levas.length === 1 ? ' leva' : ' levas') + '</span>' +
         '</span>' +

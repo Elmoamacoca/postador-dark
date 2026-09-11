@@ -4,71 +4,21 @@
    estado e a barra de rolagem vem do `06-midias.css`, que ja' esta' na casa. */
 
 /* ---------------------------------------------------------- o seletor de conta
-   A primeira versao era uma caixa de 52 por 264 com avatar de 34 com borda, arroba e
-   mercado em duas linhas: um cartao no lugar de um controle, e ele reprovou em 11/09.
-   Agora e' uma pilula da altura dos outros controles da barra, com o arroba mandando
-   e o mercado na lista, onde ha' espaco para ele. */
-.cl-sel{position:relative;flex:none}
-.cl-sel-bt{display:flex;align-items:center;gap:9px;height:38px;padding:0 11px 0 5px;
-  border-radius:999px;border:1px solid var(--rule-solid);background:var(--paper-2);
-  cursor:pointer;color:inherit;max-width:260px;text-align:left}
-.cl-sel-bt:hover{background:var(--branco,var(--paper));border-color:var(--soft)}
-.cl-sel-bt[aria-expanded="true"]{background:var(--branco,var(--paper));
-  border-color:var(--ink)}
-.cl-av{width:28px;height:28px;flex:none;border-radius:50%;object-fit:cover;
-  display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800}
-.cl-av.cl-rede{background:var(--ink);color:var(--paper)}
-.cl-av.cl-rede svg{width:15px;height:15px}
-.cl-sel-txt{flex:1;min-width:0;display:flex;align-items:baseline;gap:7px}
-.cl-sel-txt b{font-size:12.5px;font-weight:800;letter-spacing:-.2px;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap}
-/* O MERCADO SAI DO BOTAO. Duas linhas dentro de um controle de barra e' o que fazia
-   ele parecer um cartao solto no meio da tela. */
-.cl-sel-txt span{display:none}
-.cl-sel-cv{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;
-  stroke-width:2;stroke-linecap:round;color:var(--soft)}
+   NAO TEM CSS AQUI, E E' DE PROPOSITO. O seletor e' o combobox `.cb` do painel, que
+   ja' esta' no ar na aba de Analytics; as regras dele vem do `04-analytics.css`, que
+   o `montar.py` junta trocando o escopo `#pag-analytics` pela classe `.rs-casa`. O
+   alternador de visao, pelo mesmo motivo, virou o `.rs-seg` da casa.
 
-.cl-sel-cx{position:absolute;top:calc(100% + 7px);left:0;z-index:40;width:320px;
-  background:var(--branco,var(--paper));border:1px solid var(--rule-solid);
-  border-radius:12px;box-shadow:0 18px 44px rgba(14,14,14,.16);overflow:hidden}
-.cl-sel-cx[hidden]{display:none}
-:root[data-theme="dark"] .cl-sel-cx{box-shadow:0 18px 44px rgba(0,0,0,.5)}
-.cl-sel-busca{display:flex;align-items:center;gap:8px;padding:11px 13px;
-  border-bottom:1px solid var(--rule-solid)}
-.cl-sel-busca svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;
-  stroke-width:2;stroke-linecap:round;color:var(--soft)}
-.cl-sel-busca input{flex:1;min-width:0;border:0;background:none;outline:none;
-  font-family:inherit;font-size:12.5px;color:var(--ink)}
-.cl-sel-lista{max-height:284px;overflow:auto;padding:5px}
-.cl-op{width:100%;display:flex;align-items:center;gap:10px;padding:8px 9px;
-  border-radius:9px;border:0;background:none;cursor:pointer;color:inherit;
-  text-align:left}
-.cl-op:hover,.cl-op.marcado{background:var(--paper-2)}
-.cl-op.on{background:var(--ink)}
-.cl-op.on .cl-op-txt b,.cl-op.on .cl-op-n{color:var(--paper)}
-.cl-op.on .cl-op-txt span{color:var(--paper);opacity:.66}
-.cl-op .cl-av{width:29px;height:29px;font-size:10.5px}
-.cl-op-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-.cl-op-txt b{font-size:12.5px;font-weight:700}
-.cl-op-txt span{font-size:10px;color:var(--soft)}
-.cl-op-n{font-size:11px;font-weight:800;color:var(--soft);
-  font-variant-numeric:tabular-nums}
-.cl-op-sem{padding:22px 10px;text-align:center;font-size:12px;color:var(--soft)}
-
-/* -------------------------------------------------------- o alternador de visao
-   Mes e gantt sao a MESMA aba. O alternador fica colado no seletor de conta porque
-   as duas escolhas respondem a mesma pergunta: de quem, e de que jeito. */
-.cl-visao{display:inline-flex;align-items:center;gap:2px;flex:none;padding:3px;
-  border:1px solid var(--rule-solid);border-radius:11px;
-  background:var(--branco,var(--paper))}
-.cl-visao button{display:inline-flex;align-items:center;gap:7px;height:38px;
-  padding:0 15px 0 12px;border:0;border-radius:8px;background:none;cursor:pointer;
-  color:var(--soft);font-family:inherit;font-size:12.5px;font-weight:700;
-  letter-spacing:-.1px}
-.cl-visao button:hover{color:var(--ink);background:var(--paper-2)}
-.cl-visao button.on{background:var(--ink);color:var(--paper)}
-.cl-visao svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;
-  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+   Eu tinha reescrito esses dois controles do zero, com as mesmas funcoes e medidas
+   diferentes, e ele reprovou duas vezes. Peca que ja' existe no painel nao se
+   redesenha: se copia. */
+.cl-rede{background:var(--ink);color:var(--paper);display:grid;place-items:center}
+.cl-rede svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
+.cb-av.cl-inicial{display:grid;place-items:center;color:#fff;font-size:11px;
+  font-weight:800}
+.cb-av.peq.cl-inicial{font-size:10px}
+.cl-op-n{font-size:11.5px;font-weight:800;color:var(--soft);margin-left:auto;
+  flex:none;font-variant-numeric:tabular-nums}
 
 /* ------------------------------------------------------------- a legenda */
 .cl-legenda{display:flex;align-items:center;gap:14px;flex-wrap:wrap}

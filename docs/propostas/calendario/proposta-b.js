@@ -214,7 +214,7 @@
   function raia(c, dias) {
     var mapa = C.porDia(c.u);
     return '<div class="mu-g-linha mu-g-raia">' +
-      '<div class="mu-g-quem">' + C.face(c, 'cl-av') +
+      '<div class="mu-g-quem">' + C.face(c, 'cb-av peq') +
         '<span><b>@' + C.seguro(c.u) + '</b><span>' +
         (c.mercado ? C.seguro(C.maiuscula(c.mercado)) : 'Sem Mercado') +
         '</span></span></div>' +
