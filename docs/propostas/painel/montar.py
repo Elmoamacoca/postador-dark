@@ -380,13 +380,19 @@ def main():
     NOMES = {'a': 'A Rede', 'b': 'Lado A Lado', 'c': 'O Quadro'}
     letras = [x for x in ('a', 'b', 'c') if (AQUI / ('proposta-' + x + '.js')).exists()]
     for letra in letras:
-        pagina = (molde.replace('{{LETRA}}', letra.upper())
+        # O CDN DO GITHUB PAGES GUARDA O ARQUIVO por alguns minutos, e o
+        # navegador tambem: uma correcao em `comum.js` subia e a tela continuava
+        # rodando a versao velha, sem avisar. O selo muda a cada montagem e
+        # obriga a buscar de novo.
+        pagina = (molde.replace('{{SELO}}', HOJE.strftime('%Y%m%d%H%M'))
+                  .replace('{{LETRA}}', letra.upper())
                   .replace('{{NOME}}', NOMES[letra])
                   .replace('{{ESTILO}}', (AQUI / ('proposta-' + letra + '.css'))
                            .read_text(encoding='utf-8'))
                   .replace('{{SCRIPT}}', (AQUI / ('proposta-' + letra + '.js'))
                            .read_text(encoding='utf-8')))
-        for marca in ('{{LETRA}}', '{{NOME}}', '{{ESTILO}}', '{{SCRIPT}}'):
+        for marca in ('{{LETRA}}', '{{NOME}}', '{{ESTILO}}', '{{SCRIPT}}',
+                      '{{SELO}}'):
             if marca in pagina:
                 raise SystemExit('molde nao preenchido: ' + marca)
         (AQUI / ('proposta-' + letra + '.html')).write_text(pagina, encoding='utf-8')

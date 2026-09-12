@@ -135,24 +135,45 @@
   function serieRede(janela, medida) {
     medida = medida || 'vis';
     var porSemana = janela > 31;
-    function balde(lista) {
-      var fora = [], mapa = {};
-      lista.forEach(function (p) {
-        var d = data(p.quando), chave = p.quando.slice(0, 10);
-        if (porSemana) {
-          var seg = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 86400000);
-          chave = seg.toISOString().slice(0, 10);
-        }
-        if (!mapa[chave]) {
-          mapa[chave] = { chave: chave, rot: dia(chave), a: 0, b: 0 };
-          fora.push(mapa[chave]);
-        }
-        mapa[chave].a += p[medida] || 0;
-        mapa[chave].b += 1;
-      });
-      return fora.sort(function (x, y) { return x.chave < y.chave ? -1 : 1; });
+    /* O EIXO NASCE INTEIRO, COM ZERO NOS DIAS SEM PUBLICACAO. Somando so' os dias
+       que tiveram post, uma rede que publicou numa semana so' virava UM ponto: a
+       linha nao tem segmento, o simbolo esta' escondido, e o cartao inteiro
+       aparecia vazio com o eixo indo ate' cinco mil. */
+    /* A CHAVE SE MONTA COM O RELOGIO LOCAL, nunca com `toISOString`. As 22h do
+       Brasil ja' sao o dia seguinte em UTC: o esqueleto do eixo caia numa semana
+       e a publicacao caia noutra, e o grafico saia com quatorze colunas zeradas. */
+    function chaveDe(d) {
+      var x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+      if (porSemana) {
+        x = new Date(x.getTime() - ((x.getDay() + 6) % 7) * 86400000);
+      }
+      return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2)
+        + '-' + ('0' + x.getDate()).slice(-2);
     }
-    var frente = balde(posts(janela)), tras = balde(postsAntes(janela));
+    function esqueleto(atras) {
+      var fim = new Date(HOJE.getTime() - atras * 86400000);
+      var fora = [], vistas = {};
+      for (var i = janela - 1; i >= 0; i--) {
+        var d = new Date(fim.getTime() - i * 86400000);
+        var k = chaveDe(d);
+        if (vistas[k]) continue;
+        vistas[k] = { chave: k, rot: dia(k), a: 0, b: 0 };
+        fora.push(vistas[k]);
+      }
+      return { lista: fora, mapa: vistas };
+    }
+    function encher(base, lista) {
+      lista.forEach(function (p) {
+        var k = chaveDe(data(p.quando));
+        var alvo = base.mapa[k];
+        if (!alvo) return;
+        alvo.a += p[medida] || 0;
+        alvo.b += 1;
+      });
+      return base.lista;
+    }
+    var frente = encher(esqueleto(0), posts(janela));
+    var tras = encher(esqueleto(janela), postsAntes(janela));
     return frente.map(function (p, i) {
       return { rot: p.rot, a: p.a, b: p.b,
                antes: tras.length ? (tras[i] ? tras[i].a : 0) : 0 };
