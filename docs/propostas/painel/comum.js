@@ -1,32 +1,37 @@
 /* ==================================== O QUE AS PROPOSTAS DO PAINEL COMPARTILHAM
-   RODADA 4, de 11/09/2026.
+   RODADA 5, de 12/09/2026.
 
-   O TERRITORIO DESTA ABA, decidido depois da reprovacao das seis anteriores: o
-   Painel e' a SALA DE MAQUINAS do Postador, e a unidade dele e' o VIDEO.
+   O QUE MUDOU DA RODADA ANTERIOR, por pedido dele:
+     1. DESEMPENHO DOS PERFIS entra na home. Quem cresce, o ultimo viral, o
+        ranking, a comparacao entre perfis.
+     2. FILTRO POR ETIQUETA, a mesma que ele cadastra na aba de Contas, e por
+        mercado. Ele escolhe em cima e a tela inteira obedece.
+     3. MUITO MAIS GRAFICO.
+     4. PALAVRA SIMPLES. Nada de esteira, prateleira, acervo, autonomia, leva ou
+        livro-caixa. Video guardado, video agendado, ja' publicado, dias que
+        sobram, pasta de video.
 
-     Calendario  responde QUANDO sai.
-     Analytics   responde COMO foi depois que saiu.
-     Contas      responde QUEM sao os perfis.
-     Painel      responde se a maquina tem material, se ela anda, e onde emperra.
-
-   Por isso aqui nao ha' ficha de perfil, nao ha' gantt e nao ha' visualizacao. O
-   que existe e' o caminho do arquivo: Prateleira, Fila, No Ar, e o Erro que cai
-   fora da esteira. Este arquivo so' calcula; quem desenha e' `sala.js` (as pecas
-   da Sala De Controle) e `motor.js` (os graficos proprios desta tela).
+   A DIFERENCA PARA A ABA DE ANALYTICS continua de pe', e e' a razao desta tela
+   existir: la' e' UMA conta por vez, em profundidade; aqui e' a REDE INTEIRA,
+   comparada perfil a perfil, mais o material que ainda nao foi publicado.
    ========================================================================== */
 (function () {
   var D = window.DADOS_PN || {};
   var S = window.SALA;
 
+  var PERFIS = D.perfis || [];
   var LEVAS = D.levas || [];
   var ESTEIRA = D.esteira || {};
   var RESUMO = D.resumo || {};
   var MAQUINA = D.maquina || [];
   var SAIDAS = D.saidas || [];
   var FONTE = D.fonte || {};
+  var ETIQUETAS = D.etiquetas || [];
+  var MERCADOS = D.mercados || [];
   var HOJE = new Date(D.hoje || new Date().toISOString().slice(0, 19));
   var MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
              'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  var DIAS_SEM = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   /* DATA DE DEZ CARACTERES E' LIDA COMO UTC pelo navegador, e no fuso do Brasil
      isso devolve o dia anterior. O meio-dia resolve sem depender de biblioteca. */
@@ -54,52 +59,260 @@
     return 'há ' + Math.round(q / 30) + ' meses';
   }
 
-  /* ------------------------------------------------------------- A ESTEIRA
-     As estacoes na ordem em que o video anda. `Erro` nao e' estacao: e' o que cai
-     fora do caminho, e por isso sai do funil e vira trava. */
-  function estacoes() {
-    return [
-      { rotulo: 'Na Prateleira', valor: ESTEIRA.prateleira || 0, chave: 'prateleira',
-        icone: 'box', cor: S.corVar(1),
-        nota: 'Arquivo anotado no livro-caixa, sem hora marcada. É o combustível.' },
-      { rotulo: 'Na Fila', valor: ESTEIRA.programado || 0, chave: 'programado',
-        icone: 'calendar', cor: S.corVar(2),
-        nota: 'Já tem hora marcada e espera o relógio. Sai sozinho quando chega a vez.' },
-      { rotulo: 'No Ar', valor: ESTEIRA.publicado || 0, chave: 'publicado',
-        icone: 'send', cor: S.corVar(3),
-        nota: 'A Meta aceitou e o vídeo está publicado. Sai da esteira aqui.' }
-    ];
+  /* ====================================================== O FILTRO DO TOPO
+     Uma escolha so' de cada vez: todos, uma etiqueta ou um mercado. Tudo o que a
+     tela calcula passa por `visiveis()`, e por isso o filtro vale para a pagina
+     inteira, e nao so' para um cartao. */
+  var filtro = { tipo: 'todos', valor: '' };
+  function escolher(tipo, valor) { filtro = { tipo: tipo, valor: valor || '' }; }
+  function escolhaAtual() { return filtro; }
+  function rotuloFiltro() {
+    if (filtro.tipo === 'etiqueta') return 'etiqueta ' + filtro.valor;
+    if (filtro.tipo === 'mercado') return filtro.valor;
+    if (filtro.tipo === 'perfil') return '@' + filtro.valor;
+    return 'todos os perfis';
+  }
+  function visiveis() {
+    if (filtro.tipo === 'etiqueta') {
+      return PERFIS.filter(function (p) {
+        return p.etiquetas.indexOf(filtro.valor) >= 0; });
+    }
+    if (filtro.tipo === 'mercado') {
+      return PERFIS.filter(function (p) { return p.mercado === filtro.valor; });
+    }
+    if (filtro.tipo === 'perfil') {
+      return PERFIS.filter(function (p) { return p.u === filtro.valor; });
+    }
+    return PERFIS.slice();
   }
 
-  /* ------------------------------------------------------------- O RITMO
-     Quantos videos a maquina consegue queimar por dia. O ritmo medido sai dos 90
-     dias lidos; os outros sao alvos, para a conta de autonomia responder "e se". */
+  /* ---------------------------------------------------------- as publicacoes */
+  function postsDe(lista, janela, atras) {
+    var fim = new Date(HOJE.getTime() - (atras || 0) * 86400000);
+    var ini = new Date(fim.getTime() - janela * 86400000);
+    var fora = [];
+    lista.forEach(function (p) {
+      p.posts.forEach(function (x) {
+        var q = data(x.quando);
+        if (q > ini && q <= fim) fora.push(x);
+      });
+    });
+    return fora.sort(function (a, b) {
+      return a.quando < b.quando ? -1 : 1; });
+  }
+  function posts(janela) { return postsDe(visiveis(), janela, 0); }
+  function postsAntes(janela) { return postsDe(visiveis(), janela, janela); }
+
+  function somar(lista) {
+    var t = { vis: 0, alc: 0, inter: 0, cur: 0, com: 0, sal: 0, cmp: 0, n: 0,
+              medio: 0, comTempo: 0 };
+    lista.forEach(function (p) {
+      t.vis += p.vis; t.alc += p.alc; t.inter += p.inter;
+      t.cur += p.cur; t.com += p.com; t.sal += p.sal; t.cmp += p.cmp;
+      t.n += 1;
+      if (p.medio) { t.medio += p.medio; t.comTempo += 1; }
+    });
+    t.eng = t.alc ? (t.inter / t.alc) * 100 : 0;
+    t.tempo = t.comTempo ? t.medio / t.comTempo : 0;
+    return t;
+  }
+  /* A VARIACAO SO' EXISTE COM BASE DE COMPARACAO. Sem publicacao no periodo
+     anterior ela vem nula, e o cartao escreve "sem base" em vez de zero por
+     cento, que leria como estabilidade. */
+  function variacao(agora, antes) {
+    if (!antes) return null;
+    return ((agora - antes) / antes) * 100;
+  }
+  function resumoRede(janela) {
+    var a = somar(posts(janela)), b = somar(postsAntes(janela));
+    return { agora: a, antes: b,
+      var_vis: variacao(a.vis, b.vis), var_alc: variacao(a.alc, b.alc),
+      var_inter: variacao(a.inter, b.inter), var_n: variacao(a.n, b.n) };
+  }
+
+  /* A SERIE DO GRAFICO GRANDE. Ate' 31 dias, um ponto por dia; acima, por semana,
+     porque noventa colunas de no maximo uma publicacao viram um pente. */
+  function serieRede(janela, medida) {
+    medida = medida || 'vis';
+    var porSemana = janela > 31;
+    function balde(lista) {
+      var fora = [], mapa = {};
+      lista.forEach(function (p) {
+        var d = data(p.quando), chave = p.quando.slice(0, 10);
+        if (porSemana) {
+          var seg = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 86400000);
+          chave = seg.toISOString().slice(0, 10);
+        }
+        if (!mapa[chave]) {
+          mapa[chave] = { chave: chave, rot: dia(chave), a: 0, b: 0 };
+          fora.push(mapa[chave]);
+        }
+        mapa[chave].a += p[medida] || 0;
+        mapa[chave].b += 1;
+      });
+      return fora.sort(function (x, y) { return x.chave < y.chave ? -1 : 1; });
+    }
+    var frente = balde(posts(janela)), tras = balde(postsAntes(janela));
+    return frente.map(function (p, i) {
+      return { rot: p.rot, a: p.a, b: p.b,
+               antes: tras.length ? (tras[i] ? tras[i].a : 0) : 0 };
+    });
+  }
+  function temAnterior(janela) { return postsAntes(janela).length > 0; }
+
+  /* ==================================================== OS PERFIS, COMPARADOS */
+  function porPerfil(janela) {
+    return visiveis().map(function (p) {
+      var meus = p.posts.filter(function (x) {
+        var q = dias(x.quando);
+        return q != null && q <= janela;
+      });
+      var antes = p.posts.filter(function (x) {
+        var q = dias(x.quando);
+        return q != null && q > janela && q <= janela * 2;
+      });
+      var a = somar(meus), b = somar(antes);
+      return {
+        u: p.u, nome: p.nome, retrato: p.retrato, ligada: p.ligada,
+        mercado: p.mercado, etiquetas: p.etiquetas, seguidores: p.seguidores,
+        guardados: p.guardados, agendados: p.agendados, pastas: p.pastas,
+        ultima: p.ultima, curva: p.curva,
+        vis: a.vis, alc: a.alc, inter: a.inter, eng: a.eng, n: a.n,
+        tempo: a.tempo, mediaVis: a.n ? a.vis / a.n : 0,
+        var_vis: variacao(a.vis, b.vis), var_inter: variacao(a.inter, b.inter),
+        serie: meus.map(function (x) { return x.vis; })
+      };
+    });
+  }
+  /* QUEM ESTA CRESCENDO. Com base de comparacao, e' a variacao de visualizacao
+     contra o periodo anterior. Sem base, e' a media de visualizacao por
+     publicacao: e' o que da' para dizer com honestidade. */
+  function crescimento(janela) {
+    var l = porPerfil(janela);
+    var comBase = l.filter(function (p) { return p.var_vis != null; });
+    if (comBase.length) {
+      return { base: true, lista: comBase.sort(function (a, b) {
+        return b.var_vis - a.var_vis; }) };
+    }
+    return { base: false, lista: l.slice().sort(function (a, b) {
+      return b.mediaVis - a.mediaVis; }) };
+  }
+
+  /* O ULTIMO VIRAL. Viral aqui tem regra, e nao chute: a publicacao mais recente
+     que fez pelo menos o DOBRO da mediana de visualizacao do periodo. Sem
+     nenhuma acima do dobro, devolve a de maior visualizacao, dizendo que ela nao
+     estourou. */
+  function viral(janela) {
+    var l = posts(janela);
+    if (!l.length) return null;
+    var v = l.map(function (p) { return p.vis; }).sort(function (a, b) {
+      return a - b; });
+    var meio = v.length >> 1;
+    var mediana = v.length % 2 ? v[meio] : Math.round((v[meio - 1] + v[meio]) / 2);
+    var acima = l.filter(function (p) { return mediana && p.vis >= mediana * 2; });
+    var alvo = acima.length ? acima[acima.length - 1]
+      : l.slice().sort(function (a, b) { return b.vis - a.vis; })[0];
+    return { post: alvo, mediana: mediana, estourou: acima.length > 0,
+      quantas: mediana ? alvo.vis / mediana : 0 };
+  }
+
+  function melhores(janela, quantos) {
+    return posts(janela).slice().sort(function (a, b) { return b.vis - a.vis; })
+      .slice(0, quantos || 6);
+  }
+  function mixInteracao(janela) {
+    var t = somar(posts(janela));
+    return [{ nome: 'Curtidas', valor: t.cur, cor: S.corVar(1) },
+            { nome: 'Comentários', valor: t.com, cor: S.corVar(2) },
+            { nome: 'Salvamentos', valor: t.sal, cor: S.corVar(3) },
+            { nome: 'Compartilhamentos', valor: t.cmp, cor: S.corVar(4) }];
+  }
+  function porDiaSemana(janela) {
+    var b = DIAS_SEM.map(function (s) { return [s, 0]; });
+    posts(janela).forEach(function (p) { b[data(p.quando).getDay()][1] += p.vis; });
+    return b;
+  }
+  function porHora(janela) {
+    var b = [];
+    for (var h = 0; h < 24; h++) b.push([h, 0]);
+    posts(janela).forEach(function (p) { b[data(p.quando).getHours()][1] += p.vis; });
+    var vivos = b.filter(function (x) { return x[1]; })
+      .map(function (x) { return x[0]; });
+    if (!vivos.length) return b.slice(8, 22).map(function (x) {
+      return [x[0] + 'h', 0]; });
+    var de = Math.max(0, Math.min.apply(null, vivos) - 2);
+    var ate = Math.min(23, Math.max.apply(null, vivos) + 2);
+    return b.slice(de, ate + 1).map(function (x) { return [x[0] + 'h', x[1]]; });
+  }
+  function matrizHora(janela) {
+    var m = [];
+    for (var d = 0; d < 7; d++) {
+      m.push(Array.from({ length: 24 }, function () { return 0; }));
+    }
+    posts(janela).forEach(function (p) {
+      var q = data(p.quando);
+      m[q.getDay()][q.getHours()] += 1;
+    });
+    return m;
+  }
+  function curvaSeguidores() {
+    var pontos = {};
+    visiveis().forEach(function (p) {
+      (p.curva || []).forEach(function (x) {
+        pontos[x[0]] = (pontos[x[0]] || 0) + (x[1] || 0);
+      });
+    });
+    return Object.keys(pontos).sort().map(function (k) {
+      return { rot: dia(k), a: pontos[k], b: 0, antes: 0 }; });
+  }
+
+  /* ================================================== O MATERIAL QUE NAO SAIU
+     As tres paradas do video ate' o ar. Nome de gente, e nao nome de sistema. */
+  function paradas() {
+    var v = visiveis();
+    var so = filtro.tipo === 'todos'
+      ? null : v.map(function (p) { return p.u; });
+    function conta(campo) {
+      if (!so) return ESTEIRA[campo] || 0;
+      return LEVAS.reduce(function (t, x) {
+        return t + (so.indexOf(x.conta) >= 0
+          ? (campo === 'prateleira' ? x.prateleira
+            : campo === 'programado' ? x.programados : x.publicados) : 0);
+      }, 0);
+    }
+    return [
+      { rotulo: 'Vídeos Guardados', valor: conta('prateleira'), icone: 'box',
+        cor: S.corVar(1),
+        nota: 'Já estão no sistema e ainda não têm dia e hora para sair.' },
+      { rotulo: 'Vídeos Agendados', valor: conta('programado'), icone: 'calendar',
+        cor: S.corVar(2),
+        nota: 'Têm dia e hora marcados. Saem sozinhos quando chega a vez.' },
+      { rotulo: 'Já Publicados', valor: conta('publicado'), icone: 'send',
+        cor: S.corVar(3),
+        nota: 'O Instagram aceitou e o vídeo está no ar.' }
+    ];
+  }
+  function guardados() { return paradas()[0].valor; }
+
   var RITMOS = [1, 2, 3, 5];
   function ritmoMedido() { return RESUMO.ritmo || 0; }
-  function autonomia(ritmo) {
-    var e = ESTEIRA.prateleira || 0;
+  function sobram(ritmo) {
     if (!ritmo) return null;
-    return Math.floor(e / ritmo);
+    return Math.floor(guardados() / ritmo);
   }
-  /* O TETO DO MEDIDOR sai do ritmo mais lento da lista, e nao de um numero
-     redondo escolhido a dedo: com teto fixo em um ano, o ponteiro de sessenta
-     dias fica encolhido num canto e a leitura se perde. */
-  function tetoAutonomia() {
-    var maior = autonomia(RITMOS[0]) || 0;
-    return Math.max(30, Math.ceil(maior / 30) * 30);
+  function tetoSobram() {
+    return Math.max(30, Math.ceil((sobram(RITMOS[0]) || 0) / 30) * 30);
   }
   function acaba(ritmo) {
-    var d = autonomia(ritmo);
+    var d = sobram(ritmo);
     if (d == null) return '';
     var f = new Date(HOJE.getTime() + d * 86400000);
     return f.getDate() + ' ' + MES[f.getMonth()]
       + (f.getFullYear() !== HOJE.getFullYear() ? ' de ' + f.getFullYear() : '');
   }
 
-  /* ---------------------------------------------------------- O TEMPO DE MAQUINA
-     Ate' 31 dias, um ponto por dia; acima disso, por semana. Noventa colunas de no
-     maximo uma saida viram um pente, e pente nao se le'. */
-  function maquina(janela) {
+  /* --------------------------------------------------- as publicacoes por dia */
+  function publicacoesPorDia(janela) {
     var corte = MAQUINA.slice(-janela);
     if (janela <= 31) return corte;
     var fora = [], atual = null;
@@ -119,62 +332,59 @@
       return { dia: p.dia, saidas: p.saidas, paradas: Math.round(p.paradas / p.n) };
     });
   }
-  function diasRodando(janela) {
+  function diasComSaida(janela) {
     return MAQUINA.slice(-janela).filter(function (d) { return d.saidas; }).length;
   }
 
-  /* ------------------------------------------------------------- AS LEVAS */
-  function levasOrdenadas() {
-    return LEVAS.slice().sort(function (a, b) { return b.total - a.total; });
+  /* ---------------------------------------------------- as pastas de video */
+  function pastas() {
+    var v = visiveis().map(function (p) { return p.u; });
+    return LEVAS.filter(function (x) {
+      return filtro.tipo === 'todos' || v.indexOf(x.conta) >= 0;
+    }).slice().sort(function (a, b) { return b.total - a.total; });
   }
-  function pilhaDasLevas() {
-    var l = levasOrdenadas();
+  function pilhaDasPastas() {
+    var l = pastas();
     return {
       linhas: l.map(function (x) { return x.nome; }),
       series: [
-        { nome: 'Na Prateleira', cor: S.corVar(1),
+        { nome: 'Guardados', cor: S.corVar(1),
           vals: l.map(function (x) { return x.prateleira; }) },
-        { nome: 'Na Fila', cor: S.corVar(2),
+        { nome: 'Agendados', cor: S.corVar(2),
           vals: l.map(function (x) { return x.programados; }) },
-        { nome: 'No Ar', cor: S.corVar(3),
+        { nome: 'Publicados', cor: S.corVar(3),
           vals: l.map(function (x) { return x.publicados; }) },
         { nome: 'Com Erro', cor: S.corVar(5),
           vals: l.map(function (x) { return x.erro; }) }
       ]
     };
   }
-
-  /* ------------------------------------------------------------ O MATERIAL
-     Junta as duas contagens numa lista so'. Pasta LIGADA vale pelo livro-caixa,
-     que e' quem sabe o que ja' andou; pasta que ainda esta' solta na fonte vale
-     pela contagem do Drive. Sem juntar, a leva com 180 videos no livro aparece
-     com zero, porque na fonte ela guarda pasta, e nao arquivo. */
   function material() {
     var vistas = {};
-    var fora = LEVAS.map(function (x) {
+    var fora = pastas().map(function (x) {
       vistas[x.nome] = 1;
       return { nome: x.nome, videos: x.total, ligada: true, conta: x.conta };
     });
-    (FONTE.pastas || []).forEach(function (p) {
-      if (vistas[p.nome]) return;
-      fora.push({ nome: p.nome, videos: p.videos || 0, ligada: false, conta: '' });
-    });
+    if (filtro.tipo === 'todos') {
+      (FONTE.pastas || []).forEach(function (p) {
+        if (vistas[p.nome]) return;
+        fora.push({ nome: p.nome, videos: p.videos || 0, ligada: false, conta: '' });
+      });
+    }
     return fora.sort(function (a, b) { return b.videos - a.videos; });
   }
-
-  /* A LISTA DAS CAIXAS. A `S.lista` da Sala esconde quem esta' em zero, e aqui
-     zero e' informacao: pasta ligada e vazia e' uma trava, nao uma ausencia. */
   function listaCaixas(itens) {
-    if (!itens.length) return '<p class="rs-sem">Nenhuma pasta na fonte.</p>';
+    if (!itens.length) return '<p class="rs-sem">Nenhuma pasta de vídeo aqui.</p>';
     var max = Math.max.apply(null, itens.map(function (i) {
       return i.videos; }).concat([1]));
     return '<div class="rs-lista">' + itens.map(function (i) {
       var cor = i.ligada ? S.corVar(1) : S.corVar(4);
       return '<div class="rs-li semi' + (i.videos ? '' : ' pn-zero') + '">'
         + '<span class="nm"><b>' + S.seguro(i.nome) + '</b>'
-        + S.seguro(i.ligada ? (i.conta ? 'ligada em @' + i.conta
-                                       : 'ligada, sem perfil')
-                            : 'só no Drive, fora do livro') + '</span>'
+        + S.seguro(i.ligada ? (i.conta ? 'do perfil @' + i.conta
+                                       : 'sem perfil escolhido')
+                            : 'está no Drive e ainda não entrou no sistema')
+        + '</span>'
         + '<span class="vl rs-tn">' + S.fmt(i.videos) + '<small>'
         + (i.videos ? 'vídeos' : 'vazia') + '</small></span>'
         + '<span class="rs-li-tr"><i style="width:'
@@ -183,61 +393,73 @@
     }).join('') + '</div>';
   }
 
-  /* ------------------------------------------------------- O QUE TRAVA A MAQUINA
-     Cada linha e' um motivo de nada estar saindo agora, do mais grave para o menos,
-     e cada uma leva o botao que resolve. Lista vazia e' a tela que se quer ver. */
-  function travas() {
+  /* ================================================= O QUE ESTA' IMPEDINDO
+     Cada linha e' um motivo de nada estar saindo agora, e cada uma leva o botao
+     que resolve. Lista vazia e' a tela que se quer ver. */
+  function impedimentos() {
     var l = [];
+    var p = paradas();
     if (!FONTE.pronta) {
-      l.push({ ico: 'plug', cl: 'am', titulo: 'A Fonte De Vídeo Não Responde',
-        desc: FONTE.motivo || 'O Drive não respondeu na última leitura',
+      l.push({ ico: 'plug', cl: 'am', titulo: 'O Drive Não Está Respondendo',
+        desc: FONTE.motivo || 'A última leitura do Drive não voltou',
         botao: 'Abrir Mídia', grave: true });
     }
     if (ESTEIRA.erro) {
       l.push({ ico: 'triangle-alert', cl: 'am',
         titulo: S.fmt(ESTEIRA.erro) + (ESTEIRA.erro > 1 ? ' Vídeos Recusados'
                                                         : ' Vídeo Recusado'),
-        desc: 'O envio voltou com erro e o motivo está gravado no livro-caixa',
+        desc: 'O Instagram recusou o envio e o motivo está gravado',
         botao: 'Ver O Erro', grave: true });
     }
-    if (!ESTEIRA.programado && ESTEIRA.prateleira) {
-      l.push({ ico: 'calendar', cl: 'am', titulo: 'Nenhum Vídeo Na Fila',
-        desc: S.fmt(ESTEIRA.prateleira) + ' guardados na prateleira e nada com hora '
-          + 'marcada. A esteira para na primeira estação.',
+    if (!p[1].valor && p[0].valor) {
+      l.push({ ico: 'calendar', cl: 'am', titulo: 'Nenhum Vídeo Agendado',
+        desc: S.fmt(p[0].valor) + ' vídeos guardados e nenhum com dia e hora '
+          + 'marcados. Nada vai sair sozinho.',
         botao: 'Programar', grave: true });
     }
-    if (!ESTEIRA.prateleira) {
-      l.push({ ico: 'box', cl: 'am', titulo: 'A Prateleira Está Vazia',
-        desc: 'Sem material anotado no livro não há o que programar',
-        botao: 'Ligar Uma Pasta', grave: true });
+    if (!p[0].valor) {
+      l.push({ ico: 'box', cl: 'am', titulo: 'Não Há Vídeo Guardado',
+        desc: 'Sem vídeo no sistema não há o que agendar',
+        botao: 'Escolher Uma Pasta', grave: true });
     }
-    LEVAS.forEach(function (x) {
-      if (x.total) return;
-      l.push({ ico: 'folder', cl: '', titulo: 'A Leva ' + x.nome + ' Está Vazia',
-        desc: 'Ligada ' + idade(x.ligada_em) + ' e nenhum vídeo foi anotado nela',
-        botao: 'Ver A Pasta' });
+    visiveis().forEach(function (x) {
+      if (x.ligada) return;
+      l.push({ ico: 'plug', cl: 'am', titulo: 'O Perfil @' + x.u + ' Está Fora',
+        desc: 'A última leitura do Instagram não encontrou este perfil no ar',
+        botao: 'Ver O Perfil', grave: true });
     });
-    LEVAS.forEach(function (x) {
+    pastas().forEach(function (x) {
+      if (x.total) return;
+      l.push({ ico: 'folder', cl: '',
+        titulo: 'A Pasta ' + x.nome + ' Está Vazia',
+        desc: 'Escolhida ' + idade(x.ligada_em) + ' e nenhum vídeo foi encontrado '
+          + 'dentro dela', botao: 'Ver A Pasta' });
+    });
+    pastas().forEach(function (x) {
       if (!x.total || x.conta) return;
-      l.push({ ico: 'circle-slash', cl: '', titulo: 'A Leva ' + x.nome + ' Não Tem Dono',
-        desc: 'Sem perfil ligado, o material dela não pode ser programado',
+      l.push({ ico: 'circle-slash', cl: '',
+        titulo: 'A Pasta ' + x.nome + ' Não Tem Perfil',
+        desc: 'Sem perfil escolhido, os vídeos dela não podem ser agendados',
         botao: 'Escolher O Perfil' });
     });
-    (FONTE.pastas || []).forEach(function (p) {
-      if (p.ligada) return;
-      l.push({ ico: 'hard-drive', cl: '', titulo: 'A Pasta ' + p.nome + ' Não Foi Ligada',
-        desc: 'Está no Drive e ainda não entrou no livro-caixa',
-        botao: 'Ligar' });
+    visiveis().forEach(function (x) {
+      if (!x.ultima || dias(x.ultima) < 30) return;
+      l.push({ ico: 'clock', cl: '',
+        titulo: '@' + x.u + ' Não Publica ' + idade(x.ultima),
+        desc: x.guardados ? S.fmt(x.guardados) + ' vídeos guardados esperando'
+                          : 'e não tem vídeo guardado para usar',
+        botao: 'Programar' });
     });
     return l;
   }
 
-  /* A fita: o que a maquina fez por ultimo, do mais novo para o mais velho. */
-  function fita() {
-    return SAIDAS.slice().reverse().map(function (p) {
-      return { ico: 'send', cl: 'ok', titulo: p.titulo || 'Publicação',
-        sub: 'Saiu por @' + p.conta,
-        q1: idade(p.quando), q2: 'entregue à Meta' };
+  /* A fita: o que saiu por ultimo, do mais novo para o mais velho. */
+  function ultimas(janela) {
+    return posts(janela || 90).slice().reverse().map(function (p) {
+      return { ico: 'send', cl: 'ok', titulo: p.legenda || 'Sem legenda',
+        sub: '@' + p.perfil + ' · ' + (p.fmt === 'carrossel' ? 'Carrossel' : 'Reel'),
+        q1: idade(p.quando), q2: S.fmt(p.vis) + ' visualizações',
+        link: p.endereco };
     });
   }
 
@@ -268,15 +490,59 @@
     });
   }
 
+  /* ------------------------------------------------------- o filtro, em tela
+     Uma fileira so': Todos, cada etiqueta, cada mercado. A etiqueta vem da aba de
+     Contas, que e' onde ele a escreve. */
+  function barraFiltro(id) {
+    function bt(tipo, valor, rotulo, quantos) {
+      var vivo = filtro.tipo === tipo && filtro.valor === valor;
+      return '<button type="button" data-t="' + tipo + '" data-v="'
+        + S.seguro(valor) + '"' + (vivo ? ' class="on"' : '') + '>'
+        + S.seguro(rotulo) + '<b>' + quantos + '</b></button>';
+    }
+    function maiuscula(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+    var b = [bt('todos', '', 'Todos Os Perfis', PERFIS.length)];
+    ETIQUETAS.forEach(function (e) {
+      b.push(bt('etiqueta', e, maiuscula(e), PERFIS.filter(function (p) {
+        return p.etiquetas.indexOf(e) >= 0; }).length));
+    });
+    MERCADOS.forEach(function (m) {
+      b.push(bt('mercado', m, maiuscula(m), PERFIS.filter(function (p) {
+        return p.mercado === m; }).length));
+    });
+    return '<div class="rs-seg pn-filtro" id="' + id + '">' + b.join('') + '</div>';
+  }
+  function ligarFiltro(id, aoTrocar) {
+    var cx = document.getElementById(id);
+    if (!cx) return;
+    cx.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-t]');
+      if (!b) return;
+      [].forEach.call(cx.querySelectorAll('button'), function (o) {
+        o.classList.toggle('on', o === b);
+      });
+      escolher(b.dataset.t, b.dataset.v);
+      aoTrocar();
+    });
+  }
+
   window.PN = {
-    LEVAS: LEVAS, ESTEIRA: ESTEIRA, RESUMO: RESUMO, MAQUINA: MAQUINA,
-    SAIDAS: SAIDAS, FONTE: FONTE, HOJE: HOJE, RITMOS: RITMOS,
-    dia: dia, dias: dias, idade: idade,
-    estacoes: estacoes, ritmoMedido: ritmoMedido, autonomia: autonomia, acaba: acaba,
-    tetoAutonomia: tetoAutonomia,
-    maquina: maquina, diasRodando: diasRodando, material: material,
-    listaCaixas: listaCaixas,
-    levasOrdenadas: levasOrdenadas, pilhaDasLevas: pilhaDasLevas,
-    travas: travas, fita: fita, casca: casca
+    PERFIS: PERFIS, LEVAS: LEVAS, ESTEIRA: ESTEIRA, RESUMO: RESUMO,
+    MAQUINA: MAQUINA, SAIDAS: SAIDAS, FONTE: FONTE, HOJE: HOJE, RITMOS: RITMOS,
+    ETIQUETAS: ETIQUETAS, MERCADOS: MERCADOS, DIAS_SEM: DIAS_SEM,
+    dia: dia, dias: dias, idade: idade, data: data,
+    escolher: escolher, escolhaAtual: escolhaAtual, rotuloFiltro: rotuloFiltro,
+    visiveis: visiveis, barraFiltro: barraFiltro, ligarFiltro: ligarFiltro,
+    posts: posts, postsAntes: postsAntes, somar: somar, resumoRede: resumoRede,
+    serieRede: serieRede, temAnterior: temAnterior, porPerfil: porPerfil,
+    crescimento: crescimento, viral: viral, melhores: melhores,
+    mixInteracao: mixInteracao, porDiaSemana: porDiaSemana, porHora: porHora,
+    matrizHora: matrizHora, curvaSeguidores: curvaSeguidores,
+    paradas: paradas, guardados: guardados, ritmoMedido: ritmoMedido,
+    sobram: sobram, tetoSobram: tetoSobram, acaba: acaba,
+    publicacoesPorDia: publicacoesPorDia, diasComSaida: diasComSaida,
+    pastas: pastas, pilhaDasPastas: pilhaDasPastas, material: material,
+    listaCaixas: listaCaixas, impedimentos: impedimentos, ultimas: ultimas,
+    casca: casca
   };
 })();

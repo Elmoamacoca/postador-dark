@@ -81,7 +81,7 @@
         }, b.dica),
         series: [{
           type: 'funnel', orient: 'horizontal', funnelAlign: 'center',
-          left: 6, right: 6, top: 16, bottom: 34, min: 0, max: topo,
+          left: 6, right: 6, top: 12, bottom: 48, min: 0, max: topo,
           /* ESTACAO VAZIA NAO PODE PARECER CHEIA. Com `minSize` alto, zero vira
              um bloco de um quinto da tela e a tela mente. O minimo e' quase
              nada, e quem esta' em zero e' desenhado vazado, so' com o contorno. */
@@ -377,6 +377,156 @@
             formatter: function (x) { return conf.texto ? conf.texto(x) : S.curto(x); } },
           data: [{ value: Math.max(0, Math.min(max, conf.valor || 0)) }]
         }]
+      }, true);
+    });
+  };
+
+  /* ============================================ A VARIACAO, PARA CIMA E PARA BAIXO
+     Barras deitadas que saem do zero para os dois lados. E' o desenho de "quem
+     esta' crescendo": verde para quem subiu, vermelho para quem caiu, e o rotulo
+     do lado de fora da barra, nunca dentro. */
+  M.grafVariacao = function (dom, itens, sufixo) {
+    /* SUFIXO VAZIO E' DIFERENTE DE SUFIXO AUSENTE: com `|| '%'`, uma media
+       de 579 visualizacoes era rotulada como "+579%". */
+    var suf = sufixo == null ? '%' : sufixo;
+    return S.montar(dom, function (g) {
+      var b = base(), c = b.c;
+      var bom = S.tinta(S.corDado(1)), mau = S.tinta(S.varTema('--rs-neg'));
+      var maior = Math.max.apply(null, itens.map(function (i) {
+        return Math.abs(i[1]); }).concat([1]));
+      g.setOption({
+        animationDuration: c.animationDuration, animationEasing: c.animationEasing,
+        textStyle: c.textStyle,
+        grid: { left: 2, right: 12, top: 6, bottom: 2, containLabel: true },
+        tooltip: Object.assign({
+          trigger: 'item',
+          formatter: function (p) {
+            var v = p.value;
+            return S.tituloTip(p.name)
+              + S.linhaTip(v >= 0 ? bom : mau, 'Variação',
+                  (v > 0 ? '+' : '') + Math.round(v) + suf);
+          }
+        }, b.dica),
+        xAxis: { type: 'value', show: false, min: -maior * 1.35, max: maior * 1.35 },
+        yAxis: { type: 'category', inverse: true,
+          data: itens.map(function (i) { return i[0]; }),
+          axisLine: { show: true, lineStyle: { color: c.linha2 } },
+          axisTick: { show: false },
+          axisLabel: { color: c.txt2, fontSize: 12, fontWeight: 700, margin: 12,
+            width: 150, overflow: 'truncate' } },
+        series: [{ type: 'bar', barWidth: 13,
+          data: itens.map(function (i) {
+            var k = i[1] >= 0 ? bom : mau;
+            return { value: i[1], itemStyle: { borderRadius: 4,
+              color: new (ec().graphic.LinearGradient)(i[1] >= 0 ? 0 : 1, 0,
+                i[1] >= 0 ? 1 : 0, 0, [
+                  { offset: 0, color: S.alfa(k, .5) },
+                  { offset: 1, color: k }]) } };
+          }),
+          label: { show: true, color: c.txt, fontWeight: 800, fontSize: 12,
+            distance: 8,
+            position: function (p) { return p.value >= 0 ? 'right' : 'left'; },
+            formatter: function (p) {
+              return (p.value > 0 ? '+' : '') + Math.round(p.value)
+                + suf;
+            } } }]
+      }, true);
+    });
+  };
+
+  /* ================================================ A NUVEM DE PUBLICACOES
+     Cada bolha e' uma publicacao: quem alcancou mais vai para a direita, quem
+     engajou mais sobe, e o tamanho da bolha e' a visualizacao. Serve para achar
+     a publicacao fora da curva sem precisar ler uma tabela. */
+  M.grafNuvem = function (dom, pontos) {
+    return S.montar(dom, function (g) {
+      var b = base(), c = b.c;
+      var maiorVis = Math.max.apply(null, pontos.map(function (p) {
+        return p.vis; }).concat([1]));
+      g.setOption({
+        animationDuration: c.animationDuration, animationEasing: c.animationEasing,
+        textStyle: c.textStyle,
+        grid: { left: 6, right: 18, top: 20, bottom: 6, containLabel: true },
+        tooltip: Object.assign({
+          trigger: 'item',
+          formatter: function (p) {
+            var d = p.data.cru;
+            return S.tituloTip((d.legenda || 'Sem legenda').slice(0, 46))
+              + S.linhaTip(p.color, 'Visualizações', S.fmt(d.vis))
+              + S.linhaTip(c.txt3, 'Pessoas Alcançadas', S.fmt(d.alc))
+              + S.linhaTip(c.txt3, 'Interações', S.fmt(d.inter))
+              + S.linhaTip(c.txt3, 'Engajamento', S.pct(d.eng));
+          }
+        }, b.dica),
+        xAxis: { type: 'value', name: 'Pessoas alcançadas', nameLocation: 'middle',
+          nameGap: 26, nameTextStyle: { color: c.txt3, fontSize: 10.5,
+            fontWeight: 700 },
+          splitLine: { lineStyle: { color: c.linha } }, axisTick: { show: false },
+          axisLine: { show: false },
+          axisLabel: { color: c.txt3, fontSize: 10.5, fontWeight: 600 } },
+        yAxis: { type: 'value', name: 'Engajamento (%)', nameLocation: 'middle',
+          nameGap: 34, nameTextStyle: { color: c.txt3, fontSize: 10.5,
+            fontWeight: 700 },
+          splitLine: { lineStyle: { color: c.linha } }, axisTick: { show: false },
+          axisLine: { show: false },
+          axisLabel: { color: c.txt3, fontSize: 10.5, fontWeight: 600 } },
+        series: [{ type: 'scatter',
+          symbolSize: function (v) {
+            return 12 + (v[2] / maiorVis) * 30; },
+          data: pontos.map(function (p, i) {
+            var k = S.tinta(S.corDado((i % 5) + 1));
+            return { value: [p.alc, p.eng, p.vis], cru: p,
+              itemStyle: { color: S.alfa(k, .62), borderColor: k, borderWidth: 1.5 } };
+          }),
+          emphasis: { itemStyle: { opacity: 1, shadowBlur: 12,
+            shadowColor: 'rgba(0,0,0,.28)' } } }]
+      }, true);
+    });
+  };
+
+  /* =========================================== DUAS MEDIDAS, PERFIL A PERFIL
+     Colunas agrupadas. Uma medida sozinha nao compara nada; duas lado a lado
+     mostram, por exemplo, quem alcanca muito e engaja pouco. */
+  M.grafDuplo = function (dom, eixo, series) {
+    return S.montar(dom, function (g) {
+      var b = base(), c = b.c;
+      g.setOption({
+        animationDuration: c.animationDuration, animationEasing: c.animationEasing,
+        textStyle: c.textStyle,
+        grid: { left: 4, right: 10, top: 16, bottom: 26, containLabel: true },
+        tooltip: Object.assign({
+          trigger: 'axis',
+          axisPointer: { type: 'shadow',
+            shadowStyle: { color: S.alfa(S.tinta(S.corDado(1)), .08) } },
+          formatter: function (ps) {
+            if (!ps.length) return '';
+            var t = S.tituloTip(ps[0].axisValue);
+            ps.forEach(function (p) {
+              t += S.linhaTip(p.color, p.seriesName, S.fmt(p.value));
+            });
+            return t;
+          }
+        }, b.dica),
+        legend: { bottom: 0, left: 'center', icon: 'roundRect', itemWidth: 9,
+          itemHeight: 9, itemGap: 14,
+          textStyle: { color: c.txt2, fontSize: 11, fontWeight: 600,
+            fontFamily: 'Manrope, sans-serif' } },
+        xAxis: { type: 'category', data: eixo,
+          axisLine: { lineStyle: { color: c.linha } }, axisTick: { show: false },
+          axisLabel: { color: c.txt3, fontSize: 10.5, fontWeight: 700, margin: 10,
+            width: 92, overflow: 'truncate' } },
+        yAxis: { type: 'value', minInterval: 1,
+          splitLine: { lineStyle: { color: c.linha } },
+          axisLine: { show: false }, axisTick: { show: false },
+          axisLabel: { color: c.txt3, fontSize: 10.5, fontWeight: 600, margin: 8 } },
+        series: series.map(function (s, i) {
+          var k = S.tinta(s.cor || S.corDado(i + 1));
+          return { name: s.nome, type: 'bar', barMaxWidth: 26, data: s.vals,
+            itemStyle: { borderRadius: [6, 6, 2, 2],
+              color: new (ec().graphic.LinearGradient)(0, 0, 0, 1, [
+                { offset: 0, color: k }, { offset: 1, color: S.alfa(k, .45) }]) },
+            emphasis: { itemStyle: { color: k } } };
+        })
       }, true);
     });
   };

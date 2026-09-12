@@ -83,6 +83,17 @@ def capturar():
             pac['acervo'][c['arroba']] = ler('contas/midias?conta=' + c['arroba'])
         except Exception:
             pac['acervo'][c['arroba']] = {'midias': []}
+    # O DESEMPENHO DE CADA PERFIL, pela mesma rota que a aba de Analytics usa. Daqui
+    # saem visualizacao, alcance, interacao, tempo medio assistido e a curva de
+    # seguidores, publicacao por publicacao. A HOME NAO REPETE O ANALYTICS: la' e'
+    # UMA conta por vez, em profundidade; aqui e' a REDE INTEIRA, comparada.
+    pac['desempenho'] = {}
+    for c in pac['rede']['contas']:
+        try:
+            pac['desempenho'][c['arroba']] = ler(
+                'analytics/estado?u=' + c['arroba'] + '&dias=90')
+        except Exception:
+            pac['desempenho'][c['arroba']] = {}
     # O ANDAR DE CIMA DA FONTE: o que existe no Drive e ainda nao foi ligado. E' o
     # unico jeito de a home dizer se falta material la' fora ou se falta ligar o que
     # ja' esta' la'. Sem isso, "acervo zero" e "acervo nao ligado" viram a mesma tela.
@@ -192,9 +203,52 @@ def dados(reais):
     fora = [{'nome': p.get('nome') or '', 'videos': p.get('videos'),
              'ligada': bool(p.get('ligada'))} for p in (drive.get('pastas') or [])]
 
+    # --------------------------------------------------------------- os perfis
+    # Um por conta, com as ETIQUETAS que ele digitou na aba de Contas: sao elas que
+    # alimentam o filtro do topo. Publicacao por publicacao vem crua, para a tela
+    # recortar por periodo sem pedir de novo ao servidor.
+    meta = (reais.get('meta') or {}).get('contas') or {}
+    des = reais.get('desempenho') or {}
+    perfis = []
+    for c in rede['contas']:
+        a = c['arroba']
+        d = des.get(a) or {}
+        m = meta.get(a) or {}
+        eti = m.get('etiquetas') or []
+        if isinstance(eti, str):
+            eti = [x.strip() for x in eti.split(',') if x.strip()]
+        posts = []
+        for p in (d.get('posts') or []):
+            posts.append({
+                'perfil': a, 'sc': p.get('sc') or '', 'fmt': p.get('fmt') or 'reel',
+                'quando': (p.get('quando') or '')[:19],
+                'legenda': p.get('legenda') or '',
+                'vis': p.get('vis') or 0, 'alc': p.get('alc') or 0,
+                'cur': p.get('cur') or 0, 'com': p.get('com') or 0,
+                'sal': p.get('sal') or 0, 'cmp': p.get('cmp') or 0,
+                'inter': p.get('inter') or 0, 'medio': p.get('medio') or 0,
+                'eng': p.get('eng') or 0,
+                'endereco': p.get('endereco') or '',
+            })
+        posts.sort(key=lambda p: p['quando'])
+        dono = [x for x in levas if x['conta'] == a]
+        perfis.append({
+            'u': a, 'nome': c.get('nome') or a, 'retrato': c.get('avatar') or '',
+            'ligada': bool(c.get('ligada')),
+            'mercado': m.get('mercado') or '', 'etiquetas': eti,
+            'seguidores': d.get('seguidores') or 0,
+            'curva': d.get('curva') or [],
+            'ultima': (d.get('ultima') or '')[:19],
+            'guardados': sum(x['prateleira'] for x in dono),
+            'agendados': sum(x['programados'] for x in dono),
+            'pastas': len(dono),
+            'posts': posts,
+        })
+
     acervo = sum(x['total'] for x in levas)
     return {
         'hoje': HOJE.strftime('%Y-%m-%dT%H:%M:%S'),
+        'perfis': perfis,
         'esteira': esteira,
         'levas': levas,
         'maquina': maquina,
@@ -221,7 +275,12 @@ def dados(reais):
             'saiu90': saiu90, 'rodou': rodou, 'parada': parada, 'ultimo': ultimo,
             'ritmo': round(saiu90 / 90.0, 2),
             'foraligado': sum(1 for p in fora if not p['ligada']),
+            'perfis': len(perfis),
+            'seguidores': sum(p['seguidores'] for p in perfis),
         },
+        # todas as etiquetas que existem, para o filtro do topo
+        'etiquetas': sorted({e for p in perfis for e in p['etiquetas']}),
+        'mercados': sorted({p['mercado'] for p in perfis if p['mercado']}),
     }
 
 
@@ -318,7 +377,7 @@ def main():
         encoding='utf-8')
 
     molde = (AQUI / 'pagina.html').read_text(encoding='utf-8')
-    NOMES = {'a': 'A Esteira', 'b': 'O Tanque', 'c': 'A Sala De Máquinas'}
+    NOMES = {'a': 'A Rede', 'b': 'Lado A Lado', 'c': 'O Quadro'}
     letras = [x for x in ('a', 'b', 'c') if (AQUI / ('proposta-' + x + '.js')).exists()]
     for letra in letras:
         pagina = (molde.replace('{{LETRA}}', letra.upper())

@@ -16,7 +16,7 @@ import urllib.request
 AQUI = pathlib.Path(__file__).resolve().parent
 COFRE = pathlib.Path.home() / '.claude' / 'secrets' / 'vercel_token.txt'
 JUNTOS = ['painel.css', 'sala.css', 'grafico.css', 'comum.css',
-          'casa.js', 'sala.js', 'motor.js', 'comum.js', 'dados.js',
+          'casa.js', 'sala.js', 'motor.js', 'comum.js', 'blocos.js', 'dados.js',
           'marca-clara.png', 'marca-escura.png']
 PROPOSTAS = {
     'borusa-painel-a': 'proposta-a.html',
