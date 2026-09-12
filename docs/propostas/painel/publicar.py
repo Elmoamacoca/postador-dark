@@ -16,7 +16,7 @@ import urllib.request
 AQUI = pathlib.Path(__file__).resolve().parent
 COFRE = pathlib.Path.home() / '.claude' / 'secrets' / 'vercel_token.txt'
 JUNTOS = ['painel.css', 'sala.css', 'grafico.css', 'comum.css',
-          'casa.js', 'comum.js', 'dados.js',
+          'casa.js', 'sala.js', 'comum.js', 'dados.js',
           'marca-clara.png', 'marca-escura.png']
 PROPOSTAS = {
     'borusa-painel-a': 'proposta-a.html',
@@ -54,6 +54,8 @@ def publicar(tk, projeto, pagina):
 def main():
     tk = token()
     for projeto, pagina in PROPOSTAS.items():
+        if not (AQUI / pagina).exists():
+            continue
         try:
             ident, endereco = publicar(tk, projeto, pagina)
             print(projeto.ljust(18), 'ok  ', endereco, ident)

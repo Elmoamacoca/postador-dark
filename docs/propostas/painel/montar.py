@@ -212,10 +212,7 @@ def css():
         if de not in sala:
             raise SystemExit('o rastreamento.css mudou: nao achei ' + de)
         sala = sala.replace(de, para, 1)
-    # `.rs` traz `display:flex` junto das variaveis; aqui quem manda no empilhamento
-    # e' o `#pn-palco`, entao a pagina fica com o display dela.
-    sala += ('\n/* ajuste desta pagina: a classe entrou so\' para herdar as variaveis */'
-             '\n.rs-casa { display: block; gap: 0 }\n')
+    # A pagina usa `.rs` de verdade, que ja' empilha em coluna com respiro de 18.
     (AQUI / 'sala.css').write_text(
         '/* ===== rastreamento.css: A SALA DE CONTROLE ===== */\n' + sala,
         encoding='utf-8')
@@ -280,8 +277,11 @@ def main():
         encoding='utf-8')
 
     molde = (AQUI / 'pagina.html').read_text(encoding='utf-8')
+    # SO' AS PROPOSTAS QUE EXISTEM. A rodada 3 comeca com uma tela so', fiel a'
+    # Sala De Controle; as variacoes entram depois, se ele pedir.
     NOMES = {'a': 'A Sala', 'b': 'O Mural', 'c': 'O Mosaico'}
-    for letra in ('a', 'b', 'c'):
+    letras = [x for x in ('a', 'b', 'c') if (AQUI / ('proposta-' + x + '.js')).exists()]
+    for letra in letras:
         pagina = (molde.replace('{{LETRA}}', letra.upper())
                   .replace('{{NOME}}', NOMES[letra])
                   .replace('{{ESTILO}}', (AQUI / ('proposta-' + letra + '.css'))

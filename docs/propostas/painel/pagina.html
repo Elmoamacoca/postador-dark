@@ -69,7 +69,7 @@
   </div>
   <div class="menu-pe">
     <div class="pe-linha">
-      <span class="pp" style="font-weight:700;font-variant-numeric:tabular-nums">v1</span>
+      <span class="pp" style="font-weight:700;font-variant-numeric:tabular-nums">v3</span>
       <span class="pe-rot">Proposta {{LETRA}} · {{NOME}}</span>
     </div>
     <div class="pe-linha">
@@ -85,33 +85,17 @@
 </aside>
 
 <main class="palco">
-  <section class="pagina ativa rs-casa" id="pag-painel">
-    <div class="cab">
-      <div>
-        <h1>Painel</h1>
-        <p class="p" id="pn-dia">A rede, o que está guardado e o que falta sair.</p>
-      </div>
-      <div class="dir">
-        <span class="pp" id="pn-lido"></span>
-        <button class="bt mini" id="pn-atualizar">Atualizar</button>
-        <button class="btn brasa" id="pn-programar" type="button">
-          <svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
-          <span class="txt">
-            <svg class="ag-selo" aria-hidden="true"><use href="#i-agenda"/></svg>
-            Programar publicações</span>
-          <span class="circ"></span>
-          <svg class="seta seta-dir" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
-        </button>
-      </div>
-    </div>
+  <section class="pagina ativa rs-casa rs" id="pag-painel">
     <div id="pn-palco"></div>
   </section>
 </main>
 
-<div class="rs-tip" id="rs-tip" hidden></div>
+<div class="rs-tip" id="rs-tip" role="status" aria-live="off"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <script src="dados.js"></script>
 <script src="casa.js"></script>
+<script src="sala.js"></script>
 <script src="comum.js"></script>
 <script>
 {{SCRIPT}}

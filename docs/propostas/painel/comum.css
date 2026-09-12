@@ -1,66 +1,24 @@
 /* ===================================== O COMPARTILHADO DAS PROPOSTAS DO PAINEL
-   SO' GRADE, POSICAO E O DESENHO DOS GRAFICOS NOVOS (coluna e rosca), que nao
-   existiam na casa. Cor, raio, sombra, altura de controle, peso de texto e pilula
-   continuam vindo de `painel.css` e `sala.css`. */
+   Quase nada, e e' esse o ponto da rodada 3: a tela usa as pecas e as grades que
+   ja' existem (`.rs-grade`, `.rs-g4`, `.rs-g21`, `.rs-g3`, `.rs-cd`, `.rs-kpi`,
+   `.rs-tab`, `.rs-fita`, `.rs-hm`, `.rs-fun`), e os graficos sao os da Sala De
+   Controle, portados em `sala.js`. Aqui so' o que nao existia. */
 
-#pn-palco { display: flex; flex-direction: column; gap: 16px }
+#pn-palco { display: flex; flex-direction: column; gap: 18px }
 
-/* ------------------------------------------------------------ a rosca */
-.pn-rosca { display: block; height: 168px }
-.pn-rosca-sv { display: block; width: 168px; height: 168px; margin: 0 auto }
-.pn-lg { display: inline-flex; align-items: center; gap: 6px }
-.pn-lg i { width: 9px; height: 9px; border-radius: 3px; flex: none }
-.pn-lg b { color: var(--ink); font-weight: 800 }
-
-/* ------------------------------------------------------------ as colunas */
-.pn-col { display: flex; align-items: flex-end; gap: 6px; height: calc(var(--alt) + 44px);
-  padding-top: 4px }
-.pn-col-b { flex: 1; min-width: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: flex-end; gap: 5px; height: 100% }
-.pn-col-b b { font-size: 11px; font-weight: 800; color: var(--muted); line-height: 1 }
-.pn-col-b i { display: block; width: 100%; max-width: 38px; border-radius: 6px 6px 0 0;
-  background: var(--accent); transition: filter .12s }
-.pn-col-b:hover i { filter: brightness(1.12) }
-.pn-col-b u { font-size: 10.5px; font-weight: 700; color: var(--soft);
-  text-decoration: none; white-space: nowrap }
-
-/* ------------------------------------------------------- o mapa de calor */
-.pn-hm i { height: 16px }
-
-/* --------------------------------------------------- o retrato no ranking */
+/* o retrato dentro da tabela e da lista */
 .rs-li .lg img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px }
 
-/* ------------------------------------------------------------ a minicurva */
-.pn-sp { width: 100%; height: 44px }
+/* a fita desta tela carrega botao no lugar do horario, e botao precisa de ar */
+.rs-ev .q .bt { white-space: nowrap }
 
-/* a fita de travas: a explicacao cabe em duas linhas, e a acao e' botao */
-.pn-ev { align-items: flex-start }
-.pn-ev .ic { margin-top: 2px }
-.pn-ev .c span { white-space: normal; overflow: visible; text-overflow: clip;
-  line-height: 1.45 }
-.pn-ev-dir { flex: none; padding-left: 4px; align-self: center }
+/* a barra de rolagem da fita e' a fina da casa, como no painel lateral do
+   Analytics: sem isso ela sobe com a barra branca do sistema */
 .rs-fita { scrollbar-width: thin; scrollbar-color: var(--rule-solid) transparent }
 .rs-fita::-webkit-scrollbar { width: 10px }
 .rs-fita::-webkit-scrollbar-track { background: transparent }
 .rs-fita::-webkit-scrollbar-thumb { background: var(--rule-solid); border-radius: 999px;
   border: 2px solid transparent; background-clip: padding-box }
 
-/* ------------------------------------------------------------- o motor */
-.pn-graf .grafico-abas { display: none }
-.pn-alto .grafico-tela { height: 254px; min-height: 254px }
-.pn-medio .grafico-tela { height: 186px; min-height: 186px }
-.pn-baixo .grafico-tela { height: 124px; min-height: 124px }
-.pn-alto, .pn-medio, .pn-baixo { display: flex; flex-direction: column }
-
-/* a legenda de serie, quando o cartao mostra mais de uma */
-.pn-leg { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  padding-top: 10px }
-.pn-leg span { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px;
-  font-weight: 700; color: var(--soft) }
-.pn-leg i { width: 9px; height: 9px; border-radius: 3px; flex: none }
-
-/* o numero que mora no cabecalho do cartao, ao lado do titulo */
-.pn-tit { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap }
-.pn-tit b { font-size: 22px; font-weight: 800; letter-spacing: -.03em;
-  font-variant-numeric: tabular-nums }
-.pn-tit span { font-size: 11.5px; font-weight: 700; color: var(--soft) }
+/* o cabecalho da pagina segue o `.rs-topo` da sala; o botao da casa mora nele */
+.rs-topo .rs-dir { gap: 12px }
