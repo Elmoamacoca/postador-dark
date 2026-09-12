@@ -15,6 +15,18 @@
    trilho das barras some.
    ===================================================================== */
 
+/* ================================================== A TROCA DE ABA
+   `.rs` NAO TRAZ SO' COR: junto com `--rs-1` ate' `--rs-trilho` ela traz
+   `display:flex`, e com a mesma forca de `.pagina` o flex ganhava. A secao do
+   Painel continuava visivel depois de perder a classe `ativa`, cobria a tela de
+   Programar, e como o modo foco esconde o menu a pessoa ficava presa numa tela
+   que parecia travada. Foi o defeito que ele achou em 12/09/2026.
+
+   O `id` tem forca de sobra para devolver a decisao ao `.pagina`, e as
+   variaveis continuam vindo de `.rs`. */
+#pag-painel { display: none }
+#pag-painel.ativa { display: flex }
+
 #pn-palco { display: flex; flex-direction: column; gap: 18px }
 
 /* ------------------------------------------------------------- o cabecalho */
