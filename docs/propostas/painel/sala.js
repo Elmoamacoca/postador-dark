@@ -524,5 +524,14 @@
     });
   };
 
+  /* AS PECAS INTERNAS SAEM PARA O `motor.js`, que desenha os graficos que esta
+     home tem e a Sala nao tem (esteira, queima, medidor). Eles usam a MESMA
+     montagem resiliente, a MESMA dica e o MESMO redesenho na troca de tema: e'
+     por isso que ela sai daqui em vez de ser escrita de novo la'. */
+  S.montar = montar;
+  S.comum = comum;
+  S.linhaTip = linhaTip;
+  S.tituloTip = tituloTip;
+
   window.SALA = S;
 })();

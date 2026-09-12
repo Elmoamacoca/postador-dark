@@ -1,0 +1,38 @@
+/* ================================================== PROPOSTA B · O TANQUE
+   A grade e' de duas colunas desiguais no topo: o medidor manda, e a esteira em
+   pe' fica do lado como leitura de apoio. */
+
+.pn-b-topo { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 16px }
+.pn-b-topo > .rs-cd { display: flex; flex-direction: column }
+.pn-b-topo > .rs-cd > .rs-cd-b { flex: 1; display: flex; flex-direction: column }
+
+/* o medidor grande: altura fixa, senao o canvas nasce com zero dentro do flex */
+.pn-b-med-g { width: 100%; height: 246px; margin: -8px 0 4px }
+.pn-b-num { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px }
+.pn-b-num .pn-p .rs-rot2 { display: flex; align-items: center; gap: 6px }
+.pn-b-num .pn-p .num { font-size: 17px }
+
+/* O FUNIL ESTICA ATE' O PE' DO CARTAO. Com altura fixa, ele terminava a meia
+   altura e sobrava um palmo de branco ao lado do medidor, que e' mais alto. */
+.pn-b-fun > .rs-cd-b { display: flex; flex-direction: column }
+.pn-b-fun > .rs-cd-b > div:first-child { flex: 1; display: flex;
+  flex-direction: column }
+.pn-b-fun .rs-fun { margin-top: 2px; flex: 1; display: flex; flex-direction: column }
+.pn-b-fun .rs-fun > div { flex: 1; display: flex; flex-direction: column }
+.pn-b-fun .rs-fun-r { height: auto; flex: 2; min-height: 42px }
+.pn-b-fun .rs-fun-q { height: auto; flex: 1; min-height: 26px }
+.pn-b-erro, .pn-b-ok { display: flex; align-items: center; gap: 8px; margin-top: 14px;
+  padding: 10px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 600 }
+.pn-b-erro { background: var(--rs-neg-t); color: var(--rs-neg) }
+.pn-b-ok { background: var(--paper-2); color: var(--muted) }
+.pn-b-erro b, .pn-b-ok b { font-weight: 800 }
+
+.pn-b-arco { width: 100%; height: 172px }
+.pn-b-nota { font-size: 12.5px; color: var(--muted); text-align: center;
+  line-height: 1.5; margin-top: 6px }
+.pn-b-nota b { color: var(--ink); font-weight: 800 }
+
+@media (max-width: 1180px) {
+  .pn-b-topo { grid-template-columns: 1fr }
+}

@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 """Monta as tres propostas de layout da ABA PAINEL, a home do Postador.
 
-O QUE A HOME RESPONDE, e que NAO E' o que a aba de Analytics responde:
+O TERRITORIO DA HOME, fechado na rodada 4 (11/09/2026), depois de seis layouts
+reprovados por repetirem as outras abas:
 
-    Analytics = DESEMPENHO de uma conta (seguidores, alcance, visualizacao).
-    Painel    = ESTADO DA OPERACAO da rede inteira: a rede esta' de pe'? vai sair
-                conteudo? tem material guardado? o que esta' travando agora?
+    Calendario = QUANDO sai (mes, gantt, levas no tempo).
+    Analytics  = COMO foi depois que saiu (alcance, visualizacao, engajamento).
+    Contas     = QUEM sao os perfis (token, vinculo, ficha).
+    Painel     = A MAQUINA: tem material? ela anda? onde emperra?
 
-Nada aqui repete a ficha de perfil nem a tabela de publicacoes do Analytics.
+A unidade desta tela e' o VIDEO, e nao a conta nem a publicacao. Por isso o pacote
+nao carrega ficha de perfil, nao carrega gantt e nao carrega numero de desempenho.
 
-O QUE E' REAL: tudo. As contas, o estado de cada uma, a fila, o acervo do livro-caixa,
-as publicacoes que a Meta conhece e a serie de 90 dias saem do painel NO AR, logado,
-pela captura abaixo. Nada e' inventado, e onde o numero e' zero a tela diz por que.
+O QUE E' REAL: tudo. O livro-caixa, o estado de cada video, as levas ligadas, a
+arvore da fonte e a serie de 90 dias saem do painel NO AR, logado, pela captura
+abaixo. Nada e' inventado, e onde o numero e' zero a tela diz por que.
 
 Rodar na raiz do repositorio:
     python docs/propostas/painel/montar.py --capturar
@@ -70,6 +73,23 @@ def capturar():
     pac = {'rede': ler('painel/rede'), 'pastas': ler('midia/ligadas')['pastas'],
            'saidas': ler('calendario/saidas')['saidas'], 'meta': ler('contas/meta'),
            'estado': ler('midia/estado')}
+    # O ACERVO INTEIRO, VIDEO A VIDEO. E' a materia-prima desta home: `contas/midias`
+    # devolve, por conta, cada arquivo com estado bruto (prateleira, baixado,
+    # programado, publicado, erro), tamanho, leva, subpasta e o motivo do erro. Sem
+    # isso a esteira so' teria o total de cada pasta, e nao o caminho de cada peca.
+    pac['acervo'] = {}
+    for c in pac['rede']['contas']:
+        try:
+            pac['acervo'][c['arroba']] = ler('contas/midias?conta=' + c['arroba'])
+        except Exception:
+            pac['acervo'][c['arroba']] = {'midias': []}
+    # O ANDAR DE CIMA DA FONTE: o que existe no Drive e ainda nao foi ligado. E' o
+    # unico jeito de a home dizer se falta material la' fora ou se falta ligar o que
+    # ja' esta' la'. Sem isso, "acervo zero" e "acervo nao ligado" viram a mesma tela.
+    try:
+        pac['drive'] = ler('midia/navegar')
+    except Exception:
+        pac['drive'] = {'pastas': [], 'trilha': []}
     # O DESEMPENHO ENTRA NA HOME por decisao dele em 11/09/2026, depois de reprovar a
     # primeira rodada por falta de grafico: so' com operacao (2 contas, fila zero) nao
     # ha' o que desenhar. Daqui saem visualizacao, curtida, comentario e engajamento
@@ -97,90 +117,111 @@ def capturar():
 
 
 def dados(reais):
-    """O pacote que as tres propostas leem. So' agrega o que veio do painel."""
+    """O pacote da ESTEIRA. So' agrega o que veio do painel no ar.
+
+    A UNIDADE DESTA TELA E' O VIDEO, e nao a conta nem a publicacao. Por isso o
+    pacote nao carrega ficha de perfil, gantt nem numero de desempenho: quem responde
+    por aquilo sao as outras tres abas.
+    """
     rede = reais['rede']
     pastas = reais.get('pastas') or []
     saidas = sorted([s for s in reais.get('saidas') or [] if s.get('quando')],
                     key=lambda s: s['quando'])
-    meta = (reais.get('meta') or {}).get('contas') or {}
 
-    # prateleira e acervo por conta: o livro-caixa guarda pasta, e pasta pertence a
-    # uma conta so' (decisao dele em 10/09).
-    por_conta = {}
+    # ------------------------------------------------------------------- as levas
+    # A leva e' a caixa de material: uma pasta ligada, com dono, e o estado de cada
+    # video dela. E' a linha de base de tudo nesta tela.
+    levas = []
     for p in pastas:
-        dono = p.get('conta') or ''
-        alvo = por_conta.setdefault(dono, {'prateleira': 0, 'total': 0, 'pastas': 0,
-                                           'vazias': 0})
-        alvo['prateleira'] += p.get('prateleira') or 0
-        alvo['total'] += p.get('total') or 0
-        alvo['pastas'] += 1
-        if not p.get('total'):
-            alvo['vazias'] += 1
-
-    # as publicacoes com os numeros de desempenho, conta a conta
-    fichas = reais.get('contas') or {}
-    posts = []
-    for arroba, ficha in fichas.items():
-        for p in (ficha.get('posts') or []):
-            posts.append({
-                'conta': arroba, 'sc': p.get('sc') or '', 'fmt': p.get('fmt') or 'reel',
-                'quando': (p.get('quando') or '')[:19],
-                'views': p.get('views') or 0, 'cur': p.get('cur') or 0,
-                'com': p.get('com') or 0, 'eng': p.get('eng') or 0,
-                'legenda': p.get('legenda') or '',
-            })
-    posts.sort(key=lambda p: p['quando'])
-
-    contas = []
-    for c in rede['contas']:
-        a = c['arroba']
-        # quantas saidas esta conta tem na serie de 90 dias, dia a dia
-        serie = [[p['dia'], (p.get('contas') or {}).get(a, 0)] for p in rede['serie']]
-        acervo = por_conta.get(a) or {'prateleira': 0, 'total': 0, 'pastas': 0,
-                                      'vazias': 0}
-        contas.append({
-            'u': a, 'nome': c.get('nome') or a, 'avatar': c.get('avatar') or '',
-            'ligada': bool(c.get('ligada')), 'fila': c.get('fila') or 0,
-            'erros': c.get('erros24h') or 0, 'ultimo': c.get('ultimo') or '',
-            'publicando': bool(c.get('publicando')),
-            'mercado': (meta.get(a) or {}).get('mercado') or '',
-            'etiquetas': (meta.get(a) or {}).get('etiquetas') or [],
-            'prateleira': acervo['prateleira'], 'pastas': acervo['pastas'],
-            'serie': serie,
-            'posts90': sum(v for _, v in serie),
-            'saidas': [s for s in saidas if s.get('conta') == a],
-            'meus': [p for p in posts if p['conta'] == a],
-            'mediana': (fichas.get(a) or {}).get('mediana') or 0,
-            'percurso': (fichas.get(a) or {}).get('percurso') or {},
-            'formatos': (fichas.get(a) or {}).get('formatos') or {},
+        total = p.get('total') or 0
+        prat = p.get('prateleira') or 0
+        prog = p.get('programados') or 0
+        pub = p.get('publicados') or 0
+        err = p.get('erro') or 0
+        ligada = (p.get('ligada_em') or '')[:10]
+        dias = 0
+        if ligada:
+            try:
+                dias = (HOJE.date() - datetime.strptime(ligada, '%Y-%m-%d').date()).days
+            except ValueError:
+                dias = 0
+        levas.append({
+            'nome': p.get('nome') or 'Sem nome', 'conta': p.get('conta') or '',
+            'id': p.get('id') or '', 'caminho': p.get('caminho') or '',
+            'total': total, 'prateleira': prat, 'programados': prog,
+            'publicados': pub, 'erro': err,
+            'ligada_em': ligada, 'dias': dias,
+            'gasto': round(((pub + prog) / total) * 100) if total else 0,
         })
+    levas.sort(key=lambda x: -x['total'])
 
-    # o acervo que nao esta' ligado a conta nenhuma continua contando para a rede
-    prateleira = sum(p.get('prateleira') or 0 for p in pastas)
+    # ---------------------------------------------------------------- a esteira
+    # As cinco estacoes do livro-caixa, na ordem em que o video anda. `baixado` e'
+    # separado de `programado` de proposito: e' nele que a esteira costuma emperrar,
+    # porque o arquivo ja' desceu e ainda nao tem hora marcada.
+    esteira = {'prateleira': 0, 'programado': 0, 'publicado': 0, 'erro': 0}
+    for x in levas:
+        esteira['prateleira'] += x['prateleira']
+        esteira['programado'] += x['programados']
+        esteira['publicado'] += x['publicados']
+        esteira['erro'] += x['erro']
+
+    # ------------------------------------------------------- o tempo de maquina
+    # 90 dias de retrato diario: em quantos deles a maquina publicou alguma coisa.
+    # Nao e' desempenho de conta, e' tempo de maquina rodando.
+    maquina = [{'dia': d['dia'],
+                'saidas': sum((d.get('contas') or {}).values()),
+                'ativas': d.get('publicando') or 0,
+                'paradas': (d.get('paradas') or 0) + (d.get('caidas') or 0)}
+               for d in rede['serie']]
+    rodou = sum(1 for d in maquina if d['saidas'])
+    saiu90 = sum(d['saidas'] for d in maquina)
+
+    # quanto tempo faz que nada sai
+    ultimo = saidas[-1]['quando'][:10] if saidas else ''
+    parada = 0
+    if ultimo:
+        try:
+            parada = (HOJE.date() - datetime.strptime(ultimo, '%Y-%m-%d').date()).days
+        except ValueError:
+            parada = 0
+
+    # ------------------------------------------------------------------- a fonte
+    est = reais.get('estado') or {}
+    drive = reais.get('drive') or {}
+    fora = [{'nome': p.get('nome') or '', 'videos': p.get('videos'),
+             'ligada': bool(p.get('ligada'))} for p in (drive.get('pastas') or [])]
+
+    acervo = sum(x['total'] for x in levas)
     return {
         'hoje': HOJE.strftime('%Y-%m-%dT%H:%M:%S'),
-        'contas': contas,
-        'resumo': dict(rede['resumo'], prateleira=prateleira,
-                       fila=sum(c['fila'] for c in contas),
-                       erros=sum(c['erros'] for c in contas),
-                       posts90=sum(c['posts90'] for c in contas),
-                       vazias=sum(1 for p in pastas if not p.get('total')),
-                       views=sum(p['views'] for p in posts),
-                       eng=sum(p['eng'] for p in posts),
-                       publicados=len(posts),
-                       acervo=sum(p.get('total') or 0 for p in pastas)),
-        'serie': rede['serie'], 'semana': rede['semana'], 'posts': posts,
-        'pastas': [{'nome': p.get('nome') or '', 'conta': p.get('conta') or '',
-                    'total': p.get('total') or 0,
-                    'prateleira': p.get('prateleira') or 0,
-                    'programados': p.get('programados') or 0,
-                    'publicados': p.get('publicados') or 0,
-                    'erro': p.get('erro') or 0} for p in pastas],
-        'saidas': [{'titulo': s.get('titulo') or 'Publicação', 'conta': s.get('conta'),
-                    'quando': (s.get('quando') or '')[:19], 'fmt': s.get('fmt') or 'reel',
-                    'estado': s.get('estado') or 'publicado', 'sc': s.get('sc') or ''}
-                   for s in saidas],
-        'fonte': reais.get('estado') or {},
+        'esteira': esteira,
+        'levas': levas,
+        'maquina': maquina,
+        'saidas': [{'titulo': s.get('titulo') or 'Publicação',
+                    'conta': s.get('conta') or '',
+                    'quando': (s.get('quando') or '')[:19],
+                    'estado': s.get('estado') or 'publicado'} for s in saidas],
+        'fonte': {'fonte': est.get('fonte') or '', 'pronta': bool(est.get('pronta')),
+                  'motivo': est.get('motivo') or '', 'raiz': est.get('raiz') or '',
+                  'robo': est.get('robo') or '',
+                  'nome': ((drive.get('trilha') or [{}])[0] or {}).get('nome') or '',
+                  'pastas': fora},
+        'resumo': {
+            'acervo': acervo,
+            'prateleira': esteira['prateleira'],
+            'fila': esteira['programado'],
+            'publicados': esteira['publicado'],
+            'erro': esteira['erro'],
+            'levas': len(levas),
+            'vazias': sum(1 for x in levas if not x['total']),
+            'semdono': sum(1 for x in levas if not x['conta']),
+            'gasto': round((sum(x['publicados'] + x['programados'] for x in levas)
+                            / acervo) * 100) if acervo else 0,
+            'saiu90': saiu90, 'rodou': rodou, 'parada': parada, 'ultimo': ultimo,
+            'ritmo': round(saiu90 / 90.0, 2),
+            'foraligado': sum(1 for p in fora if not p['ligada']),
+        },
     }
 
 
@@ -277,9 +318,7 @@ def main():
         encoding='utf-8')
 
     molde = (AQUI / 'pagina.html').read_text(encoding='utf-8')
-    # SO' AS PROPOSTAS QUE EXISTEM. A rodada 3 comeca com uma tela so', fiel a'
-    # Sala De Controle; as variacoes entram depois, se ele pedir.
-    NOMES = {'a': 'A Sala', 'b': 'O Mural', 'c': 'O Mosaico'}
+    NOMES = {'a': 'A Esteira', 'b': 'O Tanque', 'c': 'A Sala De Máquinas'}
     letras = [x for x in ('a', 'b', 'c') if (AQUI / ('proposta-' + x + '.js')).exists()]
     for letra in letras:
         pagina = (molde.replace('{{LETRA}}', letra.upper())
@@ -300,9 +339,10 @@ def main():
         p = AQUI / nome
         print(nome.ljust(11), round(p.stat().st_size / 1024), 'KB')
     r = d['resumo']
-    print('contas', r['total'], '| de pé', r['total'] - r['caidas'],
-          '| fila', r['fila'], '| prateleira', r['prateleira'],
-          '| posts em 90 dias', r['posts90'], '| saídas', len(d['saidas']))
+    print('acervo', r['acervo'], '| prateleira', r['prateleira'], '| fila', r['fila'],
+          '| publicados', r['publicados'], '| erro', r['erro'],
+          '| levas', r['levas'], '| parada ha', r['parada'], 'dias',
+          '| saiu em 90', r['saiu90'])
 
 
 if __name__ == '__main__':

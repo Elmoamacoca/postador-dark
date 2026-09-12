@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Painel · Proposta A · A Esteira · Postador</title>
+<title>Painel · Proposta B · O Tanque · Postador</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet"
@@ -14,15 +14,43 @@
 <link rel="stylesheet" href="grafico.css">
 <link rel="stylesheet" href="comum.css">
 <style>
-/* ================================================ PROPOSTA A · A ESTEIRA
-   So' a grade. As pecas sao as da casa, e o desenho todo vem do ECharts. */
+/* ================================================== PROPOSTA B · O TANQUE
+   A grade e' de duas colunas desiguais no topo: o medidor manda, e a esteira em
+   pe' fica do lado como leitura de apoio. */
 
-/* o funil deitado precisa de mais folego que um grafico comum: sao quatro
-   trapezios lado a lado com rotulo embaixo */
-#pn-esteira { height: 202px }
+.pn-b-topo { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 16px }
+.pn-b-topo > .rs-cd { display: flex; flex-direction: column }
+.pn-b-topo > .rs-cd > .rs-cd-b { flex: 1; display: flex; flex-direction: column }
+
+/* o medidor grande: altura fixa, senao o canvas nasce com zero dentro do flex */
+.pn-b-med-g { width: 100%; height: 246px; margin: -8px 0 4px }
+.pn-b-num { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px }
+.pn-b-num .pn-p .rs-rot2 { display: flex; align-items: center; gap: 6px }
+.pn-b-num .pn-p .num { font-size: 17px }
+
+/* O FUNIL ESTICA ATE' O PE' DO CARTAO. Com altura fixa, ele terminava a meia
+   altura e sobrava um palmo de branco ao lado do medidor, que e' mais alto. */
+.pn-b-fun > .rs-cd-b { display: flex; flex-direction: column }
+.pn-b-fun > .rs-cd-b > div:first-child { flex: 1; display: flex;
+  flex-direction: column }
+.pn-b-fun .rs-fun { margin-top: 2px; flex: 1; display: flex; flex-direction: column }
+.pn-b-fun .rs-fun > div { flex: 1; display: flex; flex-direction: column }
+.pn-b-fun .rs-fun-r { height: auto; flex: 2; min-height: 42px }
+.pn-b-fun .rs-fun-q { height: auto; flex: 1; min-height: 26px }
+.pn-b-erro, .pn-b-ok { display: flex; align-items: center; gap: 8px; margin-top: 14px;
+  padding: 10px 12px; border-radius: 12px; font-size: 12.5px; font-weight: 600 }
+.pn-b-erro { background: var(--rs-neg-t); color: var(--rs-neg) }
+.pn-b-ok { background: var(--paper-2); color: var(--muted) }
+.pn-b-erro b, .pn-b-ok b { font-weight: 800 }
+
+.pn-b-arco { width: 100%; height: 172px }
+.pn-b-nota { font-size: 12.5px; color: var(--muted); text-align: center;
+  line-height: 1.5; margin-top: 6px }
+.pn-b-nota b { color: var(--ink); font-weight: 800 }
 
 @media (max-width: 1180px) {
-  #pn-esteira { height: 226px }
+  .pn-b-topo { grid-template-columns: 1fr }
 }
 
 </style>
@@ -80,7 +108,7 @@
   <div class="menu-pe">
     <div class="pe-linha">
       <span class="pp" style="font-weight:700;font-variant-numeric:tabular-nums">v3</span>
-      <span class="pe-rot">Proposta A · A Esteira</span>
+      <span class="pe-rot">Proposta B · O Tanque</span>
     </div>
     <div class="pe-linha">
       <svg class="tema-icone" viewBox="0 0 24 24" id="tema-icone">
@@ -109,12 +137,13 @@
 <script src="motor.js"></script>
 <script src="comum.js"></script>
 <script>
-/* ====================================================== PROPOSTA A · A ESTEIRA
-   A LEITURA E' HORIZONTAL: o video entra pela esquerda e sai publicado pela
-   direita. A peca de cima e' a propria esteira, deitada, e tudo o que vem abaixo
-   explica um pedaco dela: quanto material tem, quanto tempo dura, o que trava.
+/* ======================================================= PROPOSTA B · O TANQUE
+   A LEITURA E' DE VOLUME, e nao de caminho. A pergunta que esta tela responde
+   primeiro e' "quanto combustivel ainda tem, e ate' quando". Por isso a peca
+   maior e' o medidor de autonomia, e a esteira entra pequena, em pe', do lado.
 
-   NADA AQUI E' DE OUTRA ABA. Sem ficha de perfil, sem gantt, sem visualizacao.
+   A DIFERENCA PARA A PROPOSTA A nao e' de cor: e' de ordem. La' o caminho manda
+   e o volume explica; aqui o volume manda e o caminho explica.
    ========================================================================== */
 (function () {
   var S = window.SALA, M = window.MOTOR, P = window.PN;
@@ -138,97 +167,72 @@
     }).join('') + '</div>';
   }
 
-  /* ------------------------------------------------------------------ o topo */
   var topo = '<div class="rs-topo"><div>'
     + '<h1 class="pn-h1">Painel</h1>'
-    + '<p class="pn-sub">O caminho do vídeo, da pasta até o ar.</p></div>'
-    + '<div class="rs-dir">'
+    + '<p class="pn-sub">Quanto material tem no tanque, e até quando ele dura.</p>'
+    + '</div><div class="rs-dir">'
     + '<span class="rs-rot3" id="pn-lido"></span>'
     + '<button class="bt" id="pn-atualizar" type="button">'
     + M.ico('refresh-cw', 'xs') + 'Atualizar</button>'
     + '<button class="btn brasa" id="pn-programar" type="button">'
     + '<svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>'
     + '<span class="txt"><svg class="ag-selo" aria-hidden="true">'
-    + '<use href="#i-agenda"/></svg>Programar</span>'
-    + '<span class="circ"></span>'
+    + '<use href="#i-agenda"/></svg>Programar</span><span class="circ"></span>'
     + '<svg class="seta seta-dir" viewBox="0 0 24 24"><use href="#i-seta"/></svg>'
     + '</button></div></div>';
 
-  /* --------------------------------------------------------- os quatro numeros
-     SEM GRAFICO DENTRO DO CARTAO DE NUMERO. A minicurva de 92 por 30 so' aparece
-     onde existe serie de verdade; no resto, o cartao e' numero e pe'. */
-  var saidasDia = P.MAQUINA.map(function (d) { return d.saidas; });
-  var kpis = '<div class="rs-grade rs-g4">'
-    + S.kpi({ rot: 'Na Prateleira', ico: 'box', valor: S.fmt(E.prateleira || 0),
-        pe: R.levas + (R.levas === 1 ? ' leva ligada' : ' levas ligadas'),
-        cor: S.corVar(1) })
-    + S.kpi({ rot: 'Na Fila', ico: 'calendar', valor: S.fmt(E.programado || 0),
-        pe: E.programado ? 'com hora marcada' : 'nada com hora marcada',
-        cor: S.corVar(2) })
-    + S.kpi({ rot: 'Saíram Em 90 Dias', ico: 'send', valor: S.fmt(R.saiu90 || 0),
-        pe: P.diasRodando(90) + ' dias com saída', serie: saidasDia,
-        cor: S.corVar(3) })
-    + S.kpi({ rot: 'Máquina Parada Há', ico: 'clock',
-        valor: R.parada ? S.fmt(R.parada) + ' dias' : '—',
-        pe: R.ultimo ? 'último vídeo ' + P.idade(R.ultimo) : 'nenhum vídeo saiu ainda',
-        cor: S.corVar(5) })
+  /* ------------------------------------------------- O TANQUE: a peca grande
+     Medidor gigante a' esquerda, e a' direita a esteira em pe', que e' a peca do
+     funil DA PROPRIA SALA (`S.funil`), com a queda entre estacoes e a marcacao
+     do gargalo. Nao e' o mesmo desenho da proposta A, que usa o funil deitado. */
+  var estacoes = P.estacoes();
+  var tanque = '<div class="pn-b-topo">'
+    + '<div class="rs-cd pn-b-med"><div class="rs-cd-h"><h3>O Tanque</h3>'
+    + '<div class="rs-dir">'
+    + seg('pn-ritmo', P.RITMOS.map(function (r) { return [r, r + '/dia']; }), ritmo)
+    + '</div></div><div class="rs-cd-b">'
+    + '<div class="pn-b-med-g" id="pn-medidor"></div>'
+    + '<div class="pn-b-num" id="pn-num"></div></div></div>'
+    + cartao('Onde O Vídeo Está',
+        '<span class="rs-rot3">' + S.fmt(R.acervo) + ' no livro</span>',
+        '<div id="pn-funil"></div>', 'pn-b-fun')
     + '</div>';
 
-  /* ------------------------------------------------------- a esteira, deitada */
-  var estacoes = P.estacoes();
-  var esteira = cartao('A Esteira',
-    '<span class="rs-rot3">' + S.fmt(R.acervo) + ' vídeos no livro-caixa</span>',
-    '<div class="rs-ec baixo" id="pn-esteira"></div>'
-    + '<div class="rs-ec-leg">' + estacoes.map(function (e) {
-      return '<span><i style="background:' + e.cor + '"></i>' + e.rotulo + '</span>';
-    }).join('')
-    + (E.erro ? '<span style="color:var(--rs-neg)"><i style="background:'
-        + 'var(--rs-neg)"></i>' + S.fmt(E.erro) + ' caíram fora com erro</span>' : '')
-    + '<span style="margin-left:auto;color:var(--soft)">'
-    + (E.programado || E.publicado
-        ? S.pct(R.gasto) + ' do acervo já andou'
-        : 'a esteira para na primeira estação') + '</span></div>');
-
-  /* ------------------------------------------- quanto tempo o estoque dura */
-  var queima = cartao('Quanto Tempo O Estoque Dura',
-    seg('pn-ritmo', P.RITMOS.map(function (r) { return [r, r + '/dia']; }), ritmo),
+  /* -------------------------------------------------------- a curva de queima */
+  var queima = cartao('A Queima Do Estoque',
+    '<span class="rs-rot3">' + S.fmt(E.prateleira || 0)
+      + ' na prateleira hoje</span>',
     '<div class="rs-ec baixo" id="pn-queima"></div>'
-    + '<div class="rs-ec-leg" id="pn-queima-leg"></div>', 'estica');
+    + '<div class="rs-ec-leg" id="pn-queima-leg"></div>');
 
-  var medidor = cartao('Autonomia', '',
-    '<div class="pn-med" id="pn-medidor"></div>'
-    + '<div class="rs-g-tri pn-tri" id="pn-autonomia"></div>', 'estica');
+  /* -------------------------------------------------------------- as levas
+     Tres leituras do mesmo acervo, lado a lado: quanto cada leva pesa (rosca),
+     quanto de cada uma ja' foi gasto (barra) e o gasto do acervo inteiro (arco). */
+  var levas = P.levasOrdenadas();
+  var comMaterial = levas.filter(function (x) { return x.total; });
+  /* COM UMA LEVA SO', a rosca vira um anel inteiro de uma cor, que nao informa
+     nada. Ai' a leitura util e' outra: ha' quanto tempo cada caixa esta' ligada
+     sem andar. Material encalhado e' o defeito que esta tela existe para achar. */
+  var umaSo = comMaterial.length < 2;
+  var rosca = cartao(umaSo ? 'Há Quanto Tempo Está Ligada' : 'O Peso De Cada Leva',
+    umaSo ? '<span class="rs-rot3">em dias</span>' : '',
+    levas.length
+      ? '<div class="rs-ec rosca" id="pn-rosca"></div>'
+      : '<p class="rs-sem"><b>Nenhuma leva ligada</b>Ligue uma pasta para o '
+        + 'material entrar no livro.</p>');
 
-  /* ---------------------------------------------------------------- as caixas */
-  var pilha = P.pilhaDasLevas();
-  var altura = Math.max(160, pilha.linhas.length * 48 + 46);
-  var caixas = cartao('As Levas, Estado Por Estado',
-    '<span class="rs-rot3">' + S.pct(R.gasto) + ' do acervo já foi usado</span>',
-    pilha.linhas.length
-      ? '<div class="rs-ec" style="height:' + altura + 'px" id="pn-pilha"></div>'
-      : '<p class="rs-sem"><b>Nenhuma leva ligada</b>Ligue uma pasta na aba de '
-        + 'Mídia para o material entrar no livro-caixa.</p>');
+  var gasto = cartao('Quanto Já Foi Gasto', '',
+    '<div class="pn-b-arco" id="pn-arco"></div>'
+    + '<p class="pn-b-nota" id="pn-arco-nota"></p>');
 
-  /* O MAPA SO' VALE COM TRES OU MAIS CAIXAS. Com uma, o treemap vira um
-     retangulo ocupando o cartao inteiro, que nao diz nada: ai' a leitura certa
-     e' a lista com barra, que e' peca da Sala. */
-  var mat = P.material();
-  var fonte = cartao('O Material',
-    '<span class="rs-pil ' + (P.FONTE.pronta ? 'no' : 'bl') + '">'
-      + (P.FONTE.pronta ? 'Drive de pé' : 'Drive fora') + '</span>',
-    (!mat.length
-      ? '<p class="rs-sem"><b>Nada visível na fonte</b>'
-        + S.seguro(P.FONTE.motivo || 'A fonte respondeu sem pastas.') + '</p>'
-      : mat.length >= 3
-        ? '<div class="rs-ec baixo" id="pn-mapa"></div>'
-        : P.listaCaixas(mat))
-    + '<div class="rs-ec-leg"><span><i style="background:' + S.corVar(1)
-    + '"></i>Ligada no livro</span><span style="color:var(--soft)">'
-    + '<i class="pn-vaz"></i>Só no Drive</span>'
-    + '<span style="margin-left:auto;color:var(--soft)">'
-    + S.seguro(P.FONTE.raiz || '') + '</span></div>');
+  var consumo = cartao('Leva Por Leva', '',
+    levas.length
+      ? P.listaCaixas(levas.map(function (x) {
+          return { nome: x.nome, videos: x.total, ligada: true, conta: x.conta };
+        }))
+      : '<p class="rs-sem"><b>Sem material</b>Nada foi anotado no livro-caixa.</p>');
 
-  /* ---------------------------------------------------- a maquina e as travas */
+  /* ------------------------------------------------------------- a maquina */
   var maq = cartao('O Tempo De Máquina',
     seg('pn-janela', [[30, '30 dias'], [90, '90 dias']], janela),
     '<div class="rs-ec baixo" id="pn-maquina"></div>'
@@ -245,24 +249,44 @@
             + M.ico(t.ico, 's') + '</span><span class="c"><b>' + S.seguro(t.titulo)
             + '</b><span>' + S.seguro(t.desc) + '</span></span>'
             + '<span class="q"><button class="bt mini' + (t.grave ? ' forte' : '')
-            + '" type="button" data-trava="' + S.seguro(t.titulo) + '">' + t.botao
-            + '</button></span></div>';
+            + '" type="button">' + t.botao + '</button></span></div>';
         }).join('') + '</div>'
       : '<p class="rs-sem"><b>Nada trava a máquina</b>Tem material, tem fila e a '
-        + 'fonte responde. Quando algo emperrar, aparece aqui com o botão que '
-        + 'resolve.</p>', 'estica');
+        + 'fonte responde.</p>', 'estica');
 
-  palco.innerHTML = topo + kpis + esteira
-    + '<div class="rs-grade rs-g21">' + queima + medidor + '</div>'
-    + '<div class="rs-tit"><span class="rs-rot1">O Material</span>'
-    + '<span class="rs-rot3">' + S.fmt(R.acervo) + ' vídeos em ' + R.levas
-    + (R.levas === 1 ? ' leva' : ' levas') + '</span></div>'
-    + '<div class="rs-grade rs-g21">' + caixas + fonte + '</div>'
+  palco.innerHTML = topo + tanque + queima
+    + '<div class="rs-tit"><span class="rs-rot1">O Acervo</span>'
+    + '<span class="rs-rot3">' + R.levas + (R.levas === 1 ? ' leva ligada'
+        : ' levas ligadas') + ' · ' + S.pct(R.gasto) + ' usado</span></div>'
+    + '<div class="rs-grade rs-g3">' + rosca + gasto + consumo + '</div>'
     + '<div class="rs-grade rs-g21">' + maq + lista + '</div>';
 
-  /* -------------------------------------------------------------- desenhar */
-  function pintaEsteira() {
-    M.grafEsteira(document.getElementById('pn-esteira'), estacoes);
+  /* ------------------------------------------------------------------ pintar */
+  function pintaMedidor() {
+    var d = P.autonomia(ritmo) || 0, teto = P.tetoAutonomia();
+    M.grafMedidor(document.getElementById('pn-medidor'), {
+      valor: Math.min(d, teto), max: teto, passos: 4, cor: S.corVar(1),
+      rotulo: 'dias no ritmo de ' + ritmo + ' por dia',
+      texto: function (x) { return S.fmt(x); }
+    });
+    document.getElementById('pn-num').innerHTML =
+      [['Na Prateleira', S.fmt(E.prateleira || 0), 'box'],
+       ['Acaba Em', P.autonomia(ritmo) != null ? P.acaba(ritmo) : '—', 'clock'],
+       ['Ritmo Medido', (P.ritmoMedido() || 0).toLocaleString('pt-BR') + '/dia', 'zap'],
+       ['Parada Há', R.parada ? R.parada + ' dias' : '—', 'circle-slash']]
+      .map(function (x) {
+        return '<div class="pn-p"><span class="rs-rot2">' + M.ico(x[2], 'xs') + x[0]
+          + '</span><div class="num rs-tn">' + x[1] + '</div></div>';
+      }).join('');
+  }
+  function pintaFunil() {
+    document.getElementById('pn-funil').innerHTML =
+      S.funil(estacoes, S.corVar(1))
+      + (E.erro
+          ? '<div class="pn-b-erro">' + M.ico('triangle-alert', 'xs')
+            + '<b>' + S.fmt(E.erro) + '</b> caíram fora da esteira com erro</div>'
+          : '<div class="pn-b-ok">' + M.ico('disc', 'xs')
+            + 'Nenhum vídeo caiu fora da esteira</div>');
   }
   function pintaQueima() {
     M.grafQueima(document.getElementById('pn-queima'), E.prateleira || 0,
@@ -276,21 +300,27 @@
           + (d != null ? S.fmt(d) + (d === 1 ? ' dia' : ' dias') : '—') + '</span>';
       }).join('');
   }
-  function pintaMedidor() {
-    var d = P.autonomia(ritmo) || 0, teto = P.tetoAutonomia();
-    M.grafMedidor(document.getElementById('pn-medidor'), {
-      valor: Math.min(d, teto), max: teto, passos: 4, cor: S.corVar(1),
-      rotulo: 'dias de estoque',
-      texto: function (x) { return S.fmt(x); }
+  function pintaAcervo() {
+    if (levas.length) {
+      if (umaSo) {
+        S.grafBarraH(document.getElementById('pn-rosca'),
+          levas.map(function (x) { return [x.nome, x.dias]; }),
+          S.corVar(4), 'Dias Ligada');
+      } else {
+        S.grafRosca(document.getElementById('pn-rosca'),
+          comMaterial.slice(0, 5).map(function (x, i) {
+            return { nome: x.nome, valor: x.total, cor: S.corVar((i % 5) + 1) };
+          }));
+      }
+    }
+    M.grafArco(document.getElementById('pn-arco'), {
+      valor: R.gasto, max: 100, cor: S.corVar(3),
+      texto: function (x) { return Math.round(x) + '%'; }
     });
-    document.getElementById('pn-autonomia').innerHTML =
-      [['Ritmo Medido', (P.ritmoMedido() || 0).toLocaleString('pt-BR') + '/dia'],
-       ['Acaba Em', P.autonomia(ritmo) != null ? P.acaba(ritmo) : '—'],
-       ['Dias Rodando', P.diasRodando(90) + ' de 90']]
-      .map(function (x) {
-        return '<div class="pn-p"><span class="rs-rot2">' + x[0] + '</span>'
-          + '<div class="num rs-tn">' + x[1] + '</div></div>';
-      }).join('');
+    document.getElementById('pn-arco-nota').innerHTML =
+      R.gasto ? '<b>' + S.fmt(E.programado + E.publicado) + '</b> de '
+          + S.fmt(R.acervo) + ' vídeos já saíram da prateleira'
+        : 'Nenhum vídeo saiu da prateleira ainda. O acervo está inteiro.';
   }
   function pintaMaquina() {
     M.grafMaquina(document.getElementById('pn-maquina'), P.maquina(janela));
@@ -301,17 +331,10 @@
       + '<span style="margin-left:auto;color:var(--soft)">' + rodou + ' de ' + janela
       + (rodou === 1 ? ' dia com saída' : ' dias com saída') + '</span>';
   }
-  function pintaResto() {
-    if (pilha.linhas.length) {
-      M.grafPilha(document.getElementById('pn-pilha'), pilha.linhas, pilha.series);
-    }
-    if (mat.length >= 3) M.grafMapa(document.getElementById('pn-mapa'), mat);
-  }
 
-  pintaEsteira(); pintaQueima(); pintaMedidor(); pintaMaquina(); pintaResto();
+  pintaMedidor(); pintaFunil(); pintaQueima(); pintaAcervo(); pintaMaquina();
   S.ligarDicas(palco);
 
-  /* ------------------------------------------------------------ os controles */
   function ligarSeg(id, aoTrocar) {
     var cx = document.getElementById(id);
     if (!cx) return;
@@ -324,7 +347,7 @@
       aoTrocar(parseInt(b.dataset.v, 10));
     });
   }
-  ligarSeg('pn-ritmo', function (v) { ritmo = v; pintaQueima(); pintaMedidor(); });
+  ligarSeg('pn-ritmo', function (v) { ritmo = v; pintaMedidor(); pintaQueima(); });
   ligarSeg('pn-janela', function (v) { janela = v; pintaMaquina(); });
 
   var lido = document.getElementById('pn-lido');
@@ -335,8 +358,8 @@
   }
   carimbo();
   document.getElementById('pn-atualizar').addEventListener('click', function () {
-    carimbo(); pintaEsteira(); pintaQueima(); pintaMedidor(); pintaMaquina();
-    pintaResto();
+    carimbo(); pintaMedidor(); pintaFunil(); pintaQueima(); pintaAcervo();
+    pintaMaquina();
   });
 })();
 

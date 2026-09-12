@@ -1,20 +1,10 @@
-/* ================================================== PROPOSTA A · A SALA
-   Grade densa de cartoes, cada um com um desenho dentro. A leitura desce do que
-   aconteceu (faixa de quatro) para o ritmo, o acervo, o calendario e o ranking.
+/* ================================================ PROPOSTA A · A ESTEIRA
+   So' a grade. As pecas sao as da casa, e o desenho todo vem do ECharts. */
 
-   SO' GRADE. */
-
-.pn-a-faixa { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px }
-.pn-a-2 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px }
-.pn-a-3 { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px }
-.pn-a-2 > .rs-cd, .pn-a-3 > .rs-cd { display: flex; flex-direction: column }
-.pn-a-2 .rs-cd-b, .pn-a-3 .rs-cd-b { flex: 1 }
-
-/* o cartao pequeno da faixa: rotulo, numero e a curva ocupando o pe' */
-.pn-a-mini .rs-cd-b { padding-top: 2px }
-.pn-a-mini .pn-tit { margin-bottom: 8px }
+/* o funil deitado precisa de mais folego que um grafico comum: sao quatro
+   trapezios lado a lado com rotulo embaixo */
+#pn-esteira { height: 202px }
 
 @media (max-width: 1180px) {
-  .pn-a-faixa { grid-template-columns: repeat(2, minmax(0, 1fr)) }
-  .pn-a-2, .pn-a-3 { grid-template-columns: 1fr }
+  #pn-esteira { height: 226px }
 }

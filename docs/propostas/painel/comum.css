@@ -1,24 +1,42 @@
 /* ===================================== O COMPARTILHADO DAS PROPOSTAS DO PAINEL
-   Quase nada, e e' esse o ponto da rodada 3: a tela usa as pecas e as grades que
-   ja' existem (`.rs-grade`, `.rs-g4`, `.rs-g21`, `.rs-g3`, `.rs-cd`, `.rs-kpi`,
-   `.rs-tab`, `.rs-fita`, `.rs-hm`, `.rs-fun`), e os graficos sao os da Sala De
-   Controle, portados em `sala.js`. Aqui so' o que nao existia. */
+   POUCA COISA, e e' esse o ponto: a tela usa as grades e as pecas que ja'
+   existem (`.rs-grade`, `.rs-g4`, `.rs-g21`, `.rs-g3`, `.rs-cd`, `.rs-kpi`,
+   `.rs-fita`, `.rs-ev`, `.rs-fun`, `.rs-seg`, `.rs-tab`), e os graficos sao
+   ECharts (`sala.js` e `motor.js`). Aqui fica so' o que nao existia. */
 
 #pn-palco { display: flex; flex-direction: column; gap: 18px }
 
-/* o retrato dentro da tabela e da lista */
-.rs-li .lg img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px }
+/* ------------------------------------------------------------- o cabecalho */
+.pn-h1 { font-size: 25px; font-weight: 800; letter-spacing: -.03em; line-height: 1.12 }
+.pn-sub { font-size: 13.5px; color: var(--muted); font-weight: 600; margin-top: 5px }
 
-/* a fita desta tela carrega botao no lugar do horario, e botao precisa de ar */
-.rs-ev .q .bt { white-space: nowrap }
+/* ------------------------------------------------- o medidor e os tres pes
+   O medidor precisa de altura fixa: dentro de `flex:1` o canvas nasce com zero
+   e o ponteiro nao aparece. */
+.pn-med { width: 100%; height: 208px; margin-top: -6px }
+.pn-tri { display: flex; gap: 8px; margin-top: 2px }
+.pn-p { flex: 1; min-width: 0; padding: 10px 11px; background: var(--paper-2);
+  border-radius: 12px }
+.pn-p .num { font-size: 15px; font-weight: 800; letter-spacing: -.02em; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 
-/* a barra de rolagem da fita e' a fina da casa, como no painel lateral do
-   Analytics: sem isso ela sobe com a barra branca do sistema */
+/* caixa vazia continua na lista, e nao some: pasta ligada sem video e' trava */
+.rs-li.pn-zero .nm b, .rs-li.pn-zero .vl { color: var(--soft) }
+
+/* o quadradinho vazado da legenda: pasta que esta' na fonte e nao no livro */
+.pn-vaz { background: transparent !important; border: 1.5px solid var(--rs-1);
+  width: 11px !important; height: 11px !important; border-radius: 3px }
+
+/* ------------------------------------------------------------ a fita
+   A barra de rolagem e' a fina da casa, como no painel lateral do Analytics:
+   sem isso ela sobe com a barra branca do sistema. */
 .rs-fita { scrollbar-width: thin; scrollbar-color: var(--rule-solid) transparent }
 .rs-fita::-webkit-scrollbar { width: 10px }
 .rs-fita::-webkit-scrollbar-track { background: transparent }
 .rs-fita::-webkit-scrollbar-thumb { background: var(--rule-solid); border-radius: 999px;
   border: 2px solid transparent; background-clip: padding-box }
+/* a fita desta tela carrega botao no lugar do horario, e botao precisa de ar */
+.rs-ev .q .bt { white-space: nowrap }
+.rs-ev .c span { white-space: normal; line-height: 1.4 }
 
-/* o cabecalho da pagina segue o `.rs-topo` da sala; o botao da casa mora nele */
 .rs-topo .rs-dir { gap: 12px }

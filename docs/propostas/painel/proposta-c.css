@@ -1,0 +1,24 @@
+/* ========================================== PROPOSTA C · A SALA DE MÁQUINAS
+   A fileira de instrumentos e' o que muda aqui: seis cartoes estreitos, com o
+   arco no meio e o rotulo em cima. O resto da tela usa as grades da casa. */
+
+.pn-c-inst { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px }
+.pn-c-i { padding: 13px 12px 12px; display: flex; flex-direction: column;
+  align-items: stretch; text-align: center }
+.pn-c-i .cab { display: flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 26px }
+.pn-c-i .cab svg { color: var(--soft); flex: none }
+.pn-c-i .cab .rs-rot2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.pn-c-arco { width: 100%; height: 106px; margin: 2px 0 4px }
+.pn-c-i .pe { font-size: 11px; font-weight: 600; color: var(--muted); line-height: 1.35;
+  min-height: 30px }
+
+.pn-c-mapa { width: 100%; height: 288px }
+
+@media (max-width: 1320px) {
+  .pn-c-inst { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+}
+@media (max-width: 760px) {
+  .pn-c-inst { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
