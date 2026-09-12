@@ -46,6 +46,9 @@
     document.querySelectorAll('.pagina').forEach(function(p){
       p.classList.toggle('ativa', p.id === 'pag-' + nome);
     });
+    // A HOME REDIMENSIONA AO VOLTAR: enquanto ela esta' escondida a largura
+    // e' zero, e o ECharts nao redesenha sozinho quando a aba reaparece.
+    if (nome === 'painel' && window.abrirPainel) window.abrirPainel();
     if (nome === 'analytics' && window.abrirAnalytics) window.abrirAnalytics();
     if (nome === 'calendario' && window.abrirCalendario) window.abrirCalendario();
     if (nome === 'contas' && window.abrirContas) window.abrirContas();

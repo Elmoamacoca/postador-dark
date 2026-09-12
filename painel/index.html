@@ -148,91 +148,21 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
 <main class="palco">
 
   <!-- ----------------------------------------------------------- Painel -->
-  <section class="pagina ativa" id="pag-painel">
-    <div class="cab">
-      <div>
-        <h1>Painel</h1>
-        <p class="p" id="pn-dia">A rede de pé e a semana pela frente.</p>
-      </div>
-      <div class="dir">
-        <span class="pp" id="pn-lido"></span>
-        <button class="bt mini" id="pn-atualizar">Atualizar</button>
-        <button class="btn brasa" id="pn-programar" type="button">
-          <svg class="seta seta-esq" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
-          <span class="txt">
-            <svg class="ag-selo" aria-hidden="true"><use href="#i-agenda"/></svg>
-            Programar publicações</span>
-          <span class="circ"></span>
-          <svg class="seta seta-dir" viewBox="0 0 24 24"><use href="#i-seta"/></svg>
-        </button>
-      </div>
-    </div>
+  <!-- ===================================================== A ABA PAINEL · O QUADRO
+       APROVADA POR ELE EM 12/09/2026. A secao nasce vazia de proposito: a tela
+       inteira se monta em `codigo/05-home-5-tela.js` a partir de UMA leitura,
+       `/painel/home`. Marcacao fixa aqui obrigaria a manter a mesma tela escrita
+       em dois lugares, e foi assim que a home antiga envelheceu.
 
-    <!-- 1 ------------------- contas publicando e a semana, lado a lado -->
-    <div class="pn-grade">
-    <div class="cartao">
-      <div class="pn-cab-cartao">
-        <h3>Contas publicando</h3>
-        <div class="tela-tracker"><div class="pf-per" id="pn-per-rede"></div></div>
-      </div>
-      <div class="kpis" id="pn-kpis-rede">
-        <button type="button" class="kpi forte" data-f="publicando">
-          <span class="rot"><i style="background:var(--accent)"></i>Publicando</span>
-          <span class="val" id="pn-publicando">–</span>
-        </button>
-        <button type="button" class="kpi" data-f="paradas">
-          <span class="rot"><i style="background:var(--soft)"></i>Paradas</span>
-          <span class="val" id="pn-paradas">–</span>
-        </button>
-        <button type="button" class="kpi mau" data-f="caidas">
-          <span class="rot"><i style="background:var(--vermelho)"></i>Caídas</span>
-          <span class="val" id="pn-caidas">–</span>
-        </button>
-      </div>
-      <div class="tela-tracker pn-sem-abas" id="pn-cartao-rede"></div>
-    </div>
+       A CLASSE `rs` NAO E' ENFEITE: e' ela que carrega `--rs-1` ate'
+       `--rs-trilho`, nos dois temas, e sem ela o mapa de calor sai transparente.
 
-    <!-- ---------------------------------------------------------- a semana -->
-      <div class="cartao">
-        <div class="pn-cab-cartao">
-          <h3>A semana</h3>
-          <div class="tela-tracker"><div class="pf-per" id="pn-per-semana"></div></div>
-        </div>
-        <div class="kpis" id="pn-kpis-semana">
-          <button type="button" class="kpi forte" data-f="programados">
-            <span class="rot"><i style="background:var(--accent)"></i>Programados</span>
-            <span class="val" id="pn-programados">–</span>
-          </button>
-          <button type="button" class="kpi" data-f="hoje">
-            <span class="rot"><i style="background:var(--paper-2);
-              box-shadow:inset 0 0 0 1px var(--rule-solid)"></i>Já saíram hoje</span>
-            <span class="val" id="pn-hoje">–</span>
-          </button>
-          <button type="button" class="kpi" data-f="media">
-            <span class="rot">Média por dia</span>
-            <span class="val" id="pn-media">–</span>
-          </button>
-          <button type="button" class="kpi mau" data-f="secam">
-            <span class="rot"><i style="background:var(--vermelho)"></i>Contas que secam</span>
-            <span class="val" id="pn-secam">–</span>
-          </button>
-        </div>
-        <div class="tela-tracker pn-sem-abas" id="pn-cartao-semana"></div>
-      </div>
-    </div>
-
-    <!-- 2 -------------------------------------------------- precisa de você -->
-    <div class="secao">
-      <div class="cartao">
-        <div class="pn-cab-cartao">
-          <h3>Precisa de você</h3>
-          <span class="selo" id="pn-abertas">–</span>
-        </div>
-        <div id="pn-pendencias"></div>
-        <div class="pn-nota">Some da tela quando você resolve. Painel limpo é a rede
-          rodando sozinha.</div>
-      </div>
-    </div>
+       O TERRITORIO DESTA ABA: Calendario responde QUANDO sai, Analytics responde
+       COMO foi (uma conta por vez, em profundidade), Contas responde QUEM sao os
+       perfis. O Painel responde pela REDE INTEIRA, comparada perfil a perfil,
+       mais o material que ainda nao foi publicado. -->
+  <section class="pagina ativa rs" id="pag-painel">
+    <div id="pn-palco"></div>
   </section>
 
   <!-- ------------------------------------------------------ Programar publicações
@@ -451,6 +381,12 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
 
 </main>
 
+<!-- A DICA FLUTUANTE DOS GRAFICOS. Uma so' para a pagina inteira: o mapa de calor
+     e o funil desenham centenas de alvos, e um balao por alvo seriam centenas de
+     nos esperando um gesto que quase nunca vem. Mora no `body` para se posicionar
+     pela janela, e nao pelo cartao. -->
+<div class="rs-tip" id="rs-tip" role="status" aria-live="off"></div>
+
 <!-- O COMPARTILHADO CARREGA ANTES DE TODOS. Ele guarda o que mais de uma aba usa
      (seletor, paginacao, motor de grafico do tracker). Ja custou uma tela quebrada
      ter isso morando dentro da folha de uma aba. -->
@@ -482,17 +418,22 @@ d.setAttribute("data-menu",localStorage.getItem("pub-menu")||"fechado");})();</s
 <script src="codigo/04-janela-post.js"></script>
 
 
-<!-- ================================================================== PAINEL
-     A home. Tres secoes, uma embaixo da outra: quem esta' publicando, a semana, e o que
-     precisa de voce. Nada aqui e' lista congelada: tudo vem de `/painel/rede`.
+<!-- ============================================== A ABA PAINEL · O QUADRO
+     ECHARTS E A BIBLIOTECA DE GRAFICO DA CASA, a mesma da Sala De Controle do
+     portal. Grafico desenhado a mao em SVG foi reprovado em 27/08 e de novo em
+     11/09: dica ao passar o mouse, linha guia, escala, gradiente e animacao vem
+     da biblioteca, e nao se reescreve isso.
 
-     O DESENHO E' O MOTOR DO SOCIAL TRACKER (`window.montarGrafico`), o mesmo de
-     Seguidores, Engajamento e Ritmo, com a fileira de abas dele escondida. Quem manda no
-     que aparece e' a fileira de KPI: ela e' FILTRO, e nao rotulo. Clicar em "paradas"
-     desenha so' as contas paradas.
+     A ORDEM IMPORTA: as pecas (`sala`), os graficos proprios desta tela
+     (`motor`), o calculo (`dados`), os cartoes (`blocos`) e por fim a
+     composicao (`tela`). -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="codigo/05-home-1-sala.js"></script>
+<script src="codigo/05-home-2-motor.js"></script>
+<script src="codigo/05-home-3-dados.js"></script>
+<script src="codigo/05-home-4-blocos.js"></script>
+<script src="codigo/05-home-5-tela.js"></script>
 
-     CADA CONTA E' UMA LINHA (ou uma barra), com a logo dela dentro do desenho. -->
-<script src="codigo/05-painel.js"></script>
 
 <!-- ============================================ PROGRAMAR PUBLICACOES (motor)
      Um passo por vez, no meio da tela, sem menu. Cada passo grava o que foi escolhido

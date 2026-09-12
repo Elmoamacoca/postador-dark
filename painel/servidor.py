@@ -25,6 +25,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import contas
+import home
 import midia
 
 PORTA = int(sys.argv[1] if len(sys.argv) > 1 else os.environ.get("PAINEL_PORTA", 4173))
@@ -250,121 +251,10 @@ class SemCache(http.server.SimpleHTTPRequestHandler):
     #   quantas cairam              -> o livro-caixa (hoje ninguem grava queda: fica 0)
     # Onde a fonte nao existe, o valor sai zero e a tela diz o motivo. Nada e' inventado.
     def rede(self):
-        try:
-            d = _analytics()
-        except FileNotFoundError:
-            d = {}
-        perfis = d.get("perfis", [])
-        fundo = d.get("fundo") or {}
-        hoje = datetime.now(FUSO).date()
-
-        # 1. quem publicou em cada um dos ultimos 30 dias, conta a conta
-        #
-        # DUAS CONTAGENS, e as duas viajam: quantas CONTAS publicaram no dia (a soma da
-        # rede) e quantos POSTS cada conta fez naquele dia. Sem a segunda, o grafico
-        # dizia "uma conta publicou" sem dizer qual, que e' justamente o que se quer
-        # saber quando a rede tem dezenas de perfis.
-        por_dia = {}
-        posts_dia = {}
-        ultimo = {}
-        for arroba, bloco in fundo.items():
-            for post in bloco.get("posts", []):
-                q = (post.get("quando") or "")[:10]
-                if not q:
-                    continue
-                por_dia.setdefault(q, set()).add(arroba)
-                posts_dia.setdefault(q, {})
-                posts_dia[q][arroba] = posts_dia[q].get(arroba, 0) + 1
-                if q > ultimo.get(arroba, ""):
-                    ultimo[arroba] = q
-
-        # 2. o que o livro-caixa sabe: fila e erro por conta
-        fila, erros = {}, {}
-        pastas = 0
-        try:
-            con = midia.abrir()
-            for l in con.execute("SELECT conta, estado, COUNT(*) n FROM video "
-                                 "WHERE conta IS NOT NULL GROUP BY conta, estado"):
-                if l["estado"] == "erro":
-                    erros[l["conta"]] = l["n"]
-                elif l["estado"] in ("programado", "baixado"):
-                    fila[l["conta"]] = fila.get(l["conta"], 0) + l["n"]
-            pastas = con.execute("SELECT COUNT(*) n FROM pasta").fetchone()["n"]
-            quedas = {r["dia"]: r["caidas"] for r in con.execute(
-                "SELECT dia, caidas FROM pulso")}
-            con.close()
-        except Exception:
-            quedas = {}
-
-        contas = []
-        for perfil in perfis:
-            a = perfil.get("u")
-            ult = ultimo.get(a, "")
-            recente = bool(ult) and (hoje - datetime.strptime(ult, "%Y-%m-%d").date()).days <= 2
-            contas.append({
-                "arroba": a, "nome": perfil.get("nome") or "",
-                "avatar": perfil.get("avatar") or "",
-                "ligada": bool(perfil.get("ativa", True)),
-                "fila": fila.get(a, 0), "erros24h": erros.get(a, 0),
-                "ultimo": ult, "publicando": bool(fila.get(a) or recente),
-            })
-
-        resumo = {
-            "publicando": sum(1 for c in contas if c["publicando"]),
-            "paradas": sum(1 for c in contas if c["ligada"] and not c["publicando"]),
-            "caidas": sum(1 for c in contas if not c["ligada"]),
-            "total": len(contas), "pastas": pastas,
-        }
-
-        # 3. a serie de 30 dias, dia a dia, sem buraco
-        serie = []
-        for i in range(89, -1, -1):
-            dia = (hoje - timedelta(days=i)).isoformat()
-            publicando = len(por_dia.get(dia, ()))
-            do_dia = posts_dia.get(dia, {})
-            serie.append({"dia": dia, "publicando": publicando,
-                          "paradas": max(len(contas) - publicando, 0),
-                          "caidas": quedas.get(dia, 0),
-                          "contas": {c["arroba"]: do_dia.get(c["arroba"], 0)
-                                     for c in contas}})
-
-        # 4. os proximos sete dias: o que ja' saiu e o que esta' marcado
-        marcado, publicado, saidas_conta = {}, {}, {}
-        for arroba, bloco in fundo.items():
-            for post in bloco.get("posts", []):
-                q = (post.get("quando") or "")[:10]
-                publicado[q] = publicado.get(q, 0) + 1
-                saidas_conta.setdefault(q, {})
-                saidas_conta[q][arroba] = saidas_conta[q].get(arroba, 0) + 1
-        try:
-            con = midia.abrir()
-            for l in con.execute("SELECT quando, estado, conta FROM video "
-                                 "WHERE quando IS NOT NULL"):
-                q = (l["quando"] or "")[:10]
-                if l["estado"] == "publicado":
-                    publicado[q] = publicado.get(q, 0) + 1
-                else:
-                    marcado[q] = marcado.get(q, 0) + 1
-                if l["conta"]:
-                    saidas_conta.setdefault(q, {})
-                    saidas_conta[q][l["conta"]] = saidas_conta[q].get(l["conta"], 0) + 1
-            con.close()
-        except Exception:
-            pass
-        # A JANELA E' DE 14 DIAS, sete atras e sete a frente. So' com o futuro, uma
-        # agenda vazia desenhava um grafico sem nenhum ponto, e o eixo saia de -1 a 1.
-        # Com a semana que passou junto, o cartao mostra o ritmo que houve e o que esta'
-        # marcado, e as duas metades sao dado de verdade.
-        semana = []
-        for i in range(-30, 30):
-            dia = (hoje + timedelta(days=i)).isoformat()
-            do_dia = saidas_conta.get(dia, {})
-            semana.append({"dia": dia, "publicados": publicado.get(dia, 0),
-                           "programados": marcado.get(dia, 0),
-                           "contas": {c["arroba"]: do_dia.get(c["arroba"], 0)
-                                      for c in contas}})
-
-        return {"contas": contas, "resumo": resumo, "serie": serie, "semana": semana}
+        """A rede dia a dia. A REGRA MORA EM `home.py`: a aba Painel e a aba de
+        Programar leem a mesma coisa, e duas copias da mesma conta e' como uma
+        delas envelhece sem ninguem notar."""
+        return home.rede()
 
     def do_GET(self):
         p = urllib.parse.urlparse(self.path)
@@ -436,6 +326,18 @@ class SemCache(http.server.SimpleHTTPRequestHandler):
             return
         if rota == "painel/rede":
             return self.responder(self.rede())
+
+        # A ABA PAINEL INTEIRA, numa resposta so'. `drive=1` pede tambem a arvore
+        # do Drive, que custa uma ida ao Google: a tela pede sem ela na abertura e
+        # com ela quando alguem aperta Atualizar.
+        if rota == "painel/home":
+            q = urllib.parse.parse_qs(p.query)
+            try:
+                dias = int(q.get("dias", ["90"])[0])
+            except ValueError:
+                dias = 90
+            return self.responder(home.pacote(
+                ver_drive=q.get("drive", [""])[0] == "1", dias=dias))
 
         if rota == "calendario/saidas":
             # A AGENDA E' A SOMA DE DUAS COISAS, e as duas sao de verdade:

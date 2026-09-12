@@ -1,61 +1,133 @@
-/* GERADO PELO CORTE DO ARQUIVO UNICO (fase 2). A ORDEM DOS ARQUIVOS E LEI:
-   eles se concatenam na ordem numerica e reproduzem o estilo original. */
-/* ================================================================ ABA PAINEL
-   O molde e' o do Social Tracker (aba Analytics): cartao com titulo, fileira de
-   numeros por cima, desenho embaixo e a frase de leitura no rodape.
-   ATENCAO ao nome das classes: `.chave` ja' e' o interruptor de tema do rodape, de
-   34 por 19 pixels. Usar aquele nome aqui esmagava os numeros dentro do interruptor. */
-.cartao{background:var(--branco);border:1px solid var(--rule-solid);
-  border-radius:var(--r-md);padding:18px 20px;display:flex;flex-direction:column}
-.cartao .topo{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.cartao .topo h3{font-size:16px;font-weight:800;letter-spacing:-.3px;color:var(--ink)}
-.cartao .selo{font-size:11.5px;font-weight:600;color:var(--muted);
-  background:var(--paper-2);padding:4px 10px;border-radius:999px}
-.cartao .topo .dir{margin-left:auto;display:flex;gap:8px}
+/* =====================================================================
+   A ABA PAINEL · O QUADRO
 
-.kpis{display:flex;gap:0;border-bottom:1px solid var(--rule-solid);margin-bottom:16px;
-  flex-wrap:wrap}
-.kpi{padding:0 22px 11px 0;margin-right:22px;position:relative}
-.kpi .rot{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.kpi .rot i{width:8px;height:8px;border-radius:3px;flex:0 0 auto}
-.kpi .val{font-size:21px;font-weight:700;letter-spacing:-.7px;margin-top:7px;
-  font-variant-numeric:tabular-nums;color:var(--ink)}
-.kpi.forte::after{content:"";position:absolute;left:0;right:22px;bottom:-1px;height:2px;
-  background:var(--accent);border-radius:2px}
-.kpi.mau .val{color:var(--vermelho)}
+   GERADA A PARTIR DE `docs/propostas/painel/comum.css` e `proposta-c.css`, a
+   proposta que ele aprovou em 12/09/2026.
 
-.pn-nota{font-size:12px;color:var(--muted);margin-top:14px}
-.pn-grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;
-  align-items:stretch}
-@media(max-width:1000px){.pn-grade{grid-template-columns:1fr}}
-.pn-desenho{flex:1;min-height:0}
-.pn-desenho svg{width:100%;display:block}
-.pn-dias{display:flex;margin-top:8px}
-.pn-dias span{flex:1;text-align:center;font-size:11.5px;color:var(--muted)}
-.pn-dias span.hoje{color:var(--ink);font-weight:700}
+   POUCA COISA, e e' esse o ponto: a tela usa as grades e as pecas que ja'
+   existem no `04-analytics.css` (`.rs-grade`, `.rs-g4`, `.rs-g21`, `.rs-g3`,
+   `.rs-cd`, `.rs-kpi`, `.rs-tab`, `.rs-lista`, `.rs-fita`, `.rs-ev`, `.rs-fun`,
+   `.rs-seg`, `.rs-hm`), e os graficos sao ECharts. Aqui fica so' o que nao
+   existia.
 
-.pend{display:flex;align-items:center;gap:12px;padding:13px 0;
-  border-top:1px solid color-mix(in srgb,var(--rule-solid) 45%,transparent)}
-.pend:first-child{border-top:0}
-.pend .sinal{width:30px;height:30px;border-radius:9px;flex:0 0 auto;display:flex;
-  align-items:center;justify-content:center;
-  background:color-mix(in srgb,var(--vermelho) 12%,transparent);color:var(--vermelho)}
-.pend.morno .sinal{background:color-mix(in srgb,var(--ambar) 14%,transparent);
-  color:var(--ambar)}
-.pend .sinal svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;
-  stroke-linecap:round;stroke-linejoin:round}
-.pend .texto{min-width:0;flex:1}
-.pend .texto b{display:block;font-size:13.5px;font-weight:600;color:var(--ink)}
-.pend .texto span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
-.pend .dir{flex:0 0 auto}
-.pn-calmo{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:9px;padding:34px 16px;text-align:center;flex:1}
-.pn-calmo .marca{width:42px;height:42px;border-radius:999px;display:flex;
-  align-items:center;justify-content:center;color:var(--verde);
-  background:color-mix(in srgb,var(--verde) 13%,transparent)}
-.pn-calmo .marca svg{width:20px;height:20px;fill:none;stroke:currentColor;
-  stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.pn-calmo b{font-size:14.5px;font-weight:700;color:var(--ink)}
-.pn-calmo span{font-size:12.5px;color:var(--muted);max-width:360px}
+   A SECAO `#pag-painel` LEVA A CLASSE `rs`: e' ela que carrega `--rs-1` ate'
+   `--rs-trilho`, nos dois temas. Sem isso o mapa de calor sai transparente e o
+   trilho das barras some.
+   ===================================================================== */
 
+#pn-palco { display: flex; flex-direction: column; gap: 18px }
+
+/* ------------------------------------------------------------- o cabecalho */
+.pn-h1 { font-size: 25px; font-weight: 800; letter-spacing: -.03em; line-height: 1.12 }
+.pn-sub { font-size: 13.5px; color: var(--muted); font-weight: 600; margin-top: 5px }
+
+/* --------------------------------------------------------- a barra do filtro
+   ELA MANDA NA PAGINA INTEIRA, e nao num cartao so'. Por isso mora sozinha
+   embaixo do titulo, e nao espremida no canto direito do cabecalho. */
+.pn-barra { display: flex; align-items: center; gap: 10px; flex-wrap: wrap }
+.pn-filtro { flex-wrap: wrap }
+.pn-filtro button { display: inline-flex; align-items: center; gap: 7px }
+.pn-filtro button b { font-size: 10.5px; font-weight: 800; padding: 1px 6px;
+  border-radius: 99px; background: var(--paper-2); color: var(--soft);
+  font-variant-numeric: tabular-nums }
+.pn-filtro button.on b { background: var(--accent-tint); color: var(--link) }
+.pn-barra-n { font-size: 12px; font-weight: 700; color: var(--soft);
+  margin-left: auto }
+
+/* ------------------------------------------------------------- o retrato */
+.pn-rt { border-radius: 9px; object-fit: cover; flex: none; display: inline-block;
+  vertical-align: middle; margin-right: 9px; background: var(--paper-2) }
+.pn-rt.vaz { display: inline-grid; place-items: center; font-size: 11px;
+  font-weight: 800; color: var(--muted) }
+
+/* --------------------------------------------------------- o ultimo viral
+   Uma faixa so', em tres colunas: quem e', os numeros e a comparacao com a
+   mediana. O quadrado da esquerda e' o unico enfeite da tela, e ele tem
+   funcao: separar o destaque do resto da pagina. */
+/* A LARGURA QUE MANDA E' A DO CARTAO, e nao a da janela. Este mesmo bloco entra
+   numa faixa inteira na proposta A e num terco de grade na B: com `@media`, a
+   versao de tres colunas era aplicada nas duas e os numeros subiam por cima do
+   grafico. `@container` mede o cartao. */
+/* quem mede e' o CORPO do cartao: o elemento com `container-type` mede os
+   descendentes dele, e nunca a si mesmo */
+.rs-cd-b:has(> .pn-viral) { container-type: inline-size }
+.pn-viral { display: grid; gap: 14px }
+@container (min-width: 660px) {
+  .pn-viral { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.5fr)
+    minmax(0, 1fr); gap: 18px; align-items: center }
+}
+.pn-viral-c { display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+.pn-viral-q { width: 44px; height: 44px; border-radius: 14px; flex: none;
+  display: grid; place-items: center; background: var(--rs-1t); color: var(--rs-1) }
+.pn-viral-q svg { width: 22px; height: 22px }
+.pn-viral-t { flex: 1; min-width: 150px }
+.pn-viral-t b { display: block; font-size: 14px; font-weight: 800; line-height: 1.35 }
+.pn-viral-t span { display: block; font-size: 11.5px; color: var(--muted);
+  font-weight: 600; margin-top: 3px }
+.pn-viral-n { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px }
+.pn-viral-b { min-width: 0 }
+.pn-viral-b .rs-rot2 { display: block; margin-bottom: 2px }
+
+/* ------------------------------------------------- os numeros pequenos em caixa */
+.pn-tri { display: flex; gap: 8px; margin-top: 2px }
+.pn-p { flex: 1; min-width: 0; padding: 9px 11px; background: var(--paper-2);
+  border-radius: 12px }
+.pn-p .num { font-size: 15px; font-weight: 800; letter-spacing: -.02em; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+
+/* --------------------------------------------------------------- o medidor
+   Altura fixa: dentro de `flex:1` o canvas nasce com zero e o ponteiro nao
+   aparece nunca. */
+.pn-med { width: 100%; height: 208px; margin-top: -6px }
+.pn-c-mapa { width: 100%; height: 288px }
+.pn-rosca { position: relative }
+
+/* a nota curta embaixo de um grafico, quando ele precisa de uma frase */
+.pn-nota { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 8px }
+
+/* caixa vazia continua na lista, e nao some: pasta escolhida e sem video e' trava */
+.rs-li.pn-zero .nm b, .rs-li.pn-zero .vl { color: var(--soft) }
+
+/* o quadradinho vazado da legenda: pasta que esta' no Drive e nao no sistema */
+.pn-vaz { background: transparent !important; border: 1.5px solid var(--rs-1);
+  width: 11px !important; height: 11px !important; border-radius: 3px }
+
+/* ------------------------------------------------------------ a fita
+   A barra de rolagem e' a fina da casa, como no painel lateral do Analytics:
+   sem isso ela sobe com a barra branca do sistema. */
+.rs-fita { scrollbar-width: thin; scrollbar-color: var(--rule-solid) transparent }
+.rs-fita::-webkit-scrollbar { width: 10px }
+.rs-fita::-webkit-scrollbar-track { background: transparent }
+.rs-fita::-webkit-scrollbar-thumb { background: var(--rule-solid); border-radius: 999px;
+  border: 2px solid transparent; background-clip: padding-box }
+.rs-ev .q .bt { white-space: nowrap }
+.rs-ev .c span { white-space: normal; line-height: 1.4 }
+
+/* a tabela desta tela carrega retrato na primeira coluna */
+.rs-tab td.nm { display: flex; align-items: center }
+.rs-tab td.nm .tx { width: auto; max-width: 210px }
+.rs-tab td.nm small { color: var(--soft); font-weight: 600 }
+
+.rs-topo .rs-dir { gap: 12px }
+
+
+/* ----------------------------- a fileira de mostradores ------ */
+.pn-c-inst { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px }
+.pn-c-i { padding: 13px 12px 12px; display: flex; flex-direction: column;
+  align-items: stretch; text-align: center }
+.pn-c-i .cab { display: flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 26px }
+.pn-c-i .cab svg { color: var(--soft); flex: none }
+.pn-c-i .cab .rs-rot2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.pn-c-arco { width: 100%; height: 106px; margin: 2px 0 4px }
+.pn-c-i .pe { font-size: 11px; font-weight: 600; color: var(--muted); line-height: 1.35;
+  min-height: 30px }
+
+@media (max-width: 1320px) {
+  .pn-c-inst { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+}
+@media (max-width: 760px) {
+  .pn-c-inst { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
